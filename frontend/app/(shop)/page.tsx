@@ -52,7 +52,7 @@ export default async function HomePage() {
             <p className="text-3xl font-bold font-display">12K+</p>
             <p className="text-sm text-gray-300 font-body">Happy Customers</p>
           </div>
-          <div className="bg-black/90 backdrop-blur-md rounded-2xl p-4 text-black">
+          <div className="bg-[#84D347]/90 backdrop-blur-md rounded-2xl p-4 text-black">
             <p className="text-3xl font-bold font-display">500+</p>
             <p className="text-sm font-bold font-body">Products</p>
           </div>
@@ -60,7 +60,7 @@ export default async function HomePage() {
       </section>
 
       {/* === MARQUEE TICKER === */}
-      <div className="bg-black py-3 overflow-hidden">
+      <div className="bg-[#84D347] py-3 overflow-hidden">
         <div className="flex animate-marquee whitespace-nowrap">
           {[...marqueeItems, ...marqueeItems, ...marqueeItems].map((item, i) => (
             <span key={i} className="font-display font-bold text-black text-sm uppercase tracking-widest mx-8 flex items-center gap-3">
@@ -122,7 +122,7 @@ export default async function HomePage() {
               <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80" alt="Deal" className="absolute inset-0 w-full h-full object-cover opacity-30" />
               <div className="absolute inset-0 bg-gradient-to-br from-black via-black/70 to-transparent" />
               <div className="relative z-10">
-                <span className="bg-black text-black text-xs font-bold px-3 py-1.5 rounded-full inline-block mb-4">Deal of the Day</span>
+                <span className="bg-[#84D347] text-black text-xs font-bold px-3 py-1.5 rounded-full inline-block mb-4">Deal of the Day</span>
                 <h3 className="font-display text-3xl font-bold text-white mb-2">DR CRZ Varsity Jacket</h3>
                 <p className="font-body text-gray-300 text-sm mb-6">Limited stock. Up to 25% off premium outerwear.</p>
                 <Link href="/products/varsity-jacket" className="bg-white text-black font-bold rounded-full px-6 h-11 flex items-center w-fit gap-2 hover:scale-105 transition-transform font-body text-sm">
@@ -222,7 +222,7 @@ export default async function HomePage() {
                 placeholder="Enter your email address..."
                 className="flex-1 min-w-0 bg-white/5 border border-white/10 text-white placeholder:text-gray-500 rounded-2xl px-6 h-14 outline-none focus:border-[#84D347] focus:ring-1 focus:ring-[#84D347] transition-all font-body text-sm"
               />
-              <button className="bg-black text-black font-black rounded-2xl px-10 h-14 font-body text-sm hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap flex-shrink-0 shadow-[0_8px_30px_rgb(132,211,71,0.3)]">
+              <button className="bg-[#84D347] text-black font-black rounded-2xl px-10 h-14 font-body text-sm hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap flex-shrink-0 shadow-[0_8px_30px_rgb(132,211,71,0.3)]">
                 Subscribe
               </button>
             </div>

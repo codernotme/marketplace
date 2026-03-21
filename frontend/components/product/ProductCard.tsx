@@ -34,7 +34,7 @@ export const ProductCard = ({ product }: { product: any }) => {
         <img
           src={product.images[0]}
           alt={product.title}
-          className="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-500 p-3"
+          className="w-full h-full object-cover mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
       </Link>

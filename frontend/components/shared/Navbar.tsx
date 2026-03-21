@@ -29,7 +29,7 @@ export const Navbar = () => {
         <NavbarBrand>
           <Link href="/" className="font-display font-black text-2xl tracking-tighter text-black flex items-center gap-1.5">
             <div className="w-7 h-7 bg-black rounded flex items-center justify-center">
-              <span className="text-white text-lg font-bold">m</span>
+              <span className="text-white text-lg font-bold">tm.</span>
             </div>
             themrktplace
           </Link>

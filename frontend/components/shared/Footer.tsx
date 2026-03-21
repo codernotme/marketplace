@@ -6,9 +6,9 @@ export const Footer = () => {
         <footer className="w-full bg-black text-white pt-16 pb-8 px-6 mt-auto">
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                 <div className="col-span-1 md:col-span-2">
-                    <Link href="/" className="font-display font-bold text-3xl tracking-tight text-white flex items-center gap-2 mb-6">
-                        <div className="w-8 h-8 bg-[#84D347] rounded-lg flex items-center justify-center">
-                            <Icon icon="mdi:shopping" className="text-white text-xl" />
+                    <Link href="/" className="font-display font-bold text-2xl tracking-tighter text-white flex items-center gap-1.5">
+                        <div className="w-7 h-7 bg-white rounded flex items-center justify-center">
+                            <span className="text-black text-lg font-bold">tm.</span>
                         </div>
                         themrktplace
                     </Link>

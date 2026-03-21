@@ -7,12 +7,12 @@
 ## Phase 0 — Project Setup & Infrastructure
 
 ### Repository & Tooling
-- [ ] Create root workspace (monorepo or two sibling repos: `marketplace-web/`, `marketplace-api/`)
-- [ ] Initialize Next.js 15 project with App Router + TypeScript in `marketplace-web/`
+- [ ] Create root workspace (monorepo or two sibling repos: `frontend/`, `backend/`)
+- [ ] Initialize Next.js 15 project with App Router + TypeScript in `frontend/`
 - [ ] Install HeroUI v2 + configure `NextUIProvider` in `app/layout.tsx`
 - [ ] Configure Tailwind CSS with HeroUI theme tokens
 - [ ] Set up ESLint + Prettier for Next.js
-- [ ] Initialize FastAPI project with full modular folder structure in `marketplace-api/`
+- [ ] Initialize FastAPI project with full modular folder structure in `backend/`
 - [ ] Install core Python deps: `fastapi`, `uvicorn`, `motor`, `pydantic[email]`, `python-jose[cryptography]`, `passlib[bcrypt]`, `aioredis`, `arq`, `razorpay`, `anthropic`, `cloudinary`, `resend`
 - [ ] Set up Black + isort + Ruff for FastAPI
 - [ ] Initialize Git, configure `.gitignore` for both projects

@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Input, Button, Checkbox, Link as HeroLink } from '@/components/HeroUI';
+import { Input, Button, Checkbox } from '@/components/HeroUI';
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
 import { useAuthStore } from '@/store/auth.store';
@@ -39,24 +39,24 @@ export const LoginForm = () => {
   };
 
   const inputClassNames = {
-    label: "text-[11px] font-medium tracking-[0.15em] uppercase text-[--c-secondary] mb-1",
-    inputWrapper: "bg-white border border-[--c-border] rounded-xl hover:border-[--c-border-hover] focus-within:border-[--c-primary] focus-within:bg-white shadow-none transition-all duration-200 h-12",
-    input: "text-sm text-[--c-primary] placeholder:text-[--c-muted]",
-    errorMessage: "text-xs text-[--c-danger] mt-1",
+    label: "text-xs font-semibold text-gray-500 mb-1",
+    inputWrapper: "bg-[#F5F5F5] border-transparent rounded-xl focus-within:bg-[#EBEBEB] focus-within:border-black transition-all h-14 px-4",
+    input: "text-base text-black font-medium placeholder:text-gray-400",
+    errorMessage: "text-xs text-red-500 mt-1",
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-8 bg-white border border-[--c-border] rounded-2xl shadow-sm">
-      <div className="mb-8 text-center">
-        <h1 className="font-display text-3xl mb-2 text-[--c-primary]">Welcome Back</h1>
-        <p className="text-[--c-secondary] text-sm">Enter your details to access your account.</p>
+    <div className="w-full flex flex-col pt-8">
+      <div className="mb-8">
+        <h1 className="font-display text-4xl font-bold tracking-tight text-black mb-2">Welcome back</h1>
+        <p className="font-body text-gray-500 text-base">Please enter your details to log in.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <Input
           type="email"
-          label="Email Address"
-          placeholder="you@example.com"
+          label="Email"
+          placeholder="Enter email"
           labelPlacement="outside"
           isInvalid={!!errors.email}
           errorMessage={errors.email?.message}
@@ -67,40 +67,58 @@ export const LoginForm = () => {
         <Input
           type={showPassword ? "text" : "password"}
           label="Password"
-          placeholder="Min. 8 characters"
+          placeholder="Enter password"
           labelPlacement="outside"
           isInvalid={!!errors.password}
           errorMessage={errors.password?.message}
           classNames={inputClassNames}
           endContent={
-            <button type="button" onClick={() => setShowPassword(s => !s)} className="text-[--c-muted] hover:text-[--c-primary] transition-colors">
-              <Icon icon={showPassword ? "lucide:eye-off" : "lucide:eye"} className="text-lg" />
+            <button type="button" onClick={() => setShowPassword(s => !s)} className="text-gray-400 hover:text-black transition-colors">
+              <Icon icon={showPassword ? "lucide:eye-off" : "lucide:eye"} className="text-xl" />
             </button>
           }
           {...register('password')}
         />
 
-        <div className="flex items-center justify-between py-2">
-          <Checkbox size="sm" classNames={{ label: "text-sm text-[--c-secondary]", wrapper: "rounded-sm border-[--c-border-hover] data-[selected=true]:bg-[--c-primary] data-[selected=true]:border-[--c-primary]" }} {...register('remember')}>
+        <div className="flex items-center justify-between py-1">
+          <Checkbox size="sm" classNames={{ label: "text-sm font-medium text-gray-500", wrapper: "rounded-md" }} {...register('remember')}>
             Remember me
           </Checkbox>
-          <HeroLink as={Link} href="/forgot-password" size="sm" className="text-[--c-secondary] hover:text-[--c-primary]">
-            Forgot password?
-          </HeroLink>
+          <Link href="/forgot-password" className="text-sm font-semibold text-[#84D347] hover:underline">
+            Forgot your password?
+          </Link>
         </div>
 
         <Button
           type="submit"
           isLoading={isSubmitting}
-          className="w-full bg-[--c-primary] text-white rounded-full h-12 text-sm font-medium tracking-wide mt-4"
+          className="w-full bg-black text-white rounded-2xl h-14 text-lg font-bold mt-2 hover:scale-[1.02] transition-transform"
         >
-          {isSubmitting ? "Signing In..." : "Sign In"}
+          {isSubmitting ? "Logging In..." : "Log In"}
         </Button>
-
-        <div className="text-center text-sm text-[--c-secondary] mt-6">
-          Don't have an account? <HeroLink as={Link} href="/register" className="text-[--c-primary] font-medium ml-1">Sign up</HeroLink>
-        </div>
       </form>
+
+      <div className="flex items-center gap-4 my-8">
+        <hr className="flex-1 border-gray-200" />
+        <span className="font-body text-xs font-semibold uppercase text-gray-400">or continue with</span>
+        <hr className="flex-1 border-gray-200" />
+      </div>
+
+      <div className="flex justify-center gap-4 mb-10">
+        <button className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
+          <Icon icon="logos:google-icon" className="text-2xl" />
+        </button>
+        <button className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors">
+          <Icon icon="logos:facebook" className="text-2xl" />
+        </button>
+        <button className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors text-black">
+          <Icon icon="mdi:apple" className="text-3xl" />
+        </button>
+      </div>
+
+      <div className="text-center font-body text-sm font-medium text-gray-500">
+        Don&apos;t have an account? <Link href="/register" className="text-black font-bold ml-1 hover:underline">Sign Up</Link>
+      </div>
     </div>
   );
 };

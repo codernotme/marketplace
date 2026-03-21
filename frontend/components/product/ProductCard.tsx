@@ -1,3 +1,4 @@
+'use client';
 import { Button, Image } from '@/components/HeroUI';
 import { Icon } from '@iconify/react';
 import Link from 'next/link';
@@ -20,7 +21,7 @@ export const ProductCard = ({ product }: { product: any }) => {
         <Image
           src={product.images[0]}
           alt={product.title}
-          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 rounded-none mix-blend-multiply drop-shadow-sm p-4"
+          className="w-full h-full object-cover  rounded-none mix-blend-multiply drop-shadow-sm"
           removeWrapper
         />
       </Link>

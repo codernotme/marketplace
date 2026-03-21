@@ -15,32 +15,32 @@
 :root {
   /* ─── Core Neutrals ─── */
   --c-white:        #FFFFFF;
-  --c-off-white:    #F8F8F6;   /* page background */
-  --c-surface:      #F2F2F0;   /* card bg, input fills, skeleton */
-  --c-border:       #E8E8E4;   /* all default borders */
-  --c-border-hover: #C8C8C2;   /* border on hover / focus */
-  --c-muted:        #9A9A94;   /* placeholder, icon, meta text */
-  --c-secondary:    #5A5A54;   /* secondary body text */
-  --c-primary:      #1A1A18;   /* headings, primary text, CTAs */
-  --c-black:        #0D0D0B;   /* darkest — used sparingly */
+  --c-off-white:    #FAFAFA;   /* very light page background */
+  --c-surface:      #F5F5F5;   /* card bg, input fills, skeleton */
+  --c-border:       #EAEAEA;   /* all default borders */
+  --c-border-hover: #D1D1D1;   /* border on hover / focus */
+  --c-muted:        #A3A3A3;   /* placeholder, icon, meta text */
+  --c-secondary:    #525252;   /* secondary body text */
+  --c-primary:      #000000;   /* headings, primary text, CTAs */
+  --c-black:        #000000;   /* darkest — used sparingly */
 
   /* ─── Accents ─── */
-  --c-warm-gold:    #C8A882;   /* sale badges, star ratings, warm highlights */
-  --c-success:      #4CAF82;   /* in-stock, success states */
-  --c-danger:       #E05C5C;   /* errors, out-of-stock, active wishlist */
-  --c-warning:      #F5A623;   /* low stock, warnings */
-  --c-info:         #5B9BD5;   /* info banners, links */
+  --c-warm-gold:    #FFB800;   /* sale badges, star ratings */
+  --c-success:      #84D347;   /* in-stock, success states, main accent */
+  --c-danger:       #FF4A4A;   /* errors, out-of-stock, active wishlist */
+  --c-warning:      #FFB800;   /* low stock, warnings */
+  --c-info:         #3B82F6;   /* info banners, links */
 
   /* ─── Semantic Aliases ─── */
-  --c-bg:           var(--c-off-white);
+  --c-bg:           var(--c-white);
   --c-fg:           var(--c-primary);
   --c-card:         var(--c-white);
   --c-input-bg:     var(--c-surface);
   --c-placeholder:  var(--c-muted);
 
-  --shadow-xs: 0 1px 2px rgba(26, 26, 24, 0.04);
-  --shadow-sm: 0 2px 8px rgba(26, 26, 24, 0.06);
-  --shadow-md: 0 4px 16px rgba(26, 26, 24, 0.08);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 32px rgba(26, 26, 24, 0.10);
   --shadow-xl: 0 16px 48px rgba(26, 26, 24, 0.14);
 

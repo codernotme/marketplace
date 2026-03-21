@@ -1,12 +1,54 @@
 @import "tailwindcss";
-
-@plugin '../hero.ts';
+@import "@heroui/styles"; 
+@plugin '../hero.mjs';
 
 @source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-    --font-sans: "font", sans-serif;
-    --font-mono: "monospace", monospace;
+    --font-display: var(--font-display);
+    --font-body: var(--font-body);
+    --font-mono: var(--font-mono);
+}
+
+:root {
+  /* ─── Core Neutrals ─── */
+  --c-white:        #FFFFFF;
+  --c-off-white:    #F8F8F6;   /* page background */
+  --c-surface:      #F2F2F0;   /* card bg, input fills, skeleton */
+  --c-border:       #E8E8E4;   /* all default borders */
+  --c-border-hover: #C8C8C2;   /* border on hover / focus */
+  --c-muted:        #9A9A94;   /* placeholder, icon, meta text */
+  --c-secondary:    #5A5A54;   /* secondary body text */
+  --c-primary:      #1A1A18;   /* headings, primary text, CTAs */
+  --c-black:        #0D0D0B;   /* darkest — used sparingly */
+
+  /* ─── Accents ─── */
+  --c-warm-gold:    #C8A882;   /* sale badges, star ratings, warm highlights */
+  --c-success:      #4CAF82;   /* in-stock, success states */
+  --c-danger:       #E05C5C;   /* errors, out-of-stock, active wishlist */
+  --c-warning:      #F5A623;   /* low stock, warnings */
+  --c-info:         #5B9BD5;   /* info banners, links */
+
+  /* ─── Semantic Aliases ─── */
+  --c-bg:           var(--c-off-white);
+  --c-fg:           var(--c-primary);
+  --c-card:         var(--c-white);
+  --c-input-bg:     var(--c-surface);
+  --c-placeholder:  var(--c-muted);
+
+  --shadow-xs: 0 1px 2px rgba(26, 26, 24, 0.04);
+  --shadow-sm: 0 2px 8px rgba(26, 26, 24, 0.06);
+  --shadow-md: 0 4px 16px rgba(26, 26, 24, 0.08);
+  --shadow-lg: 0 8px 32px rgba(26, 26, 24, 0.10);
+  --shadow-xl: 0 16px 48px rgba(26, 26, 24, 0.14);
+
+  --radius-xs:   4px;    /* status dots, micro tags */
+  --radius-sm:   8px;    /* small buttons, input addons */
+  --radius-md:   12px;   /* default cards, modals */
+  --radius-lg:   16px;   /* large cards, drawers */
+  --radius-xl:   20px;   /* image containers, hero cards */
+  --radius-2xl:  28px;   /* bottom sheets on mobile */
+  --radius-full: 9999px; /* pills, avatars, CTA buttons */
 }

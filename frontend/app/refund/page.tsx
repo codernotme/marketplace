@@ -103,7 +103,7 @@ export default function RefundPage() {
               <p className="font-display font-bold text-xl text-white mb-1">Need Help with a Return?</p>
               <p className="text-gray-400 text-sm">Our support team typically responds within 2 hours on business days.</p>
             </div>
-            <Link href="/contact" className="bg-[#84D347] text-black font-bold rounded-full px-7 h-11 inline-flex items-center gap-2 hover:scale-105 transition-transform flex-shrink-0">
+            <Link href="/contact" className="bg-black text-black font-bold rounded-full px-7 h-11 inline-flex items-center gap-2 hover:scale-105 transition-transform flex-shrink-0">
               <Icon icon="mdi:message-outline" /> Contact Support
             </Link>
           </div>

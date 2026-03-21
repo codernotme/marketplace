@@ -14,7 +14,7 @@ const mockUsers = [
 const roleChip: Record<string, string> = {
   Customer: 'bg-gray-100 text-gray-700',
   Vendor: 'bg-blue-50 text-blue-700',
-  Admin: 'bg-[#84D347]/20 text-[#4a8a1a]',
+  Admin: 'bg-black/20 text-[#4a8a1a]',
 };
 
 const statusChip: Record<string, string> = {

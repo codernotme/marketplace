@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react';
 import Link from 'next/link';
 
 const stats = [
-  { label: 'Total Revenue', value: '$12,840', trend: '+18%', icon: 'mdi:currency-usd', color: 'bg-[#84D347]', textColor: 'text-black' },
+  { label: 'Total Revenue', value: '$12,840', trend: '+18%', icon: 'mdi:currency-usd', color: 'bg-black', textColor: 'text-black' },
   { label: 'Total Orders', value: '284', trend: '+12%', icon: 'mdi:shopping-outline', color: 'bg-black', textColor: 'text-white' },
   { label: 'Products Listed', value: '47', trend: '+3', icon: 'mdi:package-variant-outline', color: 'bg-[#F5F5F5]', textColor: 'text-black' },
   { label: 'Avg. Rating', value: '4.8★', trend: 'Excellent', icon: 'mdi:star-outline', color: 'bg-[#F5F5F5]', textColor: 'text-black' },

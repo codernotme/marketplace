@@ -33,7 +33,7 @@ const adminLinks: NavLink[] = [
 
 const roleConfig = {
   customer: { links: userLinks, label: 'My Account', accent: 'text-black', avatarBg: 'bg-[#F5F5F5]' },
-  vendor: { links: vendorLinks, label: 'Vendor Portal', accent: 'text-[#84D347]', avatarBg: 'bg-[#84D347]/10' },
+  vendor: { links: vendorLinks, label: 'Vendor Portal', accent: 'text-[#84D347]', avatarBg: 'bg-black/10' },
   admin: { links: adminLinks, label: 'Admin', accent: 'text-amber-600', avatarBg: 'bg-amber-50' },
 };
 

@@ -94,7 +94,7 @@ export default function BlogPage() {
             <Link href={`/blog/${featuredPost.slug}`} className="group grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
               <div className="relative h-[340px] rounded-3xl overflow-hidden">
                 <img src={featuredPost.image} alt={featuredPost.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <span className="absolute top-4 left-4 bg-[#84D347] text-black text-xs font-bold px-3 py-1.5 rounded-full">Featured</span>
+                <span className="absolute top-4 left-4 bg-black text-black text-xs font-bold px-3 py-1.5 rounded-full">Featured</span>
               </div>
               <div>
                 <span className="font-body text-xs font-bold uppercase tracking-widest text-[#84D347] mb-3 block">{featuredPost.category}</span>
@@ -159,7 +159,7 @@ export default function BlogPage() {
             </div>
             <div className="flex w-full max-w-md gap-3">
               <input type="email" placeholder="Enter your email..." className="flex-1 bg-white/10 border border-white/20 text-white placeholder:text-gray-500 rounded-full px-6 h-12 outline-none focus:border-[#84D347] transition-colors font-body text-sm" />
-              <button className="bg-[#84D347] text-black font-bold rounded-full px-6 h-12 font-body text-sm hover:scale-105 transition-transform flex-shrink-0">
+              <button className="bg-black text-black font-bold rounded-full px-6 h-12 font-body text-sm hover:scale-105 transition-transform flex-shrink-0">
                 Subscribe
               </button>
             </div>

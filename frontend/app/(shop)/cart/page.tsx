@@ -70,7 +70,7 @@ export default function CartPage() {
                   <span className="font-display font-semibold text-lg text-black">Total</span>
                   <span className="font-display font-bold text-2xl text-black">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}</span>
                 </div>
-                <Button as={Link} href="/checkout" className="w-full bg-[#84D347] text-white rounded-full h-14 font-bold text-lg hover:scale-[1.02] shadow-sm transition-transform">
+                <Button as={Link} href="/checkout" className="w-full bg-black text-white rounded-full h-14 font-bold text-lg hover:scale-[1.02] shadow-sm transition-transform">
                   Proceed to Checkout
                 </Button>
               </div>

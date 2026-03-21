@@ -115,7 +115,7 @@ export default function AboutPage() {
               <p className="font-body text-gray-400 text-sm">Explore thousands of curated products across all categories.</p>
             </div>
             <div className="flex gap-4 flex-shrink-0">
-              <Link href="/products" className="bg-[#84D347] text-black font-bold rounded-full px-8 h-14 flex items-center gap-2 font-body text-sm hover:scale-105 transition-transform">
+              <Link href="/products" className="bg-black text-black font-bold rounded-full px-8 h-14 flex items-center gap-2 font-body text-sm hover:scale-105 transition-transform">
                 Shop Now <Icon icon="lucide:arrow-right" />
               </Link>
               <Link href="/contact" className="border border-white/30 text-white font-bold rounded-full px-8 h-14 flex items-center font-body text-sm hover:bg-white/10 transition-colors">

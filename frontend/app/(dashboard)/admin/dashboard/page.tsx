@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react';
 import Link from 'next/link';
 
 const stats = [
-  { label: 'Total Revenue', value: '$284,920', trend: '+22%', icon: 'mdi:currency-usd', bg: 'bg-[#84D347]', text: 'text-black' },
+  { label: 'Total Revenue', value: '$284,920', trend: '+22%', icon: 'mdi:currency-usd', bg: 'bg-black', text: 'text-black' },
   { label: 'Active Users', value: '12,481', trend: '+8%', icon: 'mdi:account-group-outline', bg: 'bg-black', text: 'text-white' },
   { label: 'Total Orders', value: '4,892', trend: '+15%', icon: 'mdi:shopping-outline', bg: 'bg-[#F5F5F5]', text: 'text-black' },
   { label: 'Active Vendors', value: '147', trend: '+3', icon: 'mdi:storefront-outline', bg: 'bg-[#F5F5F5]', text: 'text-black' },
@@ -11,7 +11,7 @@ const stats = [
 const recentActivity = [
   { icon: 'mdi:account-plus-outline', text: 'New user registered', sub: 'Sofia Reyes joined the platform', time: '2m ago', color: 'bg-blue-50 text-blue-600' },
   { icon: 'mdi:storefront-outline', text: 'New vendor approved', sub: 'Terra Studio listed 12 products', time: '18m ago', color: 'bg-green-50 text-green-600' },
-  { icon: 'mdi:shopping-outline', text: 'Large order placed', sub: '#TMP-9021 — $828 total', time: '1h ago', color: 'bg-[#84D347]/20 text-[#5a9a2a]' },
+  { icon: 'mdi:shopping-outline', text: 'Large order placed', sub: '#TMP-9021 — $828 total', time: '1h ago', color: 'bg-black/20 text-[#5a9a2a]' },
   { icon: 'mdi:alert-circle-outline', text: 'Product flagged for review', sub: 'Possible price violation detected', time: '3h ago', color: 'bg-red-50 text-red-600' },
   { icon: 'mdi:account-off-outline', text: 'User account suspended', sub: 'Fraud prevention triggered', time: '5h ago', color: 'bg-amber-50 text-amber-600' },
 ];

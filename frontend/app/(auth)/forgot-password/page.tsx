@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
           </>
         ) : (
           <div className="text-center py-4">
-            <div className="w-20 h-20 bg-[#84D347]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-black/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <Icon icon="mdi:email-check-outline" className="text-4xl text-[#84D347]" />
             </div>
             <h2 className="font-display text-2xl font-bold text-black mb-2">Check your inbox!</h2>

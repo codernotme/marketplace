@@ -132,7 +132,7 @@ export const Navbar = () => {
           >
             <Icon icon="mdi:cart-outline" className="text-xl" />
             {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#84D347] text-black text-[9px] font-black rounded-full flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-black text-black text-[9px] font-black rounded-full flex items-center justify-center">
                 {itemCount}
               </span>
             )}

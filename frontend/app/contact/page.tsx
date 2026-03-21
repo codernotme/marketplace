@@ -70,7 +70,7 @@ export default function ContactPage() {
               </div>
             ))}
 
-            <div className="bg-[#84D347] rounded-3xl p-8 text-black">
+            <div className="bg-black rounded-3xl p-8 text-black">
               <h3 className="font-display font-bold text-xl mb-2">Live Chat Available</h3>
               <p className="font-body text-sm mb-4">Our support team is online and ready to help you right now.</p>
               <button className="bg-black text-white font-bold rounded-full px-6 h-11 font-body text-sm hover:scale-105 transition-transform flex items-center gap-2">

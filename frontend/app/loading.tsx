@@ -2,7 +2,7 @@ export default function Loading() {
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white overflow-hidden">
       {/* Background ambient glow */}
-      <div className="absolute w-[500px] h-[500px] bg-[#84D347]/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute w-[500px] h-[500px] bg-black/10 rounded-full blur-3xl animate-pulse" />
 
       {/* Animated logo mark */}
       <div className="relative flex items-center justify-center mb-8">
@@ -40,7 +40,7 @@ export default function Loading() {
 
       {/* Loading bar */}
       <div className="w-40 h-0.5 bg-[#F5F5F5] rounded-full overflow-hidden">
-        <div className="h-full bg-[#84D347] rounded-full animate-[loadingBar_1.5s_ease-in-out_infinite]" />
+        <div className="h-full bg-black rounded-full animate-[loadingBar_1.5s_ease-in-out_infinite]" />
       </div>
 
       <style>{`

@@ -100,7 +100,7 @@ export default function TermsPage() {
                 <h3 className="font-display font-bold text-white text-xl mb-1">Questions about these terms?</h3>
                 <p className="font-body text-gray-400 text-sm">Our legal team is happy to help.</p>
               </div>
-              <Link href="/contact" className="bg-[#84D347] text-black font-bold rounded-full px-6 h-11 flex items-center gap-2 font-body text-sm hover:scale-105 transition-transform flex-shrink-0">
+              <Link href="/contact" className="bg-black text-black font-bold rounded-full px-6 h-11 flex items-center gap-2 font-body text-sm hover:scale-105 transition-transform flex-shrink-0">
                 Contact Us <Icon icon="lucide:arrow-right" />
               </Link>
             </div>

@@ -7,8 +7,8 @@ export default function CheckoutSuccessPage() {
       <div className="max-w-lg w-full text-center">
         {/* Animated check circle */}
         <div className="relative mx-auto w-28 h-28 mb-8">
-          <div className="absolute inset-0 bg-[#84D347]/20 rounded-full animate-ping" />
-          <div className="relative w-28 h-28 bg-[#84D347] rounded-full flex items-center justify-center shadow-xl">
+          <div className="absolute inset-0 bg-black/20 rounded-full animate-ping" />
+          <div className="relative w-28 h-28 bg-black rounded-full flex items-center justify-center shadow-xl">
             <Icon icon="mdi:check-bold" className="text-5xl text-black" />
           </div>
         </div>

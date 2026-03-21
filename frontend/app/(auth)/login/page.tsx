@@ -19,8 +19,8 @@ export default function LoginPage() {
         
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#84D347] rounded-lg flex items-center justify-center">
-            <span className="text-black font-black text-lg">m</span>
+          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+            <span className="text-white font-black text-lg">tm.</span>
           </div>
           <span className="font-display font-black text-white text-xl tracking-tight">themrktplace</span>
         </div>
@@ -49,7 +49,7 @@ export default function LoginPage() {
         {/* Mobile Logo */}
         <div className="flex lg:hidden items-center gap-2 mb-10">
           <div className="w-7 h-7 bg-black rounded flex items-center justify-center">
-            <span className="text-white font-black">m</span>
+            <span className="text-white font-black">tm.</span>
           </div>
           <span className="font-display font-black text-black text-xl tracking-tight">themrktplace</span>
         </div>

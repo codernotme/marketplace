@@ -21,7 +21,7 @@ export default async function WishlistPage() {
           <div className="flex items-center gap-3">
             <span className="font-body text-sm text-gray-500 font-medium">{wishlistItems.length} items saved</span>
             {wishlistItems.length > 0 && (
-              <Link href="/products" className="bg-[#84D347] text-black font-bold rounded-full px-6 h-10 flex items-center gap-2 font-body text-sm hover:scale-105 transition-transform">
+              <Link href="/products" className="bg-black text-black font-bold rounded-full px-6 h-10 flex items-center gap-2 font-body text-sm hover:scale-105 transition-transform">
                 <Icon icon="mdi:cart-plus" /> Add All to Cart
               </Link>
             )}

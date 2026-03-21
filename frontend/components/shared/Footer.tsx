@@ -29,7 +29,7 @@ export const Footer = () => {
               <a
                 key={s.icon}
                 href={s.href}
-                className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#84D347] hover:text-black transition-all hover:scale-110"
+                className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-black hover:text-black transition-all hover:scale-110"
               >
                 <Icon icon={s.icon} className="text-base" />
               </a>
@@ -85,7 +85,7 @@ export const Footer = () => {
             placeholder="your@email.com"
             className="flex-1 sm:w-52 bg-white/10 border border-white/10 text-white placeholder:text-gray-600 rounded-full px-4 h-9 text-xs font-body outline-none focus:border-[#84D347] transition-colors"
           />
-          <button className="bg-[#84D347] text-black font-bold rounded-full px-5 h-9 text-xs font-body hover:scale-105 transition-transform flex-shrink-0">
+          <button className="bg-black text-black font-bold rounded-full px-5 h-9 text-xs font-body hover:scale-105 transition-transform flex-shrink-0">
             Subscribe
           </button>
         </div>

@@ -63,12 +63,9 @@ export default function LoginPage() {
           <p className="text-gray-500 font-body mb-8">Sign into your account to continue shopping.</p>
 
           {/* Social Sign-in */}
-          <div className="flex gap-3 mb-8">
-            <button className="flex-1 flex items-center justify-center gap-2 border-2 border-gray-100 rounded-xl h-12 font-semibold text-sm text-black hover:border-gray-300 transition-colors hover:bg-gray-50">
-              <Icon icon="mdi:google" className="text-xl text-red-500" /> Google
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 border-2 border-gray-100 rounded-xl h-12 font-semibold text-sm text-black hover:border-gray-300 transition-colors hover:bg-gray-50">
-              <Icon icon="mdi:apple" className="text-xl" /> Apple
+          <div className="mb-8">
+            <button className="w-full flex items-center justify-center gap-2 border-2 border-gray-100 rounded-xl h-12 font-semibold text-sm text-black hover:border-gray-300 transition-colors hover:bg-gray-50">
+              <Icon icon="mdi:google" className="text-xl text-red-500" /> Continue with Google
             </button>
           </div>
 
@@ -85,7 +82,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 placeholder="you@example.com"
-                className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-xl px-4 h-12 text-black font-body outline-none focus:border-black focus:bg-white transition-all text-sm"
+                className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-2xl px-5 h-12 text-black font-body outline-none focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-all text-sm"
               />
             </div>
             <div>
@@ -97,7 +94,7 @@ export default function LoginPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-xl px-4 h-12 text-black font-body outline-none focus:border-black focus:bg-white transition-all text-sm pr-12"
+                  className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-2xl px-5 h-12 text-black font-body outline-none focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-all text-sm pr-12"
                 />
                 <button
                   type="button"

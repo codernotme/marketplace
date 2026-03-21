@@ -210,17 +210,23 @@ export default async function HomePage() {
 
         {/* === NEWSLETTER SECTION === */}
         <section className="mb-24">
-          <div className="bg-black rounded-3xl p-12 md:p-16 flex flex-col md:flex-row items-center gap-8 justify-between">
-            <div className="max-w-lg">
-              <h2 className="font-display text-3xl font-bold text-white mb-3">Get Exclusive Offers First</h2>
-              <p className="font-body text-gray-400 text-sm">Subscribe to our insider list and get early access to deals, drops and new arrivals.</p>
+          <div className="bg-black rounded-3xl p-8 md:p-14 flex flex-col gap-8">
+            <div>
+              <p className="font-body font-bold text-xs uppercase tracking-widest text-[#84D347] mb-3">Insider Access</p>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-3">Get Exclusive Offers First</h2>
+              <p className="font-body text-gray-400 text-sm max-w-lg">Subscribe to our insider list and get early access to deals, drops and new arrivals.</p>
             </div>
-            <div className="flex w-full max-w-md gap-3">
-              <input type="email" placeholder="Enter your email..." className="flex-1 bg-white/10 border border-white/20 text-white placeholder:text-gray-500 rounded-full px-6 h-14 outline-none focus:border-[#84D347] transition-colors font-body text-sm" />
-              <button className="bg-[#84D347] text-black font-bold rounded-full px-8 h-14 font-body text-sm hover:scale-105 transition-transform flex-shrink-0">
+            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xl">
+              <input
+                type="email"
+                placeholder="Enter your email address..."
+                className="flex-1 min-w-0 bg-white/5 border border-white/10 text-white placeholder:text-gray-500 rounded-2xl px-6 h-14 outline-none focus:border-[#84D347] focus:ring-1 focus:ring-[#84D347] transition-all font-body text-sm"
+              />
+              <button className="bg-[#84D347] text-black font-black rounded-2xl px-10 h-14 font-body text-sm hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap flex-shrink-0 shadow-[0_8px_30px_rgb(132,211,71,0.3)]">
                 Subscribe
               </button>
             </div>
+            <p className="font-body text-xs text-gray-600">No spam, ever. Unsubscribe at any time.</p>
           </div>
         </section>
 

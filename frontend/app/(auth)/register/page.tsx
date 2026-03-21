@@ -66,12 +66,9 @@ export default function RegisterPage() {
           <p className="text-gray-500 font-body mb-8">Start your premium shopping experience today.</p>
 
           {/* Social Sign-up */}
-          <div className="flex gap-3 mb-8">
-            <button className="flex-1 flex items-center justify-center gap-2 border-2 border-gray-100 rounded-xl h-12 font-semibold text-sm text-black hover:border-gray-300 transition-colors hover:bg-gray-50">
-              <Icon icon="mdi:google" className="text-xl text-red-500" /> Google
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 border-2 border-gray-100 rounded-xl h-12 font-semibold text-sm text-black hover:border-gray-300 transition-colors hover:bg-gray-50">
-              <Icon icon="mdi:apple" className="text-xl" /> Apple
+          <div className="mb-8">
+            <button className="w-full flex items-center justify-center gap-2 border-2 border-gray-100 rounded-xl h-12 font-semibold text-sm text-black hover:border-gray-300 transition-colors hover:bg-gray-50">
+              <Icon icon="mdi:google" className="text-xl text-red-500" /> Sign up with Google
             </button>
           </div>
 
@@ -85,16 +82,16 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="font-semibold text-sm text-black block mb-2">First Name</label>
-                <input type="text" placeholder="Jane" className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-xl px-4 h-12 text-black outline-none focus:border-black focus:bg-white transition-all text-sm" />
+                <input type="text" placeholder="Jane" className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-2xl px-5 h-12 text-black outline-none focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-all text-sm" />
               </div>
               <div>
                 <label className="font-semibold text-sm text-black block mb-2">Last Name</label>
-                <input type="text" placeholder="Doe" className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-xl px-4 h-12 text-black outline-none focus:border-black focus:bg-white transition-all text-sm" />
+                <input type="text" placeholder="Doe" className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-2xl px-5 h-12 text-black outline-none focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-all text-sm" />
               </div>
             </div>
             <div>
               <label className="font-semibold text-sm text-black block mb-2">Email Address</label>
-              <input type="email" placeholder="you@example.com" className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-xl px-4 h-12 text-black outline-none focus:border-black focus:bg-white transition-all text-sm" />
+              <input type="email" placeholder="you@example.com" className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-2xl px-5 h-12 text-black outline-none focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-all text-sm" />
             </div>
             <div>
               <label className="font-semibold text-sm text-black block mb-2">Password</label>
@@ -102,7 +99,7 @@ export default function RegisterPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="At least 8 characters"
-                  className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-xl px-4 h-12 text-black outline-none focus:border-black focus:bg-white transition-all text-sm pr-12"
+                  className="w-full bg-[#F5F5F5] border-2 border-transparent rounded-2xl px-5 h-12 text-black outline-none focus:border-black focus:ring-1 focus:ring-black focus:bg-white transition-all text-sm pr-12"
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black">
                   <Icon icon={showPassword ? 'mdi:eye-off' : 'mdi:eye'} className="text-xl" />

@@ -1,208 +1,312 @@
 'use client';
-import { Navbar as HeroNavbar, NavbarBrand, NavbarContent, NavbarItem, Input, Badge, Button, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Avatar, NavbarMenuToggle, NavbarMenu, NavbarMenuItem } from "@/components/HeroUI";
-import { Icon } from '@iconify/react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Icon } from '@iconify/react';
 import { useCartStore } from '@/store/cart.store';
 import { useAuthStore } from '@/store/auth.store';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const categories = [
+  { label: 'All Products', href: '/products', icon: 'mdi:view-grid-outline' },
+  { label: 'Menswear', href: '/category/men', icon: 'mdi:tshirt-crew-outline' },
+  { label: 'Womenswear', href: '/category/women', icon: 'mdi:hanger' },
+  { label: 'Electronics', href: '/category/electronics', icon: 'mdi:laptop' },
+  { label: 'Footwear', href: '/category/footwear', icon: 'mdi:shoe-sneaker' },
+  { label: 'Home & Living', href: '/category/home', icon: 'mdi:home-outline' },
+];
+
+const navLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+];
 
 export const Navbar = () => {
+  const pathname = usePathname();
   const { itemCount, openDrawer } = useCartStore();
   const { isAuthenticated, user, logout } = useAuthStore();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [catOpen, setCatOpen] = useState(false);
 
-  const menuItems = [
-    { label: "Home", href: "/" },
-    { label: "Shop", href: "/products" },
-    { label: "Menswear", href: "/category/men" },
-    { label: "Womenswear", href: "/category/women" },
-    { label: "Electronics", href: "/category/electronics" }
-  ];
+  // Close mobile menu on route change
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
+
+  // Detect scroll for shadow
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', fn, { passive: true });
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+
+  // Prevent body scroll when mobile menu open
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
 
   return (
-    <HeroNavbar maxWidth="xl" className="border-b border-gray-100 bg-white h-20" position="sticky" onMenuOpenChange={setIsMenuOpen}>
-      <NavbarContent>
-        <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          className="sm:hidden"
-        />
-        <NavbarBrand>
-          <Link href="/" className="font-display font-black text-2xl tracking-tighter text-black flex items-center gap-1.5">
+    <>
+      {/* ===== NAVBAR ===== */}
+      <header className={`sticky top-0 z-50 bg-white font-body transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'border-b border-gray-100'}`}>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center gap-4">
+
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-7 h-7 bg-black rounded flex items-center justify-center">
-              <span className="text-white text-lg font-bold">tm.</span>
+              <span className="text-white font-black text-xs">tm.</span>
             </div>
-            themrktplace
+            <span className="font-display font-black text-lg tracking-tighter text-black">themrktplace</span>
           </Link>
-        </NavbarBrand>
-      </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex gap-8 w-full justify-center max-w-lg" justify="center">
-        <NavbarItem>
-            <Link href="/" className="font-body font-semibold text-sm text-gray-500 hover:text-black transition-colors">Home</Link>
-        </NavbarItem>
-        <Dropdown>
-          <NavbarItem>
-            <DropdownTrigger>
-              <Button
-                disableRipple
-                className="p-0 bg-transparent data-[hover=true]:bg-transparent font-body font-semibold text-sm text-gray-500 hover:text-black transition-colors"
-                endContent={<Icon icon="lucide:chevron-down" className="text-sm" />}
-                radius="sm"
-                variant="light"
-              >
-                Categories
-              </Button>
-            </DropdownTrigger>
-          </NavbarItem>
-          <DropdownMenu
-            aria-label="Shop categories"
-            className="w-[340px]"
-            itemClasses={{
-              base: "gap-4",
-            }}
-          >
-            <DropdownItem
-              key="all"
-              description="Browse the entire collection"
-              startContent={<Icon icon="lucide:layout-grid" className="text-xl text-[#84D347]" />}
-              href="/products"
-            >
-              All Products
-            </DropdownItem>
-            <DropdownItem
-              key="men"
-              description="Styles designed for men"
-              startContent={<Icon icon="lucide:shirt" className="text-xl text-[#84D347]" />}
-              href="/category/men"
-            >
-              Menswear
-            </DropdownItem>
-            <DropdownItem
-              key="women"
-              description="Styles designed for women"
-              startContent={<Icon icon="lucide:shopping-bag" className="text-xl text-[#84D347]" />}
-              href="/category/women"
-            >
-              Womenswear
-            </DropdownItem>
-            <DropdownItem
-              key="electronics"
-              description="Latest gadgets and accessories"
-              startContent={<Icon icon="lucide:laptop" className="text-xl text-[#84D347]" />}
-              href="/category/electronics"
-            >
-              Electronics
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-        <NavbarItem>
-            <Link href="/about" className="font-body font-semibold text-sm text-gray-500 hover:text-black transition-colors">About Us</Link>
-        </NavbarItem>
-        <NavbarItem>
-            <Link href="/contact" className="font-body font-semibold text-sm text-gray-500 hover:text-black transition-colors">Contact</Link>
-        </NavbarItem>
-      </NavbarContent>
-
-      <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex w-full max-w-[200px]">
-          <Input
-            classNames={{
-              base: "w-full",
-              mainWrapper: "h-10",
-              input: "text-sm text-black font-medium",
-              inputWrapper: "bg-[#F5F5F5] border-transparent hover:bg-[#EBEBEB] focus-within:bg-[#EBEBEB] focus-within:border-black transition-all rounded-full h-10 px-4"
-            }}
-            placeholder="Search..."
-            startContent={<Icon icon="lucide:search" className="text-gray-400 text-sm mr-1" />}
-            type="search"
-          />
-        </NavbarItem>
-
-        <NavbarItem className="hidden sm:flex">
-          <Button isIconOnly variant="light" aria-label="Wishlist" as={Link} href="/wishlist" className="rounded-full text-black hover:bg-[#F5F5F5]">
-            <Icon icon="mdi:heart-outline" className="text-xl" />
-          </Button>
-        </NavbarItem>
-        <NavbarItem>
-          <Badge content={itemCount} shape="circle" isInvisible={itemCount === 0} classNames={{ badge: "bg-[#84D347] text-white font-bold border-white" }}>
-            <Button isIconOnly variant="light" aria-label="Cart" onPress={openDrawer} className="rounded-full text-black hover:bg-[#F5F5F5]">
-              <Icon icon="mdi:cart-outline" className="text-xl" />
-            </Button>
-          </Badge>
-        </NavbarItem>
-
-        <NavbarItem className="hidden sm:flex">
-          {isAuthenticated ? (
-            <Dropdown placement="bottom-end">
-              <DropdownTrigger>
-                <Avatar
-                  isBordered
-                  as="button"
-                  className="transition-transform ring-black"
-                  color="default"
-                  size="sm"
-                  src={user?.avatar || "https://i.pravatar.cc/150?u=a042581f4e29026024d"}
-                />
-              </DropdownTrigger>
-              <DropdownMenu aria-label="Profile Actions" variant="flat">
-                <DropdownItem key="profile" className="h-14 gap-2 text-black">
-                  <p className="font-semibold text-xs text-gray-500">Signed in as</p>
-                  <p className="font-semibold">{user?.email}</p>
-                </DropdownItem>
-                <DropdownItem key="dashboard" href="/user/dashboard" className="text-black">Dashboard</DropdownItem>
-                <DropdownItem key="orders" href="/user/orders" className="text-black">My Orders</DropdownItem>
-                <DropdownItem key="wishlist" href="/wishlist" className="text-black">Wishlist</DropdownItem>
-                <DropdownItem key="logout" color="danger" onPress={logout} className="text-red-500 font-medium">
-                  Log Out
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          ) : (
-             <Button as={Link} href="/login" variant="solid" className="rounded-full bg-black text-white font-semibold text-sm px-6 h-10 hover:scale-105 transition-transform">
-               Login
-             </Button>
-          )}
-        </NavbarItem>
-      </NavbarContent>
-
-      <NavbarMenu className="pt-6 bg-white">
-        <Input
-          classNames={{
-            base: "w-full mb-6",
-            mainWrapper: "h-12",
-            input: "text-sm text-black font-medium",
-            inputWrapper: "bg-[#F5F5F5] border-transparent rounded-full h-12 px-6"
-          }}
-          placeholder="Search items..."
-          startContent={<Icon icon="lucide:search" className="text-gray-400 text-lg mr-2" />}
-          type="search"
-        />
-        {menuItems.map((item, index) => (
-          <NavbarMenuItem key={`${item.label}-${index}`}>
-            <Link
-              className="w-full font-display text-2xl font-semibold tracking-tight text-black hover:text-[#84D347] py-2 block transition-colors"
-              href={item.href}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {item.label}
+          {/* Desktop Nav Links */}
+          <nav className="hidden md:flex items-center gap-1 ml-6">
+            <Link href="/" className={`px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${pathname === '/' ? 'text-black' : 'text-gray-500 hover:text-black hover:bg-[#F5F5F5]'}`}>
+              Home
             </Link>
-          </NavbarMenuItem>
-        ))}
-        <div className="mt-auto pb-8 flex flex-col gap-4">
-          <Link href="/wishlist" className="flex items-center gap-3 font-body text-black text-lg font-medium p-2 rounded-xl hover:bg-[#F5F5F5]">
-             <Icon icon="mdi:heart-outline" className="text-2xl" /> My Wishlist
+
+            {/* Shop / Categories dropdown */}
+            <div className="relative" onMouseEnter={() => setCatOpen(true)} onMouseLeave={() => setCatOpen(false)}>
+              <button className={`flex items-center gap-1 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${pathname.startsWith('/products') || pathname.startsWith('/category') ? 'text-black' : 'text-gray-500 hover:text-black hover:bg-[#F5F5F5]'}`}>
+                Shop <Icon icon="lucide:chevron-down" className={`text-xs transition-transform ${catOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {catOpen && (
+                <div className="absolute top-full left-0 pt-2 z-50">
+                  <div className="bg-white border border-gray-100 rounded-2xl shadow-xl p-2 w-64 flex flex-col gap-0.5">
+                    {categories.map(cat => (
+                      <Link key={cat.href} href={cat.href} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F5F5F5] transition-colors group">
+                        <div className="w-8 h-8 bg-[#F5F5F5] rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-black group-hover:text-white transition-colors">
+                          <Icon icon={cat.icon} className="text-base" />
+                        </div>
+                        <span className="font-semibold text-sm text-black">{cat.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {navLinks.slice(1).map(link => (
+              <Link key={link.href} href={link.href} className={`px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${pathname === link.href ? 'text-black' : 'text-gray-500 hover:text-black hover:bg-[#F5F5F5]'}`}>
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Desktop Search */}
+          <div className="hidden lg:flex items-center">
+            {searchOpen ? (
+              <div className="flex items-center gap-2">
+                <input
+                  autoFocus
+                  type="search"
+                  placeholder="Search products..."
+                  className="bg-[#F5F5F5] rounded-full px-5 h-9 text-sm outline-none focus:ring-2 focus:ring-black w-56 transition-all font-body"
+                />
+                <button onClick={() => setSearchOpen(false)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#F5F5F5] text-gray-500">
+                  <Icon icon="mdi:close" />
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => setSearchOpen(true)} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F5] text-gray-600 hover:text-black transition-colors">
+                <Icon icon="mdi:magnify" className="text-xl" />
+              </button>
+            )}
+          </div>
+
+          {/* Wishlist (desktop) */}
+          <Link href="/wishlist" className="hidden md:flex w-9 h-9 rounded-full items-center justify-center hover:bg-[#F5F5F5] text-gray-600 hover:text-black transition-colors">
+            <Icon icon="mdi:heart-outline" className="text-xl" />
           </Link>
-          {!isAuthenticated ? (
-            <Button as={Link} href="/login" fullWidth className="bg-[#84D347] text-white font-bold h-14 rounded-2xl text-lg mt-4 shadow-md">
-              Log In / Sign Up
-            </Button>
+
+          {/* Cart */}
+          <button
+            onClick={openDrawer}
+            className="relative w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F5] text-gray-600 hover:text-black transition-colors"
+            aria-label="Cart"
+          >
+            <Icon icon="mdi:cart-outline" className="text-xl" />
+            {itemCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#84D347] text-black text-[9px] font-black rounded-full flex items-center justify-center">
+                {itemCount}
+              </span>
+            )}
+          </button>
+
+          {/* Auth (desktop) */}
+          {isAuthenticated ? (
+            <div className="hidden md:flex items-center gap-2 relative group">
+              <button className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 hover:bg-[#F5F5F5] transition-colors">
+                <img src={user?.avatar || 'https://i.pravatar.cc/40?img=47'} alt="Avatar" className="w-7 h-7 rounded-full object-cover" />
+                <span className="font-semibold text-sm text-black max-w-[80px] truncate">{user?.name?.split(' ')[0] || 'Account'}</span>
+                <Icon icon="lucide:chevron-down" className="text-xs text-gray-400" />
+              </button>
+              {/* Dropdown */}
+              <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                <div className="bg-white border border-gray-100 rounded-2xl shadow-xl p-2 w-48 flex flex-col gap-0.5">
+                  {[
+                    { label: 'My Orders', href: '/user/orders', icon: 'mdi:shopping-outline' },
+                    { label: 'Wishlist', href: '/wishlist', icon: 'mdi:heart-outline' },
+                    { label: 'Profile', href: '/user/profile', icon: 'mdi:account-outline' },
+                  ].map(item => (
+                    <Link key={item.href} href={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#F5F5F5] text-sm font-semibold text-black">
+                      <Icon icon={item.icon} className="text-base text-gray-500" /> {item.label}
+                    </Link>
+                  ))}
+                  <div className="border-t border-gray-100 mt-1 pt-1">
+                    <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 text-sm font-semibold text-red-500">
+                      <Icon icon="mdi:logout" className="text-base" /> Sign Out
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           ) : (
-            <Button variant="flat" fullWidth onPress={logout} className="bg-red-50 text-red-500 font-bold h-14 rounded-2xl text-lg mt-4">
-              Log Out
-            </Button>
+            <Link href="/login" className="hidden md:flex bg-black text-white font-bold text-sm rounded-full px-5 h-9 items-center hover:scale-105 transition-transform">
+              Sign In
+            </Link>
           )}
+
+          {/* Mobile Hamburger */}
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="md:hidden w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F5] transition-colors ml-1"
+            aria-label="Open menu"
+          >
+            <Icon icon="mdi:menu" className="text-2xl text-black" />
+          </button>
         </div>
-      </NavbarMenu>
-    </HeroNavbar>
+      </header>
+
+      {/* ===== MOBILE DRAWER ===== */}
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden ${mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        onClick={() => setMobileOpen(false)}
+      />
+
+      {/* Slide-in Panel */}
+      <div
+        className={`fixed top-0 right-0 h-full w-[85vw] max-w-sm z-[101] bg-white flex flex-col transition-transform duration-300 ease-in-out md:hidden ${mobileOpen ? 'translate-x-0' : 'translate-x-full'}`}
+      >
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-black rounded flex items-center justify-center">
+              <span className="text-white font-black text-xs">tm.</span>
+            </div>
+            <span className="font-display font-black text-lg tracking-tighter text-black">themrktplace</span>
+          </Link>
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="w-9 h-9 rounded-full bg-[#F5F5F5] flex items-center justify-center"
+          >
+            <Icon icon="mdi:close" className="text-xl text-black" />
+          </button>
+        </div>
+
+        {/* Search */}
+        <div className="px-5 pt-5">
+          <div className="relative">
+            <Icon icon="mdi:magnify" className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+            <input
+              type="search"
+              placeholder="Search products..."
+              className="w-full bg-[#F5F5F5] rounded-full pl-11 pr-4 h-11 text-sm font-body outline-none focus:ring-2 focus:ring-black transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Nav Links */}
+        <nav className="flex-1 overflow-y-auto px-4 pt-4">
+          {/* Main links */}
+          <div className="flex flex-col gap-0.5 mb-4">
+            {[{ label: 'Home', href: '/', icon: 'mdi:home-outline' }, ...navLinks.slice(1).map(l => ({ ...l, icon: l.label === 'Blog' ? 'mdi:newspaper-variant-outline' : l.label === 'About' ? 'mdi:information-outline' : 'mdi:phone-outline' }))].map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-3 px-4 h-12 rounded-xl font-semibold text-sm transition-colors ${pathname === link.href ? 'bg-black text-white' : 'text-black hover:bg-[#F5F5F5]'}`}
+              >
+                <Icon icon={link.icon} className="text-lg flex-shrink-0" />
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 mb-2">Shop by Category</div>
+
+          <div className="flex flex-col gap-0.5 mb-6">
+            {categories.map(cat => (
+              <Link
+                key={cat.href}
+                href={cat.href}
+                className={`flex items-center gap-3 px-4 h-11 rounded-xl font-semibold text-sm transition-colors ${pathname === cat.href ? 'bg-black text-white' : 'text-gray-700 hover:bg-[#F5F5F5]'}`}
+              >
+                <Icon icon={cat.icon} className="text-base text-[#84D347] flex-shrink-0" />
+                {cat.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* User links when auth */}
+          {isAuthenticated && (
+            <>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 mb-2">Account</div>
+              <div className="flex flex-col gap-0.5">
+                {[
+                  { label: 'My Orders', href: '/user/orders', icon: 'mdi:shopping-outline' },
+                  { label: 'Wishlist', href: '/wishlist', icon: 'mdi:heart-outline' },
+                  { label: 'Profile', href: '/user/profile', icon: 'mdi:account-outline' },
+                ].map(item => (
+                  <Link key={item.href} href={item.href} className="flex items-center gap-3 px-4 h-11 rounded-xl font-semibold text-sm text-gray-700 hover:bg-[#F5F5F5] transition-colors">
+                    <Icon icon={item.icon} className="text-base flex-shrink-0" /> {item.label}
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
+        </nav>
+
+        {/* Drawer Footer */}
+        <div className="p-5 border-t border-gray-100 flex flex-col gap-3">
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <img src={user?.avatar || 'https://i.pravatar.cc/40?img=47'} alt="User" className="w-10 h-10 rounded-full object-cover" />
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm text-black truncate">{user?.name || 'My Account'}</p>
+                <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+              </div>
+              <button onClick={logout} className="w-9 h-9 bg-red-50 rounded-full flex items-center justify-center text-red-500 flex-shrink-0">
+                <Icon icon="mdi:logout" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              <Link href="/login" className="flex-1 h-12 bg-black text-white font-bold rounded-xl flex items-center justify-center text-sm">
+                Sign In
+              </Link>
+              <Link href="/register" className="flex-1 h-12 border-2 border-gray-100 text-black font-bold rounded-xl flex items-center justify-center text-sm hover:border-black transition-colors">
+                Register
+              </Link>
+            </div>
+          )}
+          <div className="flex items-center gap-4 justify-center">
+            <Link href="/cart" className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-black transition-colors">
+              <Icon icon="mdi:cart-outline" /> Cart {itemCount > 0 && `(${itemCount})`}
+            </Link>
+            <span className="w-px h-4 bg-gray-200" />
+            <Link href="/terms" className="text-xs font-semibold text-gray-500 hover:text-black transition-colors">Terms</Link>
+            <span className="w-px h-4 bg-gray-200" />
+            <Link href="/contact" className="text-xs font-semibold text-gray-500 hover:text-black transition-colors">Help</Link>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };

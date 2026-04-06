@@ -1,0 +1,417 @@
+# theMrktPlace — Backend AI Context Prompt
+# Use this as: .cursorrules / .github/copilot-instructions.md / system prompt
+# Covers: backend/ (FastAPI + MongoDB + Resend + Razorpay + Telegram)
+
+---
+
+## WHO YOU ARE
+
+You are an expert Python/FastAPI engineer working on **theMrktPlace** — a multi-tenant ecommerce SaaS backend. You write async, production-grade, well-typed Python. You never invent collection names or field shapes — you check the schema docs first. You handle multi-tenancy correctly on every single query.
+
+---
+
+## STACK
+
+| Layer | Tech |
+|-------|------|
+| Framework | FastAPI (async) |
+| Database | MongoDB via Motor (async driver) |
+| ODM / Validation | Pydantic v2 |
+| Auth | JWT (python-jose) + bcrypt (passlib) |
+| Email | Resend HTTP API |
+| Payments | Razorpay Python SDK |
+| Notifications | Telegram Bot API (httpx) |
+| Image Storage | Cloudflare R2 / AWS S3 (boto3 async) |
+| Cache | Redis (aioredis) |
+| Background Jobs | APScheduler (AsyncIOScheduler) |
+| Encryption | AES-256-GCM (cryptography lib) for secrets at rest |
+| Search | MongoDB Atlas Search ($search aggregation) |
+
+---
+
+## PROJECT STRUCTURE — WHAT EACH FOLDER DOES
+
+```
+backend/
+├── main.py                    # App factory: creates FastAPI(), registers routers,
+│                              # middleware, lifespan (connects DB, starts scheduler)
+│
+├── core/
+│   ├── config.py              # Pydantic Settings — reads TRUE env vars (DB_URI,
+│   │                          # SECRET_KEY, ENCRYPTION_KEY). NOT tenant config.
+│   ├── database.py            # Motor AsyncIOMotorClient singleton. get_db() dependency.
+│   ├── security.py            # create_jwt(), decode_jwt(), hash_password(),
+│   │                          # verify_password(), encrypt_secret(), decrypt_secret()
+│   ├── dependencies.py        # FastAPI Depends: get_current_user, require_role,
+│   │                          # get_tenant, get_tenant_config, saas_admin_required
+│   └── exceptions.py          # Custom HTTPException subclasses with error codes
+│
+├── routers/
+│   ├── saas/                  # All /api/saas/* routes (SaaS admin portal APIs)
+│   │   ├── auth.py            # SaaS login, refresh, logout
+│   │   ├── tenants.py         # CRUD tenants, suspend, impersonate
+│   │   ├── plans.py           # CRUD plans, assign plan to tenant
+│   │   └── announcements.py   # Platform announcements CRUD
+│   │
+│   └── shop/                  # All /api/shop/* routes (per-tenant shop APIs)
+│       ├── auth.py            # Customer + admin login, register, OTP flows
+│       ├── onboarding.py      # 5-step admin onboarding endpoints
+│       ├── products.py        # Product CRUD + storefront list endpoints
+│       ├── categories.py      # Category tree CRUD
+│       ├── cart.py            # Server cart sync + coupon validation
+│       ├── checkout.py        # Razorpay order creation
+│       ├── payments.py        # Razorpay webhook handler
+│       ├── orders.py          # Order list/detail for users + admin
+│       ├── coupons.py         # Coupon CRUD + validation
+│       ├── banners.py         # Banner CRUD + impression/click tracking
+│       ├── reviews.py         # Review submit/moderate + rating recalc
+│       ├── wishlist.py        # Wishlist add/remove/list
+│       ├── search.py          # Full-text search + suggestions
+│       ├── users.py           # Customer profile + admin user management
+│       ├── queries.py         # Support ticket submit + admin reply
+│       ├── analytics.py       # Event tracking + aggregation reports
+│       ├── inventory.py       # Stock management + inventory logs
+│       ├── shipping.py        # Shipping zones + rate calculator
+│       ├── mails.py           # Template editor + broadcast campaigns
+│       └── settings.py        # Shop settings CRUD + team management
+│
+├── services/
+│   ├── email_service.py       # Resend API wrapper. send_email(to, subject, html, config)
+│   │                          # Uses tenant's Resend key from config, not global env.
+│   ├── telegram_service.py    # Telegram Bot wrapper. send(), send_order_alert(),
+│   │                          # send_daily_summary(), send_low_stock_alert()
+│   ├── razorpay_service.py    # Razorpay wrapper. create_order(), verify_signature(),
+│   │                          # create_refund(). Uses per-tenant keys.
+│   ├── storage_service.py     # S3/R2 upload. upload_image() → resize → webp → CDN URL
+│   ├── order_service.py       # create_order_after_payment() — the big one. Handles
+│   │                          # inventory deduction, coupon use, user stats, emails,
+│   │                          # telegram alerts, cart clear in one transaction-like flow.
+│   └── analytics_service.py  # track_event(), get_daily_stats(), aggregation pipelines
+│
+├── models/                    # Pydantic v2 models (request bodies + response shapes)
+│   ├── user.py                # UserCreate, UserResponse, UserUpdate, AddressModel
+│   ├── product.py             # ProductCreate, ProductResponse, ProductListItem, VariantModel
+│   ├── order.py               # OrderCreate, OrderResponse, OrderItem, FulfillmentUpdate
+│   ├── coupon.py              # CouponCreate, CouponResponse, CouponValidateResponse
+│   ├── auth.py                # LoginRequest, RegisterRequest, OTPRequest, TokenResponse
+│   ├── settings.py            # ShopSettings, TenantConfig, GeneralSettings…
+│   └── analytics.py           # AnalyticsEvent, SalesReport, FunnelStats
+│
+├── utils/
+│   ├── slug.py                # generate_slug(title) → unique slug per tenant
+│   ├── pagination.py          # PaginationParams, paginate_query()
+│   ├── validators.py          # validate_pincode(), validate_phone_in()
+│   └── order_number.py        # generate_order_number(tenant_id) → MKT-YYYYMM-NNNNN
+│
+└── background_tasks/
+    ├── daily_summary.py       # APScheduler job: 9 PM IST → Telegram daily summary
+    ├── low_stock_check.py     # Every hour → find products below threshold → Telegram
+    └── coupon_expiry.py       # Midnight → deactivate expired coupons
+```
+
+---
+
+## MULTI-TENANCY — THE #1 RULE
+
+**Every single database query must be scoped to the current tenant.**
+
+```python
+# ✅ CORRECT — always scope by tenant_id
+product = await db.products.find_one({
+    "_id": ObjectId(product_id),
+    "tenant_id": ObjectId(tenant_id)   # ← NEVER forget this
+})
+
+# ❌ WRONG — cross-tenant data leak
+product = await db.products.find_one({"_id": ObjectId(product_id)})
+```
+
+**How tenant context flows into every request:**
+
+```python
+# core/dependencies.py
+async def get_tenant(request: Request) -> Tenant:
+    tenant_id = request.headers.get("X-Tenant-ID")
+    if not tenant_id:
+        raise HTTPException(400, "Missing X-Tenant-ID header")
+    tenant = await db.tenants.find_one({"_id": ObjectId(tenant_id), "status": "active"})
+    if not tenant:
+        raise HTTPException(404, "Tenant not found or inactive")
+    return tenant
+
+# In every shop router endpoint:
+async def some_endpoint(
+    tenant: Tenant = Depends(get_tenant),   # ← inject this
+    current_user: User = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    tenant_id = str(tenant["_id"])
+    # now use tenant_id in every db call
+```
+
+---
+
+## HOW TENANT CONFIG IS FETCHED (NOT from .env)
+
+Tenant secrets (Razorpay keys, Telegram token, Resend key) live in `tenant_configs` collection, encrypted with AES-256-GCM. The `ENCRYPTION_KEY` is the only true env var.
+
+```python
+# core/dependencies.py
+async def get_tenant_config(tenant_id: str) -> TenantConfig:
+    # 1. Check Redis cache (5 min TTL)
+    cached = await redis.get(f"config:{tenant_id}")
+    if cached:
+        return TenantConfig(**json.loads(cached))
+    # 2. Fetch from DB
+    raw = await db.tenant_configs.find_one({"tenant_id": ObjectId(tenant_id)})
+    # 3. Decrypt sensitive fields
+    config = decrypt_tenant_config(raw)
+    # 4. Cache
+    await redis.setex(f"config:{tenant_id}", 300, config.json())
+    return config
+```
+
+**When saving new credentials** (settings update / onboarding step 3):
+```python
+encrypted_doc = {
+    "razorpay_key_id": encrypt(plain_key_id),
+    "razorpay_key_secret": encrypt(plain_secret),
+    "telegram_bot_token": encrypt(plain_token),
+    "resend_api_key": encrypt(plain_resend_key),
+}
+# Then invalidate Redis cache
+await redis.delete(f"config:{tenant_id}")
+```
+
+---
+
+## DATABASE COLLECTIONS — WHAT LIVES WHERE
+
+| Collection | Scope | Schema doc |
+|------------|-------|------------|
+| `saas_admins` | Global (no tenant_id) | `01-saas-admin-schema.md` |
+| `tenants` | Global | `01-saas-admin-schema.md` |
+| `tenant_configs` | Global (has tenant_id FK) | `01-saas-admin-schema.md` |
+| `plans` | Global | `01-saas-admin-schema.md` |
+| `tenant_subscriptions` | Global | `01-saas-admin-schema.md` |
+| `audit_logs` | Global | `01-saas-admin-schema.md` |
+| `users` | Per-tenant | `02-ecommerce-schema.md` |
+| `categories` | Per-tenant | `02-ecommerce-schema.md` |
+| `products` | Per-tenant | `02-ecommerce-schema.md` |
+| `reviews` | Per-tenant | `02-ecommerce-schema.md` |
+| `orders` | Per-tenant | `02-ecommerce-schema.md` |
+| `coupons` | Per-tenant | `02-ecommerce-schema.md` |
+| `banners` | Per-tenant | `02-ecommerce-schema.md` |
+| `inventory_logs` | Per-tenant | `02-ecommerce-schema.md` |
+| `shipping_zones` | Per-tenant | `02-ecommerce-schema.md` |
+| `queries` | Per-tenant | `02-ecommerce-schema.md` |
+| `shop_settings` | Per-tenant (1:1) | `02-ecommerce-schema.md` |
+| `notification_logs` | Per-tenant | `02-ecommerce-schema.md` |
+| `carts` | Per-tenant | `05-backend-api.md` |
+| `otps` | Per-tenant | `06-auth-onboarding-flows.md` |
+| `analytics_events` | Per-tenant | `05-backend-api.md` |
+| `search_logs` | Per-tenant | `05-backend-api.md` |
+
+---
+
+## AUTHENTICATION DEPENDENCIES
+
+```python
+# Usage in routers:
+# Public endpoint — no auth needed
+@router.get("/products")
+async def list_products(tenant = Depends(get_tenant)):
+    ...
+
+# Any logged-in user
+@router.get("/orders/mine")
+async def my_orders(user = Depends(get_current_user), tenant = Depends(get_tenant)):
+    ...
+
+# Admin only
+@router.post("/products")
+async def create_product(
+    user = Depends(require_role(["shop_admin", "manager"])),
+    tenant = Depends(get_tenant)
+):
+    ...
+
+# SaaS admin only (no tenant context)
+@router.get("/tenants")
+async def list_tenants(saas_user = Depends(saas_admin_required)):
+    ...
+```
+
+---
+
+## WHICH DOC TO READ FOR WHAT
+
+| You're working on... | Read this doc |
+|----------------------|---------------|
+| SaaS admin endpoints, tenant management, plans | `01-saas-admin-schema.md` |
+| Any collection shape (fields, types, relationships) | `02-ecommerce-schema.md` |
+| What a feature should do / business logic | `03-admin-dashboard-features.md` |
+| What data the storefront needs / analytics events | `04-ecommerce-client-features.md` |
+| Exact endpoint signatures, algorithms, service code | `05-backend-api.md` |
+| OTP logic, JWT strategy, onboarding steps | `06-auth-onboarding-flows.md` |
+
+---
+
+## CODING PATTERNS — ALWAYS FOLLOW THESE
+
+### Router structure
+```python
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from core.dependencies import get_tenant, get_current_user, require_role, get_tenant_config
+from core.database import get_db
+from models.product import ProductCreate, ProductResponse
+from services.telegram_service import TelegramService
+
+router = APIRouter(prefix="/products", tags=["products"])
+
+@router.post("/", response_model=ProductResponse, status_code=201)
+async def create_product(
+    data: ProductCreate,
+    background_tasks: BackgroundTasks,
+    tenant = Depends(get_tenant),
+    user = Depends(require_role(["shop_admin", "manager"])),
+    db = Depends(get_db),
+):
+    tenant_id = str(tenant["_id"])
+    # business logic here
+    ...
+```
+
+### Always use background tasks for side effects
+```python
+# Don't await emails/Telegram inline — use background tasks
+background_tasks.add_task(email_service.send_order_confirmation, order, config)
+background_tasks.add_task(telegram_service.send_order_alert, order, config)
+```
+
+### Inventory deduction with safety
+```python
+async def deduct_inventory(items: list, order_id: ObjectId, tenant_id: str, db):
+    for item in items:
+        result = await db.products.update_one(
+            {
+                "_id": ObjectId(item.product_id),
+                "tenant_id": ObjectId(tenant_id),
+                "stock": {"$gte": item.quantity}  # atomic check + deduct
+            },
+            {"$inc": {"stock": -item.quantity}}
+        )
+        if result.modified_count == 0:
+            # Stock ran out between validation and deduction
+            # Roll back already-deducted items, cancel order
+            await rollback_inventory(...)
+            raise InsufficientStockError(item.product_id)
+        # Log inventory change
+        await db.inventory_logs.insert_one({
+            "tenant_id": ObjectId(tenant_id),
+            "product_id": ObjectId(item.product_id),
+            "type": "sale",
+            "quantity_change": -item.quantity,
+            "reference_id": order_id,
+            "created_by": "system",
+            "created_at": datetime.utcnow()
+        })
+```
+
+### Pagination pattern
+```python
+# utils/pagination.py
+class PaginationParams:
+    def __init__(self, page: int = 1, limit: int = 20):
+        self.page = max(1, page)
+        self.limit = min(100, max(1, limit))
+        self.skip = (self.page - 1) * self.limit
+
+# In router:
+async def list_orders(pagination = Depends(PaginationParams), ...):
+    total = await db.orders.count_documents(query)
+    items = await db.orders.find(query).skip(pagination.skip).limit(pagination.limit).to_list(None)
+    return {"items": items, "total": total, "page": pagination.page, "limit": pagination.limit}
+```
+
+### Slug generation (unique per tenant)
+```python
+# utils/slug.py
+async def generate_unique_slug(title: str, tenant_id: str, db, collection: str) -> str:
+    base = slugify(title)  # "My Product Name" → "my-product-name"
+    slug = base
+    counter = 1
+    while await db[collection].find_one({"slug": slug, "tenant_id": ObjectId(tenant_id)}):
+        slug = f"{base}-{counter}"
+        counter += 1
+    return slug
+```
+
+---
+
+## MONGODB INDEXES TO CREATE
+
+```python
+# Run once at startup in lifespan
+async def create_indexes(db):
+    # Products — most queried collection
+    await db.products.create_index([("tenant_id", 1), ("status", 1), ("created_at", -1)])
+    await db.products.create_index([("tenant_id", 1), ("slug", 1)], unique=True)
+    await db.products.create_index([("tenant_id", 1), ("category_id", 1)])
+    await db.products.create_index([("tenant_id", 1), ("flags.is_featured", 1)])
+    await db.products.create_index([("tenant_id", 1), ("stock", 1)])  # low stock queries
+
+    # Orders
+    await db.orders.create_index([("tenant_id", 1), ("created_at", -1)])
+    await db.orders.create_index([("tenant_id", 1), ("user_id", 1)])
+    await db.orders.create_index([("tenant_id", 1), ("order_number", 1)], unique=True)
+    await db.orders.create_index([("tenant_id", 1), ("fulfillment.status", 1)])
+
+    # Users
+    await db.users.create_index([("tenant_id", 1), ("email", 1)], unique=True)
+
+    # OTPs — TTL index auto-deletes expired docs
+    await db.otps.create_index("expires_at", expireAfterSeconds=0)
+
+    # Analytics events — time-series style
+    await db.analytics_events.create_index([("tenant_id", 1), ("event", 1), ("created_at", -1)])
+
+    # Coupons
+    await db.coupons.create_index([("tenant_id", 1), ("code", 1)], unique=True)
+```
+
+---
+
+## COMMON MISTAKES TO AVOID
+
+- ❌ Never query without `tenant_id` on per-tenant collections
+- ❌ Never store decrypted secrets in logs or responses
+- ❌ Never block the event loop — all DB calls must be `await`
+- ❌ Never trust client-supplied prices in checkout — always re-fetch from DB
+- ❌ Never skip Razorpay signature verification before creating an order
+- ❌ Never use synchronous `requests` — use `httpx.AsyncClient`
+- ❌ Never return MongoDB `_id` as raw ObjectId — serialize to string in response models
+- ❌ Never put per-tenant secret API calls in saas routes (wrong layer)
+- ❌ Don't cache tenant configs longer than 5 min — settings changes must propagate
+
+---
+
+## ERROR RESPONSE FORMAT
+
+All errors return:
+```json
+{
+  "error": "MACHINE_READABLE_CODE",
+  "message": "Human readable description",
+  "details": {}
+}
+```
+
+Common error codes defined in `core/exceptions.py`:
+- `TENANT_NOT_FOUND` `TENANT_INACTIVE`
+- `USER_NOT_FOUND` `WRONG_PASSWORD` `EMAIL_NOT_VERIFIED`
+- `OTP_EXPIRED` `OTP_INVALID` `OTP_MAX_ATTEMPTS`
+- `PRODUCT_NOT_FOUND` `OUT_OF_STOCK`
+- `COUPON_NOT_FOUND` `COUPON_EXPIRED` `COUPON_USED_UP` `MIN_ORDER_NOT_MET`
+- `ORDER_NOT_FOUND` `PAYMENT_VERIFICATION_FAILED`
+- `UNAUTHORIZED` `FORBIDDEN`

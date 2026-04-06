@@ -202,7 +202,7 @@ function ChartTooltipContent({
           .map((item, index) => {
             const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
-            const indicatorColor = color ?? item.payload?.fill ?? item.color
+            const isActiveIndicator = indicator === "dot"
 
             return (
               <div
@@ -222,21 +222,15 @@ function ChartTooltipContent({
                       !hideIndicator && (
                         <div
                           className={cn(
-                            "shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
+                            "shrink-0 rounded-sm border-border bg-muted-foreground/60",
                             {
-                              "h-2.5 w-2.5": indicator === "dot",
+                              "h-2.5 w-2.5": isActiveIndicator,
                               "w-1": indicator === "line",
                               "w-0 border-[1.5px] border-dashed bg-transparent":
                                 indicator === "dashed",
                               "my-0.5": nestLabel && indicator === "dashed",
                             }
                           )}
-                          style={
-                            {
-                              "--color-bg": indicatorColor,
-                              "--color-border": indicatorColor,
-                            } as React.CSSProperties
-                          }
                         />
                       )
                     )}
@@ -312,12 +306,7 @@ function ChartLegendContent({
               {itemConfig?.icon && !hideIcon ? (
                 <itemConfig.icon />
               ) : (
-                <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
-                  style={{
-                    backgroundColor: item.color,
-                  }}
-                />
+                <div className="h-2 w-2 shrink-0 rounded-sm bg-muted-foreground/60" />
               )}
               {itemConfig?.label}
             </div>
@@ -371,3 +360,4 @@ export {
   ChartLegendContent,
   ChartStyle,
 }
+

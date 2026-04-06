@@ -12,6 +12,9 @@ function NativeSelect({
   size = "default",
   ...props
 }: NativeSelectProps) {
+  const generatedId = React.useId()
+  const selectId = props.id ?? `native-select-${generatedId}`
+
   return (
     <div
       className={cn(
@@ -21,11 +24,17 @@ function NativeSelect({
       data-slot="native-select-wrapper"
       data-size={size}
     >
+      <label htmlFor={selectId} className="sr-only">
+        Select option
+      </label>
       <select
+        {...props}
+        id={selectId}
         data-slot="native-select"
         data-size={size}
+        title="Select option"
+        aria-label="Select option"
         className="h-9 w-full min-w-0 appearance-none rounded-md border border-input bg-transparent py-1 pr-8 pl-2.5 text-sm shadow-xs transition-[color,box-shadow] outline-none select-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-[size=sm]:h-8 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40"
-        {...props}
       />
       <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 text-muted-foreground select-none" aria-hidden="true" data-slot="native-select-icon" />
     </div>
@@ -59,3 +68,4 @@ function NativeSelectOptGroup({
 }
 
 export { NativeSelect, NativeSelectOptGroup, NativeSelectOption }
+

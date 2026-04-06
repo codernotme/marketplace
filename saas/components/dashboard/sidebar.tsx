@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Settings, LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -16,11 +16,6 @@ const navItems = [
   { href: "/dashboard/audit-logs", label: "Audit Logs", icon: "FileText" },
 ];
 
-const iconMap: Record<string, JSX.Element> = {
-  BarChart3: <BarChart3 className="w-4 h-4" />,
-  Settings: <Settings className="w-4 h-4" />,
-};
-
 export function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -29,13 +24,13 @@ export function Sidebar() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-gray-900 text-white"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-gray-900 text-foreground"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
 
       <aside
-        className={`fixed left-0 top-0 h-full w-64 bg-gray-900 text-white transition-transform duration-200 z-40 ${
+        className={`fixed left-0 top-0 h-full w-64 bg-gray-900 text-foreground transition-transform duration-200 z-40 ${
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
@@ -54,8 +49,8 @@ export function Sidebar() {
                 onClick={() => setIsOpen(false)}
                 className={`block px-4 py-3 rounded-lg transition-colors ${
                   isActive
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                    ? "bg-blue-600 text-foreground"
+                    : "text-gray-400 hover:bg-gray-800 hover:text-foreground"
                 }`}
               >
                 <span className="text-sm font-medium">{item.label}</span>
@@ -67,10 +62,10 @@ export function Sidebar() {
         <div className="absolute bottom-6 left-4 right-4 space-y-2">
           <div className="px-4 py-3 bg-gray-800 rounded-lg text-xs">
             <p className="text-gray-400">Logged in as</p>
-            <p className="text-white font-medium">Alice Johnson</p>
+            <p className="text-foreground font-medium">Alice Johnson</p>
             <p className="text-gray-500">superadmin</p>
           </div>
-          <Button variant="outline" className="w-full justify-start text-gray-400 hover:text-white">
+          <Button variant="outline" className="w-full justify-start text-gray-400 hover:text-foreground">
             <LogOut className="w-4 h-4 mr-2" />
             Sign Out
           </Button>
@@ -81,3 +76,4 @@ export function Sidebar() {
     </>
   );
 }
+

@@ -60,7 +60,7 @@ export function TenantList() {
           />
         </div>
         
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? "all")}>
           <SelectTrigger className="w-full md:w-40">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -72,7 +72,7 @@ export function TenantList() {
           </SelectContent>
         </Select>
 
-        <Select value={planFilter} onValueChange={setPlanFilter}>
+        <Select value={planFilter} onValueChange={(value) => setPlanFilter(value ?? "all")}>
           <SelectTrigger className="w-full md:w-40">
             <SelectValue placeholder="Filter by plan" />
           </SelectTrigger>
@@ -156,3 +156,4 @@ export function TenantList() {
     </div>
   );
 }
+

@@ -38,27 +38,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background via-muted/30 to-background p-4">
       <div className="w-full max-w-md space-y-8">
         {/* Logo & Branding */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 mb-4">
-            <LogIn className="w-6 h-6 text-white" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-foreground text-background mb-4">
+            <LogIn className="w-6 h-6" />
           </div>
-          <h1 className="text-3xl font-bold text-white">theMrktPlace</h1>
-          <p className="text-slate-400">SaaS Admin Dashboard</p>
+          <h1 className="text-3xl font-bold text-foreground">theMrktPlace</h1>
+          <p className="text-muted-foreground">SaaS Admin Dashboard</p>
         </div>
 
         {/* Login Card */}
-        <Card className="border-slate-800 bg-slate-900 shadow-2xl">
+        <Card className="border-border bg-card shadow-2xl">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-white">Welcome back</CardTitle>
+            <CardTitle className="text-foreground">Welcome back</CardTitle>
             <CardDescription>Sign in to your admin account</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Error Alert */}
             {(localError || error) && (
-              <Alert variant="destructive" className="bg-red-900/20 border-red-700/50">
+              <Alert variant="destructive" className="bg-destructive/10 border-destructive/30">
                 <AlertCircle className="w-4 h-4" />
                 <AlertDescription>{localError || error}</AlertDescription>
               </Alert>
@@ -67,7 +67,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Field */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-200">
+                <Label htmlFor="email" className="text-foreground">
                   Email Address
                 </Label>
                 <Input
@@ -77,14 +77,14 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
-                  className="bg-slate-800 border-slate-700 text-white placeholder-slate-500"
+                  className="bg-muted border-border text-foreground placeholder-muted-foreground"
                 />
               </div>
 
               {/* Password Field */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-slate-200">
+                  <Label htmlFor="password" className="text-foreground">
                     Password
                   </Label>
                   <Link
@@ -101,7 +101,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
-                  className="bg-slate-800 border-slate-700 text-white placeholder-slate-500"
+                  className="bg-muted border-border text-foreground placeholder-muted-foreground"
                 />
               </div>
 
@@ -109,7 +109,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium h-10"
+                className="w-full bg-linear-to-r from-foreground to-muted-foreground hover:from-foreground/90 hover:to-muted-foreground/90 text-background font-medium h-10"
               >
                 {isLoading ? (
                   <>
@@ -126,9 +126,9 @@ export default function LoginPage() {
             </form>
 
             {/* Demo Credentials */}
-            <div className="border-t border-slate-800 pt-4">
-              <p className="text-xs text-slate-400 mb-2">Demo Credentials:</p>
-              <div className="bg-slate-800 rounded p-3 space-y-1 text-xs font-mono text-slate-300">
+            <div className="border-t border-border pt-4">
+              <p className="text-xs text-muted-foreground mb-2">Demo Credentials:</p>
+              <div className="bg-muted rounded p-3 space-y-1 text-xs font-mono text-muted-foreground">
                 <p>Email: admin@themrktplace.com</p>
                 <p>Password: demo123456</p>
               </div>
@@ -137,7 +137,7 @@ export default function LoginPage() {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-sm text-slate-400">
+        <p className="text-center text-sm text-muted-foreground">
           Need help?{" "}
           <a href="mailto:support@themrktplace.com" className="text-orange-500 hover:text-orange-400">
             Contact support
@@ -147,3 +147,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api";
 import { Tenant, TenantListResponse } from "@/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { Plus, Search, Filter, MoreVertical } from "lucide-react";
+import { Plus, Search, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,17 +37,18 @@ const statusColors: Record<string, string> = {
   pending: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
   active: "bg-green-500/20 text-green-400 border-green-500/30",
   suspended: "bg-red-500/20 text-red-400 border-red-500/30",
-  deleted: "bg-slate-500/20 text-slate-400 border-slate-500/30",
+  deleted: "bg-slate-500/20 text-muted-foreground border-slate-500/30",
 };
 
 const planColors: Record<string, string> = {
-  free: "bg-slate-600",
-  starter: "bg-blue-600",
-  pro: "bg-orange-600",
-  enterprise: "bg-purple-600",
+  free: "bg-muted text-muted-foreground",
+  starter: "bg-muted text-foreground",
+  pro: "bg-foreground text-background",
+  enterprise: "bg-muted text-foreground",
 };
 
 export default function TenantsPage() {
+  const router = useRouter();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -112,13 +114,13 @@ export default function TenantsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Tenants</h1>
-          <p className="text-slate-400 mt-1">Manage marketplace shops and vendors</p>
+          <h1 className="text-3xl font-bold text-foreground">Tenants</h1>
+          <p className="text-muted-foreground mt-1">Manage marketplace shops and vendors</p>
         </div>
         <Link href="/dashboard/tenants/create">
-          <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
+          <Button className="w-full sm:w-auto bg-linear-to-r from-foreground to-muted-foreground hover:from-foreground/90 hover:to-muted-foreground/90 text-background">
             <Plus className="mr-2 w-4 h-4" />
             Create Tenant
           </Button>
@@ -126,12 +128,12 @@ export default function TenantsPage() {
       </div>
 
       {/* Filters */}
-      <Card className="border-slate-800 bg-slate-900">
+      <Card className="border-border bg-card">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search by shop name or email..."
                 value={search}
@@ -139,19 +141,19 @@ export default function TenantsPage() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-slate-500"
+                className="pl-10 bg-muted border-border text-foreground placeholder-muted-foreground"
               />
             </div>
 
             {/* Status Filter */}
             <Select value={statusFilter} onValueChange={(value) => {
-              setStatusFilter(value);
+              setStatusFilter(value ?? "all");
               setPage(1);
             }}>
-              <SelectTrigger className="w-40 bg-slate-800 border-slate-700 text-white">
+              <SelectTrigger className="w-40 bg-muted border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectContent className="bg-muted border-border">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
@@ -163,7 +165,7 @@ export default function TenantsPage() {
       </Card>
 
       {/* Tenants Table */}
-      <Card className="border-slate-800 bg-slate-900">
+      <Card className="border-border bg-card">
         <CardContent className="p-0">
           {isLoading ? (
             <div className="p-8 flex justify-center">
@@ -173,32 +175,32 @@ export default function TenantsPage() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-slate-800 hover:bg-slate-800/50">
-                    <TableHead className="text-slate-300">Shop Name</TableHead>
-                    <TableHead className="text-slate-300">Owner</TableHead>
-                    <TableHead className="text-slate-300">Plan</TableHead>
-                    <TableHead className="text-slate-300">Status</TableHead>
-                    <TableHead className="text-slate-300">Orders</TableHead>
-                    <TableHead className="text-slate-300">Revenue</TableHead>
-                    <TableHead className="text-right text-slate-300">Actions</TableHead>
+                  <TableRow className="border-border hover:bg-muted/50">
+                    <TableHead className="text-muted-foreground">Shop Name</TableHead>
+                    <TableHead className="text-muted-foreground">Owner</TableHead>
+                    <TableHead className="text-muted-foreground">Plan</TableHead>
+                    <TableHead className="text-muted-foreground">Status</TableHead>
+                    <TableHead className="text-muted-foreground">Orders</TableHead>
+                    <TableHead className="text-muted-foreground">Revenue</TableHead>
+                    <TableHead className="text-right text-muted-foreground">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {tenants.map((tenant) => (
                     <TableRow
                       key={tenant._id}
-                      className="border-slate-800 hover:bg-slate-800/50 transition"
+                      className="border-border hover:bg-muted/50 transition"
                     >
                       <TableCell>
                         <div>
-                          <p className="font-medium text-white">{tenant.shop_name}</p>
-                          <p className="text-xs text-slate-400">{tenant.shop_slug}</p>
+                          <p className="font-medium text-foreground">{tenant.shop_name}</p>
+                          <p className="text-xs text-muted-foreground">{tenant.shop_slug}</p>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="text-white">{tenant.owner_name}</p>
-                          <p className="text-xs text-slate-400">{tenant.owner_email}</p>
+                          <p className="text-foreground">{tenant.owner_name}</p>
+                          <p className="text-xs text-muted-foreground">{tenant.owner_email}</p>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -211,25 +213,23 @@ export default function TenantsPage() {
                           {tenant.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-white">{tenant.order_count}</TableCell>
-                      <TableCell className="text-white font-medium">
+                      <TableCell className="text-foreground">{tenant.order_count}</TableCell>
+                      <TableCell className="text-foreground font-medium">
                         ${tenant.revenue.toLocaleString()}
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
+                          <DropdownMenuTrigger className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground">
+                            <MoreVertical className="w-4 h-4" />
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
-                            <DropdownMenuItem asChild className="text-slate-300 focus:bg-slate-700">
-                              <Link href={`/dashboard/tenants/${tenant._id}`}>View Details</Link>
+                          <DropdownMenuContent align="end" className="bg-muted border-border">
+                            <DropdownMenuItem className="text-muted-foreground focus:bg-accent" onClick={() => router.push(`/dashboard/tenants/${tenant._id}`)}>
+                              View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-slate-300 focus:bg-slate-700">
+                            <DropdownMenuItem className="text-muted-foreground focus:bg-accent">
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-orange-400 focus:bg-slate-700 focus:text-orange-300">
+                            <DropdownMenuItem className="text-orange-400 focus:bg-accent focus:text-orange-300">
                               Suspend
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -247,7 +247,3 @@ export default function TenantsPage() {
   );
 }
 
-      <TenantList />
-    </div>
-  );
-}

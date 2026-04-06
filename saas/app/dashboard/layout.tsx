@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { AuthGuard } from "@/components/auth-guard";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export const metadata: Metadata = {
   title: "Dashboard | theMrktPlace SaaS",
@@ -14,15 +15,20 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-slate-950">
-        <DashboardSidebar />
-        <DashboardHeader />
-        <main className="md:ml-64 pt-0">
-          <div className="p-4 md:p-8">
-            {children}
+      <SidebarProvider>
+        <div className="min-h-screen bg-background flex w-full">
+          <DashboardSidebar />
+          <div className="flex flex-col flex-1 w-full min-w-0">
+            <DashboardHeader />
+            <main className="flex-1 w-full overflow-y-auto">
+              <div className="p-4 md:p-8 w-full max-w-full overflow-x-hidden">
+                {children}
+              </div>
+            </main>
           </div>
-        </main>
-      </div>
+        </div>
+      </SidebarProvider>
     </AuthGuard>
   );
 }
+

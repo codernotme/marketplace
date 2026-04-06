@@ -79,7 +79,7 @@ export default function SubscriptionsPage() {
           <div>
             <h3 className="text-lg font-semibold text-gray-900">All Subscriptions</h3>
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? "all")}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
@@ -153,7 +153,7 @@ export default function SubscriptionsPage() {
       {subscriptions.some((s) => s.status === "past_due") && (
         <Card className="mt-6 p-4 bg-red-50 border-red-200">
           <div className="flex gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
             <div>
               <p className="font-medium text-red-900">
                 {subscriptions.filter((s) => s.status === "past_due").length} subscription
@@ -169,3 +169,4 @@ export default function SubscriptionsPage() {
     </div>
   );
 }
+

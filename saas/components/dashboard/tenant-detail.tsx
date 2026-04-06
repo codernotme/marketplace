@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { tenants } from "@/lib/data/tenants";
 import { subscriptions } from "@/lib/data/subscriptions";
 import { configs } from "@/lib/data/configs";
@@ -88,12 +89,7 @@ export function TenantDetail({ tenantId }: TenantDetailProps) {
             <span className="text-sm text-gray-600">Step {tenant.onboarding_step} of 5</span>
             <span className="text-sm font-medium">{Math.round(onboardingProgress)}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all"
-              style={{ width: `${onboardingProgress}%` }}
-            />
-          </div>
+          <Progress value={onboardingProgress} className="w-full" />
           <p className="text-xs text-gray-500 mt-2">
             {tenant.onboarding_complete ? "Onboarding completed" : "Onboarding in progress"}
           </p>
@@ -188,3 +184,4 @@ export function TenantDetail({ tenantId }: TenantDetailProps) {
     </div>
   );
 }
+

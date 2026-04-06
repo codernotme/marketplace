@@ -10,20 +10,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export function DashboardHeader() {
   const { user } = useSaasAuthStore();
 
   return (
-    <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-30">
-      <div className="md:ml-64 px-4 py-4 flex items-center justify-between gap-4">
-        {/* Search Bar */}
-        <div className="flex-1 max-w-md hidden md:flex items-center gap-2">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+    <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 sticky top-0 z-30">
+      <div className="px-4 py-3 flex items-center justify-between gap-4">
+        {/* Mobile Sidebar Trigger & Search Bar */}
+        <div className="flex flex-1 items-center gap-2">
+          <SidebarTrigger className="md:hidden mr-2" />
+          <div className="relative w-full max-w-md hidden md:flex">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search tenants, orders..."
-              className="pl-10 bg-slate-800 border-slate-700 text-white placeholder-slate-500"
+              className="pl-10 bg-muted/50 border-input"
             />
           </div>
         </div>
@@ -32,38 +34,32 @@ export function DashboardHeader() {
         <div className="flex items-center gap-4 ml-auto">
           {/* Notifications */}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative text-slate-400 hover:text-white hover:bg-slate-800"
-              >
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-              </Button>
+            <DropdownMenuTrigger className="relative inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 bg-slate-800 border-slate-700">
-              <div className="p-4 border-b border-slate-700">
-                <h3 className="font-semibold text-white">Notifications</h3>
+            <DropdownMenuContent align="end" className="w-80">
+              <div className="p-4 border-b">
+                <h3 className="font-semibold text-foreground">Notifications</h3>
               </div>
               <div className="max-h-96 overflow-y-auto">
-                <DropdownMenuItem className="flex flex-col items-start p-3 focus:bg-slate-700 cursor-default">
-                  <p className="font-medium text-white text-sm">New signup</p>
-                  <p className="text-slate-400 text-xs">TechHub Store joined</p>
-                  <p className="text-slate-500 text-xs mt-1">2 hours ago</p>
+                <DropdownMenuItem className="flex flex-col items-start p-3 cursor-default">
+                  <p className="font-medium text-sm">New signup</p>
+                  <p className="text-muted-foreground text-xs">TechHub Store joined</p>
+                  <p className="text-muted-foreground text-xs mt-1">2 hours ago</p>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex flex-col items-start p-3 focus:bg-slate-700 cursor-default">
-                  <p className="font-medium text-white text-sm">Payment received</p>
-                  <p className="text-slate-400 text-xs">Fashion Boutique paid $299</p>
-                  <p className="text-slate-500 text-xs mt-1">5 hours ago</p>
+                <DropdownMenuItem className="flex flex-col items-start p-3 cursor-default">
+                  <p className="font-medium text-sm">Payment received</p>
+                  <p className="text-muted-foreground text-xs">Fashion Boutique paid $299</p>
+                  <p className="text-muted-foreground text-xs mt-1">5 hours ago</p>
                 </DropdownMenuItem>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* User Avatar */}
-          <div className="flex-shrink-0">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm">
+          <div className="shrink-0">
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
               {user?.name?.charAt(0) || "A"}
             </div>
           </div>
@@ -72,3 +68,4 @@ export function DashboardHeader() {
     </header>
   );
 }
+

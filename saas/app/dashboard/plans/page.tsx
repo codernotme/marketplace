@@ -80,12 +80,12 @@ export default function PlansPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Plans & Billing</h1>
-          <p className="text-slate-400 mt-1">Manage subscription plans and pricing</p>
+          <h1 className="text-3xl font-bold text-foreground">Plans & Billing</h1>
+          <p className="text-muted-foreground mt-1">Manage subscription plans and pricing</p>
         </div>
-        <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
+        <Button className="w-full sm:w-auto bg-linear-to-r from-foreground to-muted-foreground hover:from-foreground/90 hover:to-muted-foreground/90 text-background">
           <Plus className="mr-2 w-4 h-4" />
           Create Plan
         </Button>
@@ -99,11 +99,11 @@ export default function PlansPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {plans.map((plan) => (
-            <Card key={plan._id} className="border-slate-800 bg-slate-900 hover:border-orange-500/50 transition">
+            <Card key={plan._id} className="border-border bg-card hover:border-orange-500/50 transition">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-white">{plan.name}</CardTitle>
+                    <CardTitle className="text-foreground">{plan.name}</CardTitle>
                     <CardDescription>{plan.description}</CardDescription>
                   </div>
                   {!plan.is_active && (
@@ -114,36 +114,36 @@ export default function PlansPage() {
               <CardContent className="space-y-4">
                 {/* Price */}
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-white">${plan.price_monthly}</span>
-                  <span className="text-slate-400">/month</span>
+                  <span className="text-3xl font-bold text-foreground">${plan.price_monthly}</span>
+                  <span className="text-muted-foreground">/month</span>
                 </div>
 
                 {/* Limits */}
-                <div className="space-y-2 border-t border-slate-800 pt-4">
+                <div className="space-y-2 border-t border-border pt-4">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-400">Max Products</span>
-                    <span className="text-white font-medium">{plan.max_products === 999 ? "Unlimited" : plan.max_products}</span>
+                    <span className="text-muted-foreground">Max Products</span>
+                    <span className="text-foreground font-medium">{plan.max_products === 999 ? "Unlimited" : plan.max_products}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-400">Max Orders/Mo</span>
-                    <span className="text-white font-medium">{plan.max_orders_monthly.toLocaleString()}</span>
+                    <span className="text-muted-foreground">Max Orders/Mo</span>
+                    <span className="text-foreground font-medium">{plan.max_orders_monthly.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-400">Users Allowed</span>
-                    <span className="text-white font-medium">{plan.max_users}</span>
+                    <span className="text-muted-foreground">Users Allowed</span>
+                    <span className="text-foreground font-medium">{plan.max_users}</span>
                   </div>
                 </div>
 
                 {/* Features */}
-                <div className="space-y-2 border-t border-slate-800 pt-4">
+                <div className="space-y-2 border-t border-border pt-4">
                   {plan.features.map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm">
                       {feature.enabled ? (
                         <Check className="w-4 h-4 text-green-400" />
                       ) : (
-                        <X className="w-4 h-4 text-slate-500" />
+                        <X className="w-4 h-4 text-muted-foreground" />
                       )}
-                      <span className={feature.enabled ? "text-white" : "text-slate-500"}>
+                      <span className={feature.enabled ? "text-foreground" : "text-muted-foreground"}>
                         {feature.name}
                       </span>
                     </div>
@@ -152,10 +152,10 @@ export default function PlansPage() {
 
                 {/* Actions */}
                 <div className="flex gap-2 pt-4">
-                  <Button variant="outline" size="sm" className="flex-1 border-slate-700 text-white hover:bg-slate-800">
+                  <Button variant="outline" size="sm" className="flex-1 border-border text-foreground hover:bg-muted">
                     Edit
                   </Button>
-                  <Button variant="ghost" size="sm" className="flex-1 text-slate-400 hover:text-white">
+                  <Button variant="ghost" size="sm" className="flex-1 text-muted-foreground hover:text-foreground">
                     Delete
                   </Button>
                 </div>
@@ -167,106 +167,4 @@ export default function PlansPage() {
     </div>
   );
 }
-      starter: "10 GB",
-      pro: "100 GB",
-      enterprise: "1 TB",
-    },
-    {
-      feature: "Team Members",
-      free: "1",
-      starter: "3",
-      pro: "10",
-      enterprise: "Unlimited",
-    },
-    {
-      feature: "Custom Domain",
-      free: "✗",
-      starter: "✓",
-      pro: "✓",
-      enterprise: "✓",
-    },
-    {
-      feature: "Telegram Bot",
-      free: "✗",
-      starter: "✓",
-      pro: "✓",
-      enterprise: "✓",
-    },
-    {
-      feature: "Analytics",
-      free: "Basic",
-      starter: "Basic",
-      pro: "Advanced",
-      enterprise: "Advanced",
-    },
-  ];
 
-  return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900">Plans & Billing</h1>
-        <p className="text-gray-600 mt-2">Manage subscription plans and view all active subscriptions</p>
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Active Plans</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {plans.map((plan) => {
-            const subCount = getSubscriptionCount(plan.id);
-            return (
-              <Card key={plan.id} className="p-6 border-2 hover:border-blue-400 transition-colors">
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold text-gray-900">{plan.display_name}</h3>
-                  {plan.price_monthly > 0 && (
-                    <p className="text-2xl font-bold text-blue-600 mt-2">
-                      ${plan.price_monthly}
-                      <span className="text-sm text-gray-600">/mo</span>
-                    </p>
-                  )}
-                  {plan.price_monthly === 0 && (
-                    <p className="text-2xl font-bold text-green-600 mt-2">Free</p>
-                  )}
-                </div>
-                <p className="text-sm text-gray-600 mb-4">{subCount} active subscriptions</p>
-                <Badge variant="outline" className="mb-4">
-                  {plan.is_active ? "Active" : "Inactive"}
-                </Badge>
-                <Button variant="outline" className="w-full">
-                  Edit Plan
-                </Button>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
-
-      <Card className="p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Plan Comparison</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-900">Feature</th>
-                <th className="px-4 py-3 text-center font-semibold text-gray-900">Free</th>
-                <th className="px-4 py-3 text-center font-semibold text-gray-900">Starter</th>
-                <th className="px-4 py-3 text-center font-semibold text-gray-900">Pro</th>
-                <th className="px-4 py-3 text-center font-semibold text-gray-900">Enterprise</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {planDetails.map((detail) => (
-                <tr key={detail.feature} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{detail.feature}</td>
-                  <td className="px-4 py-3 text-center text-gray-600">{detail.free}</td>
-                  <td className="px-4 py-3 text-center text-gray-600">{detail.starter}</td>
-                  <td className="px-4 py-3 text-center text-gray-600">{detail.pro}</td>
-                  <td className="px-4 py-3 text-center text-gray-600">{detail.enterprise}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </div>
-  );
-}

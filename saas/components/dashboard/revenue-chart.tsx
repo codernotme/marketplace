@@ -75,3 +75,4 @@ export function RevenueChart() {
     </div>
   );
 }
+

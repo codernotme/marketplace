@@ -21,7 +21,7 @@ export function Redirect() {
 
   if (!isReady) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-950">
+      <div className="flex h-screen items-center justify-center bg-background">
         <Spinner />
       </div>
     );
@@ -29,3 +29,4 @@ export function Redirect() {
 
   return null;
 }
+

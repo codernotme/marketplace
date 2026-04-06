@@ -23,32 +23,24 @@ interface KPICardProps {
   subtext?: string;
   icon: React.ReactNode;
   trend?: number;
-  color: "orange" | "blue" | "green" | "purple";
 }
 
-function KPICard({ title, value, subtext, icon, trend, color }: KPICardProps) {
-  const colorClasses = {
-    orange: "from-orange-500 to-orange-600",
-    blue: "from-blue-500 to-blue-600",
-    green: "from-green-500 to-green-600",
-    purple: "from-purple-500 to-purple-600",
-  };
-
+function KPICard({ title, value, subtext, icon, trend }: KPICardProps) {
   return (
-    <Card className="border-slate-800 bg-slate-900 hover:border-slate-700 transition">
+    <Card className="bg-card">
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm text-slate-400 mb-1">{title}</p>
-            <p className="text-3xl font-bold text-white">{value}</p>
-            {subtext && <p className="text-xs text-slate-500 mt-1">{subtext}</p>}
+            <p className="text-sm text-muted-foreground mb-1">{title}</p>
+            <p className="text-3xl font-bold text-foreground">{value}</p>
+            {subtext && <p className="text-xs text-muted-foreground mt-1">{subtext}</p>}
             {trend !== undefined && (
-              <p className={`text-xs mt-2 ${trend >= 0 ? "text-green-400" : "text-red-400"}`}>
+              <p className={`text-xs mt-2 ${trend >= 0 ? "text-emerald-500" : "text-destructive"}`}>
                 {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}% from last month
               </p>
             )}
           </div>
-          <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center`}>
+          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
             {icon}
           </div>
         </div>
@@ -99,8 +91,8 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-        <p className="text-slate-400 mt-1">Welcome to theMrktPlace SaaS Admin</p>
+        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground mt-1">Welcome to theMrktPlace SaaS Admin</p>
       </div>
 
       {/* KPI Cards */}
@@ -109,42 +101,38 @@ export default function DashboardPage() {
           title="Total Tenants"
           value={metrics?.total_tenants || 0}
           subtext={`${metrics?.active_tenants} active`}
-          icon={<Users className="w-6 h-6 text-white" />}
+          icon={<Users className="w-6 h-6 text-foreground" />}
           trend={8.2}
-          color="blue"
         />
         <KPICard
           title="Monthly Revenue"
           value={`$${(metrics?.monthly_revenue || 0).toLocaleString()}`}
           subtext="Current month"
-          icon={<DollarSign className="w-6 h-6 text-white" />}
+          icon={<DollarSign className="w-6 h-6 text-foreground" />}
           trend={12.5}
-          color="green"
         />
         <KPICard
           title="Total Orders"
           value={(metrics?.total_orders || 0).toLocaleString()}
           subtext="All time"
-          icon={<ShoppingCart className="w-6 h-6 text-white" />}
+          icon={<ShoppingCart className="w-6 h-6 text-foreground" />}
           trend={5.3}
-          color="orange"
         />
         <KPICard
           title="Growth Rate"
           value={`${metrics?.growth_rate || 0}%`}
           subtext="Month over month"
-          icon={<TrendingUp className="w-6 h-6 text-white" />}
+          icon={<TrendingUp className="w-6 h-6 text-foreground" />}
           trend={2.1}
-          color="purple"
         />
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue Chart */}
-        <Card className="border-slate-800 bg-slate-900">
+        <Card className="border-border bg-card">
           <CardHeader>
-            <CardTitle className="text-white">Revenue Trend</CardTitle>
+            <CardTitle className="text-foreground">Revenue Trend</CardTitle>
             <CardDescription>Last 6 months revenue</CardDescription>
           </CardHeader>
           <CardContent>
@@ -164,9 +152,9 @@ export default function DashboardPage() {
         </Card>
 
         {/* Orders Chart */}
-        <Card className="border-slate-800 bg-slate-900">
+        <Card className="border-border bg-card">
           <CardHeader>
-            <CardTitle className="text-white">Orders Volume</CardTitle>
+            <CardTitle className="text-foreground">Orders Volume</CardTitle>
             <CardDescription>Last 6 months orders</CardDescription>
           </CardHeader>
           <CardContent>
@@ -185,11 +173,11 @@ export default function DashboardPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-slate-800 bg-slate-900">
+        <Card className="border-border bg-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400 mb-1">Pending Activations</p>
+                <p className="text-sm text-muted-foreground mb-1">Pending Activations</p>
                 <p className="text-2xl font-bold text-orange-400">{metrics?.pending_activations}</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center">
@@ -199,11 +187,11 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-800 bg-slate-900">
+        <Card className="border-border bg-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400 mb-1">Suspended Tenants</p>
+                <p className="text-sm text-muted-foreground mb-1">Suspended Tenants</p>
                 <p className="text-2xl font-bold text-red-400">{metrics?.suspended_tenants}</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center">
@@ -213,11 +201,11 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-slate-800 bg-slate-900">
+        <Card className="border-border bg-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-400 mb-1">Avg Plan Tier</p>
+                <p className="text-sm text-muted-foreground mb-1">Avg Plan Tier</p>
                 <p className="text-2xl font-bold text-purple-400">{metrics?.avg_plan_tier}</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center">
@@ -230,3 +218,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

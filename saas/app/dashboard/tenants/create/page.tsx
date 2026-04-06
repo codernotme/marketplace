@@ -116,7 +116,7 @@ export default function CreateTenantPage() {
             <label className="block text-sm font-medium text-gray-900 mb-2">
               Initial Plan *
             </label>
-            <Select value={formData.plan} onValueChange={(value) => handleChange("plan", value)}>
+            <Select value={formData.plan} onValueChange={(value) => handleChange("plan", value ?? "free")}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -148,3 +148,4 @@ export default function CreateTenantPage() {
     </div>
   );
 }
+

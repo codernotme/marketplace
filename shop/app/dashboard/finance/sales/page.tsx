@@ -1,106 +1,117 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { useState } from "react";
+import { Button, Card, Separator, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { StatusBadge } from "@/components/ui/StatusBadge";
-import { useOrdersStore } from "@/lib/store";
+import { kpiData, orders } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
 
-export default function FinanceSalesPage() {
-  const { orders } = useOrdersStore();
-  
-  const paidOrders = orders.filter(o => o.paymentStatus === "paid");
-  const totalRevenue = paidOrders.reduce((sum, o) => sum + o.total, 0);
-  const totalTax = paidOrders.reduce((sum, o) => sum + o.tax, 0);
-  const totalDiscount = paidOrders.reduce((sum, o) => sum + o.discount, 0);
+export default function FinanceSalesReport() {
+  const totalTax = orders.reduce((s, o) => s + o.tax, 0);
+  const totalDiscount = orders.reduce((s, o) => s + o.discount, 0);
+  const netRevenue = kpiData.totalRevenue - totalTax - totalDiscount;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10 max-w-6xl mx-auto">
       <PageHeader
-        title="Sales Report"
-        subtitle="Detailed revenue and transaction logs"
-        icon="solar:document-bold-duotone"
+        title="Financial Reports"
+        subtitle="Detailed breakdown of revenue, taxes, and settlement history"
+        icon="solar:wallet-money-bold-duotone"
         actions={
           <div className="flex gap-2">
-            <Button variant="secondary" size="sm" className="gap-2 text-xs">
-              <Icon icon="solar:export-bold-duotone" className="text-base" />
-              Export CSV
+            <Button variant="secondary" size="sm" className="font-bold border border-border">
+              <Icon icon="solar:calendar-bold-duotone" className="text-lg mr-2" />
+              FY 2025-26
             </Button>
-            <Button variant="secondary" size="sm" className="gap-2 text-xs">
-              <Icon icon="solar:printer-bold-duotone" className="text-base" />
-              Print PDF
+            <Button variant="primary" size="sm" className="font-bold shadow-lg shadow-accent/20">
+              <Icon icon="solar:printer-minimalistic-bold-duotone" className="text-lg mr-2" />
+              Export PDF
             </Button>
           </div>
         }
       />
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Total Revenue", value: formatCurrency(totalRevenue), icon: "solar:wallet-money-bold-duotone", color: "text-accent", bg: "bg-accent/10" },
-          { label: "Tax Collected", value: formatCurrency(totalTax), icon: "solar:bill-list-bold-duotone", color: "text-warning", bg: "bg-warning/10" },
-          { label: "Total Discounts", value: formatCurrency(totalDiscount), icon: "solar:ticket-sale-bold-duotone", color: "text-danger", bg: "bg-danger/10" },
-          { label: "Net Revenue", value: formatCurrency(totalRevenue - totalTax - totalDiscount), icon: "solar:graph-up-bold-duotone", color: "text-success", bg: "bg-success/10" },
-        ].map((s) => (
-          <div key={s.label} className="bg-surface rounded-2xl p-5 border border-border/50 stat-card">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.bg} ${s.color} mb-3`}>
-              <Icon icon={s.icon} className="text-xl" />
-            </div>
-            <p className="text-xl font-bold font-[family-name:var(--font-outfit)] tracking-tight">{s.value}</p>
-            <p className="text-xs text-muted mt-1 uppercase font-semibold tracking-wider">{s.label}</p>
+      {/* Financial Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="p-8 bg-surface border border-border shadow-xl rounded-[2.5rem] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-3xl rounded-full" />
+          <p className="text-[10px] text-muted font-black uppercase tracking-widest mb-2">Gross Revenue</p>
+          <p className="text-3xl font-black text-foreground tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>{formatCurrency(kpiData.totalRevenue)}</p>
+          <div className="flex items-center gap-2 mt-4 text-[11px] font-bold text-success">
+            <Icon icon="solar:arrow-up-bold-duotone" />
+            +18.4% since last month
           </div>
-        ))}
+        </Card>
+
+        <Card className="p-8 bg-surface border border-border shadow-xl rounded-[2.5rem] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-danger/5 blur-3xl rounded-full" />
+          <p className="text-[10px] text-muted font-black uppercase tracking-widest mb-2">Estimated Taxes (GST)</p>
+          <p className="text-3xl font-black text-danger tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>-{formatCurrency(totalTax)}</p>
+          <div className="flex items-center gap-2 mt-4 text-[11px] font-bold text-muted uppercase tracking-widest">
+            Average tax rate 18%
+          </div>
+        </Card>
+
+        <Card className="p-8 bg-surface border border-accent/20 shadow-2xl rounded-[2.5rem] relative overflow-hidden group ring-4 ring-accent/5">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-accent/10 blur-3xl rounded-full translate-x-10 -translate-y-10" />
+          <p className="text-[10px] text-accent font-black uppercase tracking-widest mb-2">Net Earnings</p>
+          <p className="text-3xl font-black text-accent tracking-tighter" style={{ fontFamily: "var(--font-outfit)" }}>{formatCurrency(netRevenue)}</p>
+          <div className="flex items-center gap-2 mt-4 text-[11px] font-bold text-accent uppercase tracking-widest">
+            Settled to bank account
+          </div>
+        </Card>
       </div>
 
-      {/* Table */}
-      <div className="bg-surface rounded-2xl border border-border overflow-hidden shadow-sm">
+      {/* Transaction History (Mocked) */}
+      <Card className="p-8 bg-surface border border-border shadow-2xl rounded-[2.5rem]">
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="text-xl font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>Settlement History</h3>
+          <div className="flex gap-2 p-1 bg-default/40 rounded-xl">
+            {["All", "Settled", "Pending"].map(f => (
+              <button key={f} className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${f === 'Settled' ? 'bg-surface text-accent shadow-sm' : 'text-muted'}`}>{f}</button>
+            ))}
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-background/50">
-                <th className="text-left px-5 py-4 text-xs font-bold text-muted uppercase tracking-widest">Order #</th>
-                <th className="text-left px-5 py-4 text-xs font-bold text-muted uppercase tracking-widest">Customer</th>
-                <th className="text-right px-5 py-4 text-xs font-bold text-muted uppercase tracking-widest">Subtotal</th>
-                <th className="text-right px-5 py-4 text-xs font-bold text-muted uppercase tracking-widest">Tax</th>
-                <th className="text-right px-5 py-4 text-xs font-bold text-muted uppercase tracking-widest">Discount</th>
-                <th className="text-right px-5 py-4 text-xs font-bold text-muted uppercase tracking-widest">Total</th>
-                <th className="text-left px-5 py-4 text-xs font-bold text-muted uppercase tracking-widest">Status</th>
-                <th className="text-left px-5 py-4 text-xs font-bold text-muted uppercase tracking-widest">Date</th>
+              <tr className="border-b border-border text-[10px] font-black text-muted uppercase tracking-widest">
+                <th className="text-left py-4 px-4">Period</th>
+                <th className="text-left py-4 px-4">Transactions</th>
+                <th className="text-right py-4 px-4">Gross Amt.</th>
+                <th className="text-right py-4 px-4">Fees/Taxes</th>
+                <th className="text-right py-4 px-4">Settled Amt.</th>
+                <th className="text-center py-4 px-4">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
-              {orders.map((order) => (
-                <tr key={order.id} className="table-row-hover transition-colors">
-                  <td className="px-5 py-4 font-mono text-xs text-accent font-bold">{order.orderNumber}</td>
-                  <td className="px-5 py-4">
-                    <p className="font-semibold text-sm">{order.customer.name}</p>
-                    <p className="text-[10px] text-muted uppercase tracking-tighter">{order.paymentMethod}</p>
-                  </td>
-                  <td className="px-5 py-4 text-right font-medium">{formatCurrency(order.subtotal)}</td>
-                  <td className="px-5 py-4 text-right text-muted">{formatCurrency(order.tax)}</td>
-                  <td className="px-5 py-4 text-right text-danger">-{formatCurrency(order.discount)}</td>
-                  <td className="px-5 py-4 text-right font-bold text-foreground">{formatCurrency(order.total)}</td>
-                  <td className="px-5 py-4">
-                    <StatusBadge status={order.paymentStatus} />
-                  </td>
-                  <td className="px-5 py-4 text-xs text-muted font-medium">
-                    {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+            <tbody className="divide-y divide-border/50">
+              {[
+                { period: "Apr 01 - Apr 06", count: 142, gross: 482500, fees: 86850, net: 395650, status: "settled" },
+                { period: "Mar 24 - Mar 31", count: 210, gross: 714000, fees: 128520, net: 585480, status: "settled" },
+                { period: "Mar 16 - Mar 23", count: 185, gross: 629000, fees: 113220, net: 515780, status: "settled" },
+                { period: "Mar 08 - Mar 15", count: 168, gross: 571200, fees: 102816, net: 468384, status: "pending" },
+              ].map((s, i) => (
+                <tr key={i} className="group hover:bg-default/20 transition-colors">
+                  <td className="py-5 px-4 font-black tracking-tight">{s.period}</td>
+                  <td className="py-5 px-4 font-bold text-muted">{s.count} orders</td>
+                  <td className="py-5 px-4 text-right font-bold">{formatCurrency(s.gross)}</td>
+                  <td className="py-5 px-4 text-right font-bold text-danger/60">{formatCurrency(s.fees)}</td>
+                  <td className="py-5 px-4 text-right font-black text-foreground">{formatCurrency(s.net)}</td>
+                  <td className="py-5 px-4 text-center">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                      s.status === 'settled' ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'
+                    }`}>
+                      {s.status}
+                    </span>
                   </td>
                 </tr>
               ))}
-              {orders.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="py-20 text-center">
-                    <Icon icon="solar:document-bold-duotone" className="text-5xl mx-auto mb-4 opacity-20" />
-                    <p className="text-muted font-medium">No transactions found</p>
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

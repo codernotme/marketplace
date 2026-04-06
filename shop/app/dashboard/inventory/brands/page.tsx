@@ -64,9 +64,13 @@ export default function BrandsPage() {
                     <div className="flex justify-end">
                       <Dropdown>
                         <Dropdown.Trigger>
-                          <button className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-colors outline-none cursor-pointer">
-                            <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
-                          </button>
+                          <div 
+                            className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-all duration-300 outline-none cursor-pointer group"
+                            role="button"
+                            tabIndex={0}
+                          >
+                            <Icon icon="solar:menu-dots-bold-duotone" className="text-xl group-hover:scale-110 transition-transform" />
+                          </div>
                         </Dropdown.Trigger>
                         <Dropdown.Popover className="min-w-[160px]">
                           <Dropdown.Menu onAction={(key) => {

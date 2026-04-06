@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Dropdown, Button, Label, Description, Header as DropdownHeader, Separator } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { MobileSidebar } from "./Sidebar";
 import { useUIStore } from "@/lib/store";
@@ -17,6 +17,7 @@ const notifications = [
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { setMobileSidebarOpen } = useUIStore();
   
@@ -162,6 +163,8 @@ export function Header() {
                     </div>
                   </div>
                   <Dropdown.Menu onAction={(key) => {
+                    if (key === "profile") router.push("/dashboard/profile");
+                    if (key === "settings") router.push("/dashboard/settings");
                     if (key === "logout") {
                       // Simulating logout
                       window.location.href = "/login";

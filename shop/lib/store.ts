@@ -11,6 +11,7 @@ import {
   banners as initialBanners,
   emailTemplates as initialEmailTemplates,
   blogPosts as initialBlogPosts,
+  initialStaticPages,
   type Product,
   type Order,
   type Customer,
@@ -20,12 +21,13 @@ import {
   type OrderStatus,
   type DeliveryAgent,
   type BlogPost,
+  type StaticPage,
 } from "./mock-data";
 
 // ──────────────────────────────────────────────────
 // UI State Store
 // ──────────────────────────────────────────────────
-export type ModalType = "product" | "category" | "brand" | "coupon" | "banner" | "order" | "blog" | null;
+export type ModalType = "product" | "category" | "brand" | "coupon" | "banner" | "order" | "blog" | "page" | null;
 export type ModalMode = "add" | "edit";
 
 interface UIState {
@@ -370,5 +372,33 @@ export const useBannersStore = create<BannersStore>()(
         set((s) => ({ banners: s.banners.map((b) => (b.id === id ? { ...b, isActive: !b.isActive } : b)) })),
     }),
     { name: "tm-banners-store" }
+  )
+);
+
+// ──────────────────────────────────────────────────
+// Pages Store
+// ──────────────────────────────────────────────────
+interface PagesStore {
+  pages: StaticPage[];
+  addPage: (page: StaticPage) => void;
+  updatePage: (id: string, updates: Partial<StaticPage>) => void;
+  deletePage: (id: string) => void;
+  togglePageStatus: (id: string) => void;
+}
+
+export const usePagesStore = create<PagesStore>()(
+  persist(
+    (set) => ({
+      pages: initialStaticPages,
+      addPage: (page) => set((s) => ({ pages: [page, ...s.pages] })),
+      updatePage: (id, updates) =>
+        set((s) => ({ pages: s.pages.map((p) => (p.id === id ? { ...p, ...updates } : p)) })),
+      deletePage: (id) => set((s) => ({ pages: s.pages.filter((p) => p.id !== id) })),
+      togglePageStatus: (id) =>
+        set((s) => ({
+          pages: s.pages.map((p) => (p.id === id ? { ...p, status: p.status === "active" ? "draft" : "active" } : p)),
+        })),
+    }),
+    { name: "tm-pages-store" }
   )
 );

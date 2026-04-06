@@ -23,6 +23,23 @@ export const siteConfig = {
   address: "42, Innovation Hub, Koramangala, Bengaluru - 560034",
 };
 
+export interface StaticPage {
+  id: string;
+  slug: string;
+  title: string;
+  status: "active" | "draft";
+  content: string;
+  seoDescription: string;
+  updatedAt: string;
+}
+
+export const initialStaticPages: StaticPage[] = [
+  { id: "pg_1", slug: "about-us", title: "About Us", status: "active", content: "We are an innovative store curated for the future...", seoDescription: "Learn more about the mission and values of themrktplace.", updatedAt: "2026-04-06T10:00:00Z" },
+  { id: "pg_2", slug: "privacy-policy", title: "Privacy Policy", status: "active", content: "Your data is safe with us. We use industry-standard encryption...", seoDescription: "Read our commitment to your privacy and data security.", updatedAt: "2026-03-15T09:00:00Z" },
+  { id: "pg_3", slug: "terms-of-service", title: "Terms of Service", status: "active", content: "By using our platform, you agree to the following terms...", seoDescription: "Official terms and conditions for using the themrktplace platform.", updatedAt: "2026-03-10T12:00:00Z" },
+  { id: "pg_4", slug: "shipping-returns", title: "Shipping & Returns", status: "draft", content: "Detailed info on shipping times and our 30-day return policy...", seoDescription: "Hassle-free shipping and returns policy details.", updatedAt: "2026-04-06T11:00:00Z" },
+];
+
 // ──────────────────────────────────────────────────
 // Admin User
 // ──────────────────────────────────────────────────

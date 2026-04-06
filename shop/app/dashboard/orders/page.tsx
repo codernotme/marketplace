@@ -139,9 +139,13 @@ export default function OrdersPage() {
                   <td className="px-5 py-3.5 text-right">
                     <Dropdown>
                       <Dropdown.Trigger>
-                        <button className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-all outline-none cursor-pointer">
-                          <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
-                        </button>
+                        <div 
+                          className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-all duration-300 outline-none cursor-pointer group"
+                          role="button"
+                          tabIndex={0}
+                        >
+                          <Icon icon="solar:menu-dots-bold-duotone" className="text-xl group-hover:scale-110 transition-transform" />
+                        </div>
                       </Dropdown.Trigger>
                       <Dropdown.Popover className="min-w-[180px]">
                         <Dropdown.Menu onAction={(key) => {

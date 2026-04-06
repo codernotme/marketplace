@@ -1,89 +1,95 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Switch } from "@heroui/react";
+import { Button, Input, Card, Separator, Tooltip, Dropdown, Label } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { emailTemplates } from "@/lib/mock-data";
 
-export default function MailTemplatesPage() {
-  const [templates, setTemplates] = useState(emailTemplates);
+export default function EmailTemplatesPage() {
+  const [search, setSearch] = useState("");
 
-  const toggleStatus = (id: string) => {
-    setTemplates(prev => prev.map(t => t.id === id ? { ...t, isActive: !t.isActive } : t));
-  };
+  const filtered = emailTemplates.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6">
       <PageHeader
         title="Email Templates"
-        subtitle="Manage transactional emails and automated notifications"
+        subtitle="Manage and customize automated customer communications"
         icon="solar:letter-bold-duotone"
         actions={
-          <Button variant="primary" size="sm" className="gap-2">
-            <Icon icon="solar:add-square-bold-duotone" className="text-base" />
+          <Button variant="primary" size="sm" className="font-bold px-6 shadow-lg shadow-accent/20">
+            <Icon icon="solar:document-plus-bold-duotone" className="text-xl mr-2" />
             Create Template
           </Button>
         }
       />
 
-      <div className="bg-surface rounded-2xl border border-border overflow-hidden">
-        <div className="px-5 py-4 border-b border-border bg-background/30 flex items-center justify-between">
-          <h3 className="font-bold text-sm">Transactional Templates</h3>
-          <p className="text-xs text-muted">{templates.length} templates configured</p>
-        </div>
-        <div className="divide-y divide-border">
-          {templates.map((t) => (
-            <div key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-4 px-5 py-4 hover:bg-default/20 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center flex-shrink-0">
-                <Icon icon="solar:document-text-bold-duotone" className="text-xl" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filtered.map((template) => (
+          <Card key={template.id} className="bg-surface border border-border shadow-2xl rounded-[2.5rem] overflow-hidden group hover:border-accent/40 transition-all flex flex-col items-center p-8 text-center relative">
+            <div className={`absolute top-0 left-0 w-full h-1 transition-all duration-500 ${template.isActive ? 'bg-accent/40' : 'bg-default'}`} />
+            
+            <div className="w-16 h-16 rounded-2xl bg-default/40 flex items-center justify-center text-accent shadow-sm border border-border mb-6 group-hover:scale-110 transition-transform">
+              <Icon icon="solar:document-text-bold-duotone" className="text-3xl" />
+            </div>
+
+            <h3 className="text-lg font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>{template.name}</h3>
+            <p className="text-[11px] text-muted font-bold mt-2 leading-relaxed px-6">{template.subject}</p>
+
+            <Separator className="my-8 opacity-30" />
+
+            <div className="w-full flex items-center justify-between mb-8">
+              <div className="text-left">
+                <p className="text-[10px] text-muted font-black uppercase tracking-widest leading-none mb-1">Status</p>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <span className={`w-2 h-2 rounded-full ${template.isActive ? 'bg-success shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-default'}`} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{template.isActive ? 'Active' : 'Disabled'}</span>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="font-bold text-sm tracking-tight">{t.name}</p>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase ${t.isActive ? "bg-success/15 text-success" : "bg-default text-muted"}`}>
-                    {t.isActive ? "Active" : "Draft"}
-                  </span>
-                </div>
-                <p className="text-xs text-muted truncate max-w-md">{t.subject}</p>
-              </div>
-              <div className="flex items-center gap-4 justify-between sm:justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted font-bold uppercase tracking-widest hidden md:block">Status</span>
-                  <Switch
-                    isSelected={t.isActive}
-                    onChange={() => toggleStatus(t.id)}
-                    size="sm"
-                  />
-                </div>
-                <div className="flex gap-1">
-                  <button className="p-2 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors" title="Edit template">
-                    <Icon icon="solar:pen-bold-duotone" className="text-lg" />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors" title="Preview">
-                    <Icon icon="solar:eye-bold-duotone" className="text-lg" />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-danger/10 text-muted hover:text-danger transition-colors" title="Delete">
-                    <Icon icon="solar:trash-bin-trash-bold-duotone" className="text-lg" />
-                  </button>
-                </div>
+              <div className="text-right">
+                <p className="text-[10px] text-muted font-black uppercase tracking-widest leading-none mb-1">Type</p>
+                <p className="text-[11px] font-black text-foreground mt-2 uppercase">Transactional</p>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* Help Card */}
-      <div className="bg-accent/5 border border-accent/20 rounded-2xl p-5 flex items-start gap-4">
-        <div className="w-9 h-9 rounded-xl bg-accent/20 text-accent flex items-center justify-center flex-shrink-0">
-          <Icon icon="solar:info-circle-bold-duotone" className="text-xl" />
-        </div>
-        <div>
-          <h4 className="font-bold text-sm text-accent mb-1">Dynamic Variables</h4>
-          <p className="text-xs text-muted/80 leading-relaxed">
-            You can use dynamic variables like <code className="text-accent bg-accent/10 px-1 rounded">{"{{order_number}}"}</code>, <code className="text-accent bg-accent/10 px-1 rounded">{"{{customer_name}}"}</code>, and <code className="text-accent bg-accent/10 px-1 rounded">{"{{total_amount}}"}</code> in your templates. These will be automatically replaced when the email is sent.
-          </p>
-        </div>
+
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <Button size="sm" variant="secondary" className="font-bold h-10 rounded-xl border border-border hover:bg-default transition-all">Preview</Button>
+              <Button size="sm" variant="secondary" className="font-bold h-10 rounded-xl border border-border hover:bg-accent hover:text-white hover:border-accent transition-all">Edit Code</Button>
+            </div>
+
+            <div className="absolute top-4 right-4 z-10 flex gap-2">
+              <Dropdown>
+                <Dropdown.Trigger>
+                  <div 
+                    className="p-1.5 rounded-xl bg-surface/80 backdrop-blur-md hover:bg-surface text-muted hover:text-foreground transition-all duration-300 outline-none cursor-pointer border border-border/50"
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <Icon icon="solar:menu-dots-bold-duotone" className="text-lg" />
+                  </div>
+                </Dropdown.Trigger>
+                <Dropdown.Popover className="min-w-[160px]">
+                  <Dropdown.Menu>
+                    <Dropdown.Item id="duplicate" textValue="Duplicate Template">
+                      <Icon icon="solar:copy-bold-duotone" className="text-lg text-muted" />
+                      <Label className="font-bold">Duplicate</Label>
+                    </Dropdown.Item>
+                    <Dropdown.Item id="test" textValue="Send Test Email">
+                      <Icon icon="solar:mailbox-bold-duotone" className="text-lg text-muted" />
+                      <Label className="font-bold">Send Test</Label>
+                    </Dropdown.Item>
+                    <Separator className="my-1 border-border/50" />
+                    <Dropdown.Item id="delete" textValue="Delete Template" variant="danger">
+                      <Icon icon="solar:trash-bin-trash-bold-duotone" className="text-lg text-danger" />
+                      <Label className="font-bold text-danger">Delete</Label>
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown.Popover>
+              </Dropdown>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );

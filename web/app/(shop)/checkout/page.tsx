@@ -34,7 +34,7 @@ export default function CheckoutPage() {
               {steps.map((s, i) => (
                 <div key={s} className="flex items-center gap-2">
                   <div className={`flex items-center gap-2 ${i + 1 <= step ? 'text-black' : 'text-gray-300'}`}>
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${i + 1 < step ? 'bg-black text-black' : i + 1 === step ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'}`}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${i + 1 < step ? 'bg-black text-white' : i + 1 === step ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'}`}>
                       {i + 1 < step ? <Icon icon="mdi:check" /> : i + 1}
                     </div>
                     <span className="text-xs font-semibold">{s}</span>
@@ -194,7 +194,7 @@ export default function CheckoutPage() {
                   <button onClick={() => setStep(2)} className="flex-1 h-14 border-2 border-gray-100 text-black font-bold rounded-xl hover:border-gray-300 transition-colors font-body">
                     ← Back
                   </button>
-                  <Link href="/checkout/success" className="flex-1 h-14 bg-black text-black font-bold rounded-xl hover:scale-[1.02] transition-transform font-body flex items-center justify-center">
+                  <Link href="/checkout/success" className="flex-1 h-14 bg-black text-white font-bold rounded-xl hover:scale-[1.02] transition-transform font-body flex items-center justify-center">
                     Place Order — ${total.toFixed(2)}
                   </Link>
                 </div>

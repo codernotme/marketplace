@@ -46,7 +46,7 @@ export const Footer = () => {
               { label: 'Menswear', href: '/category/men' },
               { label: 'Womenswear', href: '/category/women' },
               { label: 'Electronics', href: '/category/electronics' },
-              { label: 'Footwear', href: '/category/footwear' },
+              { label: 'Footwear', href: '/category/shoes' },
               { label: 'Home & Living', href: '/category/home' },
             ].map(l => (
               <li key={l.href}><Link href={l.href} className="hover:text-white transition-colors hover:translate-x-1 inline-block">{l.label}</Link></li>

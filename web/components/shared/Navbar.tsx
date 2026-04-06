@@ -11,7 +11,7 @@ const categories = [
   { label: 'Menswear', href: '/category/men', icon: 'mdi:tshirt-crew-outline' },
   { label: 'Womenswear', href: '/category/women', icon: 'mdi:hanger' },
   { label: 'Electronics', href: '/category/electronics', icon: 'mdi:laptop' },
-  { label: 'Footwear', href: '/category/footwear', icon: 'mdi:shoe-sneaker' },
+  { label: 'Footwear', href: '/category/shoes', icon: 'mdi:shoe-sneaker' },
   { label: 'Home & Living', href: '/category/home', icon: 'mdi:home-outline' },
 ];
 
@@ -132,7 +132,7 @@ export const Navbar = () => {
           >
             <Icon icon="mdi:cart-outline" className="text-xl" />
             {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-black text-black text-[9px] font-black rounded-full flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-black text-white text-[9px] font-black rounded-full flex items-center justify-center">
                 {itemCount}
               </span>
             )}
@@ -150,9 +150,9 @@ export const Navbar = () => {
               <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                 <div className="bg-white border border-gray-100 rounded-2xl shadow-xl p-2 w-48 flex flex-col gap-0.5">
                   {[
-                    { label: 'My Orders', href: '/user/orders', icon: 'mdi:shopping-outline' },
-                    { label: 'Wishlist', href: '/wishlist', icon: 'mdi:heart-outline' },
-                    { label: 'Profile', href: '/user/profile', icon: 'mdi:account-outline' },
+                    { label: 'My Orders', href: '/account/orders', icon: 'mdi:shopping-outline' },
+                    { label: 'Wishlist', href: '/account/wishlist', icon: 'mdi:heart-outline' },
+                    { label: 'Profile', href: '/account/profile', icon: 'mdi:account-outline' },
                   ].map(item => (
                     <Link key={item.href} href={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#F5F5F5] text-sm font-semibold text-black">
                       <Icon icon={item.icon} className="text-base text-gray-500" /> {item.label}
@@ -260,9 +260,9 @@ export const Navbar = () => {
               <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 mb-2">Account</div>
               <div className="flex flex-col gap-0.5">
                 {[
-                  { label: 'My Orders', href: '/user/orders', icon: 'mdi:shopping-outline' },
-                  { label: 'Wishlist', href: '/wishlist', icon: 'mdi:heart-outline' },
-                  { label: 'Profile', href: '/user/profile', icon: 'mdi:account-outline' },
+                  { label: 'My Orders', href: '/account/orders', icon: 'mdi:shopping-outline' },
+                  { label: 'Wishlist', href: '/account/wishlist', icon: 'mdi:heart-outline' },
+                  { label: 'Profile', href: '/account/profile', icon: 'mdi:account-outline' },
                 ].map(item => (
                   <Link key={item.href} href={item.href} className="flex items-center gap-3 px-4 h-11 rounded-xl font-semibold text-sm text-gray-700 hover:bg-[#F5F5F5] transition-colors">
                     <Icon icon={item.icon} className="text-base flex-shrink-0" /> {item.label}

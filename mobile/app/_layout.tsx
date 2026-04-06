@@ -9,6 +9,27 @@ import { View } from 'react-native';
 import 'react-native-reanimated';
 
 import { AppProvider } from '@/context/app-context';
+import { 
+  useFonts,
+  CormorantGaramond_400Regular,
+  CormorantGaramond_500Medium,
+  CormorantGaramond_600SemiBold,
+  CormorantGaramond_700Bold 
+} from '@expo-google-fonts/cormorant-garamond';
+import { 
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_700Bold 
+} from '@expo-google-fonts/dm-sans';
+import { 
+  DMMono_400Regular,
+  DMMono_500Medium 
+} from '@expo-google-fonts/dm-mono';
+import * as SplashScreen from 'expo-splash-screen';
+import React, { useEffect } from 'react';
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
 
 const HeroProvider = HeroUINativeProvider as any;
 
@@ -27,6 +48,28 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
+  const [loaded, error] = useFonts({
+    CormorantGaramond_400Regular,
+    CormorantGaramond_500Medium,
+    CormorantGaramond_600SemiBold,
+    CormorantGaramond_700Bold,
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_700Bold,
+    DMMono_400Regular,
+    DMMono_500Medium,
+  });
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>

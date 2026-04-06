@@ -11,6 +11,34 @@
  */
 @source './node_modules/heroui-native/lib';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-display: 'CormorantGaramond_700Bold', serif;
+  --font-body: 'DMSans_400Regular', sans-serif;
+  --font-mono: 'DMMono_400Regular', monospace;
+}
+
+.font-display {
+  font-family: 'CormorantGaramond_700Bold';
+}
+
+.font-body {
+  font-family: 'DMSans_400Regular';
+}
+
+.font-mono {
+  font-family: 'DMMono_400Regular';
+}
+
+.font-bold-display {
+  font-family: 'CormorantGaramond_700Bold';
+}
+
+.font-medium-body {
+  font-family: 'DMSans_500Medium';
+}
+
 @layer theme {
   @variant light {
     --background: oklch(0.99 0 0);
@@ -41,13 +69,9 @@
     --danger-foreground: oklch(0.98 0 0);
     --segment: oklch(0.97 0 0);
     --segment-foreground: oklch(0.16 0 0);
-    --border: oklch(0 0 0 / 0%);
-    --separator: oklch(0.92 0 0);
-    --focus: var(--accent);
-    --link: oklch(0.55 0.15 250);
-    --surface-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
-    --overlay-shadow: 0 18px 50px rgba(0, 0, 0, 0.14);
     --field-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    --border: oklch(0% 0 0 / 10%);
+    --separator: oklch(0% 0 0 / 5%);
   }
 
   @variant dark {

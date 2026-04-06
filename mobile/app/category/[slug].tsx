@@ -1,10 +1,9 @@
 // @ts-nocheck
+import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
-import { Button } from 'heroui-native';
+import { Text, View, Pressable } from 'react-native';
 
 import { BrandLoader } from '@/components/brand-loader';
 import { ProductCard, Screen } from '@/components/storefront';
@@ -43,35 +42,42 @@ export default function CategoryScreen() {
     return (
       <View className="flex-1 items-center justify-center bg-white px-6">
         <Ionicons name="alert-circle-outline" size={48} color="#D1D5DB" />
-        <Text className="text-black font-black text-2xl mt-4 mb-2">Category not found</Text>
-        <Text className="text-gray-500 text-center mb-5">We could not locate that category in the catalogue.</Text>
-        <Button variant="primary" onPress={() => router.back()}>
-          <Button.Label>Go Back</Button.Label>
-        </Button>
+        <Text className="text-black font-bold text-2xl mt-4 mb-2 font-display">Category not found</Text>
+        <Text className="text-gray-500 text-center mb-6 font-body">We could not locate that category in the catalogue.</Text>
+        <Pressable 
+          onPress={() => router.back()}
+          className="bg-black h-12 px-8 rounded-full items-center justify-center"
+        >
+          <Text className="text-white font-bold text-sm uppercase tracking-widest font-mono">Go Back</Text>
+        </Pressable>
       </View>
     );
   }
 
   return (
-    <Screen>
-      <View className="px-4 pt-4 pb-2 flex-row items-center justify-between">
-        <Button variant="secondary" size="sm" onPress={() => router.back()}>
-          <Button.Label>
-            <Ionicons name="arrow-back" size={16} color="#111" />
-          </Button.Label>
-        </Button>
-        <Text className="text-black font-black text-lg">{category.name}</Text>
-        <View className="w-10 h-10" />
+    <Screen bg="bg-white">
+      <View className="px-4 pt-2 pb-6 flex-row items-center justify-between">
+        <Pressable 
+          onPress={() => router.back()}
+          className="w-11 h-11 rounded-full bg-[#F5F5F5] border border-black/5 items-center justify-center"
+        >
+          <Ionicons name="arrow-back" size={20} color="#111" />
+        </Pressable>
+        <Text className="text-black font-bold text-xl font-display tracking-tight uppercase">{category.name}</Text>
+        <View className="w-11 h-11" />
       </View>
 
-      <View className="px-4 mb-5">
-        <View className="rounded-[30px] overflow-hidden h-56 bg-black">
-          <Image source={{ uri: category.image }} className="w-full h-full" contentFit="cover" />
-          <View className="absolute inset-0 bg-black/45" />
-          <View className="absolute inset-0 p-6 justify-end">
-            <Text className="text-white/80 text-xs font-bold uppercase tracking-[3px] mb-1">Category</Text>
-            <Text className="text-white text-4xl font-black tracking-tight">{category.name}</Text>
-            <Text className="text-white/70 mt-2">{category.count} products available</Text>
+      <View className="px-4 mb-8">
+        <View className="rounded-[40px] overflow-hidden h-64 bg-black relative border border-black/5">
+          <Image source={{ uri: category.image }} className="absolute inset-0 w-full h-full opacity-60" contentFit="cover" />
+          <View className="absolute inset-0 bg-black/30" />
+          <View className="absolute inset-0 p-8 justify-end">
+            <View className="flex-row items-center gap-2 mb-2">
+               <View className="w-1.5 h-1.5 rounded-full bg-[#84D347]" />
+               <Text className="text-[10px] font-black uppercase tracking-[3px] text-[#84D347] font-mono">Category</Text>
+            </View>
+            <Text className="text-white text-5xl font-bold tracking-tight font-display leading-[48px]">{category.name}</Text>
+            <Text className="text-white/60 mt-3 font-body text-sm uppercase tracking-wider">{category.count} items in collection</Text>
           </View>
         </View>
       </View>

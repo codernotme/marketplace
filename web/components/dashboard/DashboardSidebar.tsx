@@ -12,34 +12,16 @@ const userLinks: NavLink[] = [
   { name: 'Profile & Settings', href: '/user/profile', icon: 'mdi:account-circle-outline' },
   { name: 'Addresses', href: '/user/profile', icon: 'mdi:map-marker-outline' },
 ];
-
-const vendorLinks: NavLink[] = [
-  { name: 'Overview', href: '/vendor/dashboard', icon: 'mdi:view-dashboard-outline' },
-  { name: 'My Products', href: '/vendor/products', icon: 'mdi:package-variant-outline' },
-  { name: 'Add Product', href: '/vendor/products/new', icon: 'mdi:plus-box-outline' },
-  { name: 'Orders', href: '/vendor/dashboard', icon: 'mdi:clipboard-list-outline' },
-  { name: 'Analytics', href: '/vendor/dashboard', icon: 'mdi:chart-line' },
-  { name: 'Settings', href: '/vendor/dashboard', icon: 'mdi:cog-outline' },
-];
-
-const adminLinks: NavLink[] = [
-  { name: 'Overview', href: '/admin/dashboard', icon: 'mdi:view-dashboard-outline' },
-  { name: 'Users', href: '/admin/users', icon: 'mdi:account-group-outline' },
-  { name: 'Vendors', href: '/admin/dashboard', icon: 'mdi:storefront-outline' },
-  { name: 'Orders', href: '/admin/dashboard', icon: 'mdi:clipboard-list-outline' },
-  { name: 'Analytics', href: '/admin/dashboard', icon: 'mdi:chart-bar' },
-  { name: 'Platform Settings', href: '/admin/dashboard', icon: 'mdi:cog-outline' },
-];
-
-const roleConfig = {
-  customer: { links: userLinks, label: 'My Account', accent: 'text-black', avatarBg: 'bg-[#F5F5F5]' },
-  vendor: { links: vendorLinks, label: 'Vendor Portal', accent: 'text-[#84D347]', avatarBg: 'bg-black/10' },
-  admin: { links: adminLinks, label: 'Admin', accent: 'text-amber-600', avatarBg: 'bg-amber-50' },
+const customerConfig = {
+  links: userLinks,
+  label: 'My Account',
+  accent: 'text-black',
+  avatarBg: 'bg-[#F5F5F5]',
 };
 
-export const DashboardSidebar = ({ role }: { role: 'vendor' | 'customer' | 'admin' }) => {
+export const DashboardSidebar = () => {
   const pathname = usePathname();
-  const { links, label, accent, avatarBg } = roleConfig[role];
+  const { links, label, accent, avatarBg } = customerConfig;
 
   return (
     <div className="w-64 flex-shrink-0 min-h-screen bg-white border-r border-gray-100 flex flex-col">

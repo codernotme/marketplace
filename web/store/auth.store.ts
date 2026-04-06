@@ -16,8 +16,8 @@ interface AuthStore {
   user: User | null;
   accessToken: string | null;
   isAuthenticated: boolean;
-  role: 'customer' | 'vendor' | 'admin' | null;
-  login: (tokens: TokenPair, user: User, role?: 'customer' | 'vendor' | 'admin') => void;
+  role: 'customer' | null;
+  login: (tokens: TokenPair, user: User, role?: 'customer') => void;
   logout: () => void;
   setUser: (user: User) => void;
 }

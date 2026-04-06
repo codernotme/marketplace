@@ -70,6 +70,89 @@ export const storefrontContent = {
       { label: 'Track Order', href: '/track' },
     ],
   },
+  about: {
+    headerTitle: 'About Us',
+    headerSubtitle: 'Company',
+    paragraphs: [
+      'We build curated ecommerce experiences focused on quality products, clear discovery, and a fast checkout flow.',
+      'The mobile app mirrors the storefront catalogue, account journeys, and content sections so customers can move between web and app without losing context.',
+    ],
+  },
+  contact: {
+    headerTitle: 'Contact',
+    headerSubtitle: 'Support',
+    fields: {
+      name: { placeholder: 'Name' },
+      email: { placeholder: 'Email' },
+      message: { placeholder: 'Message' },
+    },
+    submitLabel: 'Send Message',
+  },
+  faq: {
+    headerTitle: 'FAQ',
+    headerSubtitle: 'Help',
+    items: [
+      ['How long does shipping take?', 'Standard shipping usually takes 3-5 business days depending on location.'],
+      ['Can I return an item?', 'Yes, returns are accepted within the return window as long as the product is unused.'],
+      ['How do I track my order?', 'Use the Track Order page with your order number and email address.'],
+    ],
+  },
+  legal: {
+    privacy: {
+      headerTitle: 'Privacy Policy',
+      headerSubtitle: 'Legal',
+      paragraphs: [
+        'We only use the data needed to process orders, support accounts, and improve the storefront experience.',
+        'This mobile clone uses local mock data only. No external personal data is transmitted from these screens.',
+      ],
+    },
+    refund: {
+      headerTitle: 'Refund Policy',
+      headerSubtitle: 'Legal',
+      paragraphs: [
+        'Refunds are reviewed once a return is received and inspected.',
+        'Approved refunds are issued back to the original payment method after processing.',
+      ],
+    },
+    terms: {
+      headerTitle: 'Terms of Service',
+      headerSubtitle: 'Legal',
+      paragraphs: [
+        'By using the store you agree to standard commerce terms, product availability, and order processing rules.',
+        'All product content, images, and mock checkout interactions are provided for demonstration inside this Expo clone.',
+      ],
+    },
+  },
+  auth: {
+    login: {
+      headerTitle: 'Sign In',
+      headerSubtitle: 'Welcome back',
+      emailPlaceholder: 'you@example.com',
+      passwordPlaceholder: '••••••••',
+      submitLabel: 'Sign In',
+      secondaryLabel: 'Create Account',
+      forgotLabel: 'Forgot Password?',
+    },
+    register: {
+      headerTitle: 'Create Account',
+      headerSubtitle: 'Join themrktplace',
+      firstNamePlaceholder: 'First name',
+      lastNamePlaceholder: 'Last name',
+      emailPlaceholder: 'you@example.com',
+      passwordPlaceholder: 'At least 8 characters',
+      submitLabel: 'Create Account',
+      secondaryLabel: 'Already have an account? Sign In',
+    },
+    forgotPassword: {
+      headerTitle: 'Forgot Password',
+      headerSubtitle: 'Reset your account password',
+      emailPlaceholder: 'you@example.com',
+      submitLabel: 'Send Reset Link',
+      successTitle: 'Check your inbox',
+      successDescription: 'We sent a reset link to your email. It expires in 30 minutes.',
+      secondaryLabel: 'Back to Sign In',
+    },
+  },
 };
 
 export const categories = [

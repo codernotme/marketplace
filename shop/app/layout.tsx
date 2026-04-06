@@ -16,8 +16,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard — Marketplace",
-  description: "Shop admin control center for managing inventory, orders, customers, and more.",
+  title: "themrktplace — Admin Dashboard",
+  description: "Admin dashboard for managing inventory, orders, customers, analytics and more.",
 };
 
 export default function RootLayout({

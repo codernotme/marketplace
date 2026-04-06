@@ -1,13 +1,17 @@
 import { Text, View } from 'react-native';
 import { Screen, SiteHeader } from '@/components/storefront';
+import { storefrontContent } from '@/data/mock';
 
 export default function RefundScreen() {
+  const content = storefrontContent.legal.refund;
+
   return (
     <Screen>
-      <SiteHeader title="Refund Policy" subtitle="Legal" />
+      <SiteHeader title={content.headerTitle} subtitle={content.headerSubtitle} />
       <View className="px-4 gap-4 pb-8">
-        <Text className="text-black leading-7">Refunds are reviewed once a return is received and inspected.</Text>
-        <Text className="text-black leading-7">Approved refunds are issued back to the original payment method after processing.</Text>
+        {content.paragraphs.map((paragraph) => (
+          <Text key={paragraph} className="text-black leading-7">{paragraph}</Text>
+        ))}
       </View>
     </Screen>
   );

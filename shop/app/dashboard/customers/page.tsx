@@ -1,135 +1,164 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Chip } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { customers } from "@/lib/mock-data";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { useCustomersStore } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
+
+const TAG_COLORS: Record<string, string> = {
+  vip: "bg-violet-500/15 text-violet-400",
+  premium: "bg-amber-500/15 text-amber-400",
+  regular: "bg-blue-500/15 text-blue-400",
+  new: "bg-success/15 text-success",
+  budget: "bg-default text-muted",
+  electronics: "bg-cyan-500/15 text-cyan-400",
+  repeat: "bg-indigo-500/15 text-indigo-400",
+};
 
 export default function CustomersPage() {
+  const { customers, toggleActive, addTag, removeTag } = useCustomersStore();
   const [search, setSearch] = useState("");
+  const [filterActive, setFilterActive] = useState<"all" | "active" | "inactive">("all");
 
-  const filtered = customers.filter(
-    (c) =>
-      !search ||
+  const filtered = customers.filter((c) => {
+    const matchSearch = !search ||
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.email.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone.includes(search)
-  );
+      c.city.toLowerCase().includes(search.toLowerCase());
+    const matchActive = filterActive === "all" || (filterActive === "active" ? c.isActive : !c.isActive);
+    return matchSearch && matchActive;
+  });
+
+  const totalRevenue = customers.reduce((s, c) => s + c.totalSpent, 0);
+  const avgOrder = customers.length ? customers.reduce((s, c) => s + c.avgOrderValue, 0) / customers.length : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Customers"
-        subtitle={`${customers.length} total customers`}
+        subtitle={`${customers.length} registered customers`}
         icon="solar:users-group-two-rounded-bold-duotone"
         actions={
           <Button variant="secondary" size="sm" className="gap-2">
-            <Icon icon="solar:export-bold-duotone" className="text-base" />
-            Export
+            <Icon icon="solar:download-bold-duotone" className="text-base" />
+            Export CSV
           </Button>
         }
       />
 
-      {/* Stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Customers", value: customers.length.toString(), icon: "solar:users-group-two-rounded-bold-duotone", color: "text-accent" },
-          { label: "Active", value: customers.filter((c) => c.isActive).toString(), icon: "solar:user-check-bold-duotone", color: "text-success" },
-          { label: "VIP", value: customers.filter((c) => c.tags.includes("vip")).length.toString(), icon: "solar:crown-bold-duotone", color: "text-amber-400" },
-          { label: "New This Month", value: "3", icon: "solar:user-plus-bold-duotone", color: "text-blue-400" },
-        ].map((s) => (
-          <div key={s.label} className="bg-surface rounded-2xl p-4 border border-border/50 flex items-center gap-3">
-            <Icon icon={s.icon} className={`text-2xl ${s.color}`} />
+          { label: "Total Customers", value: String(customers.length), icon: "solar:users-group-two-rounded-bold-duotone", color: "text-accent" },
+          { label: "Active Customers", value: String(customers.filter(c => c.isActive).length), icon: "solar:user-check-rounded-bold-duotone", color: "text-success" },
+          { label: "Total Revenue", value: formatCurrency(totalRevenue), icon: "solar:wallet-money-bold-duotone", color: "text-warning" },
+          { label: "Avg Order Value", value: formatCurrency(avgOrder), icon: "solar:cart-large-bold-duotone", color: "text-violet-400" },
+        ].map((stat) => (
+          <div key={stat.label} className="bg-surface border border-border rounded-2xl p-4 flex items-center gap-4 stat-card">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-default/60 ${stat.color}`}>
+              <Icon icon={stat.icon} className="text-xl" />
+            </div>
             <div>
-              <p className="text-xl font-bold font-[family-name:var(--font-outfit)]">{s.value}</p>
-              <p className="text-xs text-muted">{s.label}</p>
+              <p className="text-lg font-bold" style={{ fontFamily: "var(--font-outfit)" }}>{stat.value}</p>
+              <p className="text-xs text-muted">{stat.label}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Search */}
-      <Input
-        placeholder="Search by name, email or phone…"
-        value={search}
-        onValueChange={setSearch}
-        startContent={<Icon icon="solar:magnifer-bold-duotone" className="text-muted text-lg" />}
-        className="max-w-sm"
-      />
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        <Input
+          placeholder="Search customers…"
+          value={search}
+          onValueChange={setSearch}
+          startContent={<Icon icon="solar:magnifer-bold-duotone" className="text-muted text-lg" />}
+          className="max-w-xs"
+        />
+        <div className="flex gap-1 p-1 bg-default/40 rounded-xl">
+          {(["all", "active", "inactive"] as const).map((opt) => (
+            <button
+              key={opt}
+              onClick={() => setFilterActive(opt)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize ${
+                filterActive === opt ? "bg-surface text-accent shadow-sm" : "text-muted hover:text-foreground"
+              }`}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Table */}
-      <div className="bg-surface rounded-2xl border border-border/50 overflow-hidden">
+      <div className="bg-surface rounded-2xl border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border/40 bg-background/50">
+              <tr className="border-b border-border bg-background/40">
                 <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Customer</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Location</th>
-                <th className="text-right px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Orders</th>
-                <th className="text-right px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Total Spent</th>
-                <th className="text-right px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">AOV</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Tags</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Joined</th>
-                <th className="px-5 py-3.5"></th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider hidden md:table-cell">Location</th>
+                <th className="text-right px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider hidden lg:table-cell">Orders</th>
+                <th className="text-right px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Spent</th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider hidden xl:table-cell">Tags</th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                <th className="px-5 py-3.5 w-16"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/30">
-              {filtered.map((customer) => (
-                <tr key={customer.id} className="table-row-hover">
-                  <td className="px-5 py-4">
+            <tbody className="divide-y divide-border">
+              {filtered.map((c) => (
+                <tr key={c.id} className="table-row-hover">
+                  <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       <img
-                        src={customer.avatar}
-                        alt={customer.name}
-                        className="w-9 h-9 rounded-xl bg-default"
+                        src={c.avatar}
+                        alt={c.name}
+                        className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
                       />
                       <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold">{customer.name}</p>
-                          {!customer.isActive && (
-                            <span className="text-xs bg-default text-muted px-1.5 py-0.5 rounded-md">Inactive</span>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted">{customer.email}</p>
+                        <p className="font-semibold text-sm">{c.name}</p>
+                        <p className="text-xs text-muted">{c.email}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-muted text-sm">
-                    {customer.city}, {customer.state}
-                  </td>
-                  <td className="px-5 py-4 text-right font-bold">{customer.totalOrders}</td>
-                  <td className="px-5 py-4 text-right font-bold">{formatCurrency(customer.totalSpent)}</td>
-                  <td className="px-5 py-4 text-right text-muted">{formatCurrency(customer.avgOrderValue)}</td>
-                  <td className="px-5 py-4">
-                    <div className="flex gap-1.5 flex-wrap">
-                      {customer.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            tag === "vip" ? "bg-amber-500/10 text-amber-400" :
-                            tag === "premium" ? "bg-violet-500/10 text-violet-400" :
-                            tag === "regular" ? "bg-blue-500/10 text-blue-400" :
-                            tag === "new" ? "bg-green-500/10 text-green-400" :
-                            "bg-default text-muted"
-                          }`}
-                        >
+                  <td className="px-5 py-3.5 text-sm text-muted hidden md:table-cell">{c.city}, {c.state}</td>
+                  <td className="px-5 py-3.5 text-right text-sm font-medium hidden lg:table-cell">{c.totalOrders}</td>
+                  <td className="px-5 py-3.5 text-right font-bold text-sm">{formatCurrency(c.totalSpent)}</td>
+                  <td className="px-5 py-3.5 hidden xl:table-cell">
+                    <div className="flex gap-1 flex-wrap">
+                      {c.tags.map((tag) => (
+                        <span key={tag} className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${TAG_COLORS[tag] ?? "bg-default text-muted"}`}>
                           {tag}
                         </span>
                       ))}
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-muted text-xs">
-                    {new Date(customer.joinedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                  <td className="px-5 py-3.5">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${c.isActive ? "bg-success/15 text-success" : "bg-default text-muted"}`}>
+                      {c.isActive ? "Active" : "Inactive"}
+                    </span>
                   </td>
-                  <td className="px-5 py-4">
-                    <button className="p-1.5 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors">
-                      <Icon icon="solar:eye-bold-duotone" className="text-base" />
+                  <td className="px-5 py-3.5">
+                    <button
+                      className="p-1.5 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors"
+                      onClick={() => toggleActive(c.id)}
+                      title={c.isActive ? "Deactivate" : "Activate"}
+                    >
+                      <Icon icon={c.isActive ? "solar:user-block-rounded-bold-duotone" : "solar:user-check-rounded-bold-duotone"} className="text-base" />
                     </button>
                   </td>
                 </tr>
               ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="py-16 text-center">
+                    <Icon icon="solar:users-group-two-rounded-bold-duotone" className="text-5xl mx-auto mb-3 opacity-20" />
+                    <p className="text-muted text-sm">No customers found</p>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

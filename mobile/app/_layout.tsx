@@ -38,6 +38,9 @@ export default function RootLayout() {
               <Stack.Screen name="refund" />
               <Stack.Screen name="terms" />
               <Stack.Screen name="about" />
+              <Stack.Screen name="login" />
+              <Stack.Screen name="register" />
+              <Stack.Screen name="forgot-password" />
               <Stack.Screen name="account" />
               <Stack.Screen name="account/orders" />
               <Stack.Screen name="account/orders/[id]" />

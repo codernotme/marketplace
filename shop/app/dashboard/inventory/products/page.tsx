@@ -1,35 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Chip, Input, Select, } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { products, type ProductStatus } from "@/lib/mock-data";
-import { formatCurrency, getStatusColor } from "@/lib/utils";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { useProductsStore } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
+import type { ProductStatus } from "@/lib/mock-data";
+
+const STATUS_OPTS = [
+  { key: "all", label: "All" },
+  { key: "active", label: "Active" },
+  { key: "draft", label: "Draft" },
+  { key: "archived", label: "Archived" },
+];
 
 export default function ProductsPage() {
+  const { products, deleteProduct, updateProduct } = useProductsStore();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const filtered = products.filter((p) => {
-    const matchSearch =
-      !search ||
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter === "all" || p.status === statusFilter;
     return matchSearch && matchStatus;
   });
 
-  const statusOptions: { key: string; label: string }[] = [
-    { key: "all", label: "All Status" },
-    { key: "active", label: "Active" },
-    { key: "draft", label: "Draft" },
-    { key: "archived", label: "Archived" },
-  ];
+  const counts = {
+    all: products.length,
+    active: products.filter(p => p.status === "active").length,
+    draft: products.filter(p => p.status === "draft").length,
+    archived: products.filter(p => p.status === "archived").length,
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Products"
         subtitle={`${products.length} products total`}
@@ -38,9 +45,14 @@ export default function ProductsPage() {
           <div className="flex items-center gap-2">
             <Button variant="secondary" size="sm" className="gap-2">
               <Icon icon="solar:upload-bold-duotone" className="text-base" />
-              Import CSV
+              Import
             </Button>
-            <Button variant="primary" size="sm" className="gap-2" onPress={() => window.location.href = "/dashboard/inventory/products/add"}>
+            <Button
+              variant="primary"
+              size="sm"
+              className="gap-2"
+              onPress={() => (window.location.href = "/dashboard/inventory/products/add")}
+            >
               <Icon icon="solar:add-square-bold-duotone" className="text-base" />
               Add Product
             </Button>
@@ -48,108 +60,121 @@ export default function ProductsPage() {
         }
       />
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Input
-          placeholder="Search by name or SKU…"
-          value={search}
-          onValueChange={setSearch}
-          startContent={<Icon icon="solar:magnifer-bold-duotone" className="text-muted text-lg" />}
-          className="sm:max-w-xs"
-        />
-        <Select
-          selectedKeys={[statusFilter]}
-          onSelectionChange={(keys) => setStatusFilter(Array.from(keys)[0] as string)}
-          className="sm:max-w-[160px]"
-        >
-          {statusOptions.map((opt) => (
-            <SelectItem key={opt.key}>{opt.label}</SelectItem>
-          ))}
-        </Select>
+      {/* Status tabs */}
+      <div className="flex gap-1 p-1 bg-default/40 rounded-xl w-fit">
+        {STATUS_OPTS.map((opt) => (
+          <button
+            key={opt.key}
+            onClick={() => setStatusFilter(opt.key)}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              statusFilter === opt.key ? "bg-surface text-accent shadow-sm" : "text-muted hover:text-foreground"
+            }`}
+          >
+            {opt.label}
+            <span className={`text-xs px-1.5 py-0.5 rounded-full ${statusFilter === opt.key ? "bg-accent/10 text-accent" : "bg-default/80 text-muted"}`}>
+              {counts[opt.key as keyof typeof counts]}
+            </span>
+          </button>
+        ))}
       </div>
 
+      {/* Search */}
+      <Input
+        placeholder="Search by name, SKU or brand…"
+        value={search}
+        onValueChange={setSearch}
+        startContent={<Icon icon="solar:magnifer-bold-duotone" className="text-muted text-lg" />}
+        className="max-w-sm"
+      />
+
       {/* Table */}
-      <div className="bg-surface rounded-2xl border border-border/50 overflow-hidden">
+      <div className="bg-surface rounded-2xl border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border/40 bg-background/50">
+              <tr className="border-b border-border bg-background/40">
                 <th className="text-left px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Product</th>
-                <th className="text-left px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">SKU</th>
-                <th className="text-left px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Category</th>
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider hidden md:table-cell">SKU</th>
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider hidden lg:table-cell">Category</th>
                 <th className="text-right px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Price</th>
-                <th className="text-right px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Stock</th>
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider hidden lg:table-cell">Stock</th>
                 <th className="text-left px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
-                <th className="text-left px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider">Flags</th>
-                <th className="px-4 py-3.5"></th>
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-muted uppercase tracking-wider hidden xl:table-cell">Flags</th>
+                <th className="px-4 py-3.5 w-20"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/30">
+            <tbody className="divide-y divide-border">
               {filtered.map((product) => {
-                const colorMap: Record<ProductStatus, "success" | "default" | "warning"> = {
-                  active: "success",
-                  draft: "default",
-                  archived: "warning",
-                };
-                const stockBadge =
-                  product.stock === 0
-                    ? { label: "Out", color: "danger" as const }
-                    : product.stock <= product.lowStockThreshold
-                    ? { label: product.stock.toString(), color: "warning" as const }
-                    : { label: product.stock.toString(), color: "success" as const };
+                const totalStock = product.variants.reduce((s, v) => s + v.stock, 0);
+                const allOut = product.variants.every((v) => v.stock === 0);
+                const isLow = !allOut && product.variants.some((v) => v.stock > 0 && v.stock <= 5);
 
                 return (
                   <tr key={product.id} className="table-row-hover">
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-default flex items-center justify-center flex-shrink-0">
-                          <Icon icon="solar:box-bold-duotone" className="text-muted" />
+                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-default flex-shrink-0">
+                          {product.images[0] ? (
+                            <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Icon icon="solar:box-bold-duotone" className="text-muted text-lg" />
+                            </div>
+                          )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-semibold truncate max-w-[200px]">{product.title}</p>
+                          <p className="font-semibold truncate max-w-[180px] text-sm">{product.title}</p>
                           <p className="text-xs text-muted">{product.brand}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 text-muted font-mono text-xs">{product.sku}</td>
-                    <td className="px-4 py-3.5 text-muted">{product.category}</td>
-                    <td className="px-4 py-3.5 text-right">
-                      <div>
-                        <p className="font-bold">{formatCurrency(product.price)}</p>
-                        {product.comparePrice && (
-                          <p className="text-xs text-muted line-through">{formatCurrency(product.comparePrice)}</p>
-                        )}
-                      </div>
+                    <td className="px-4 py-3.5 text-muted font-mono text-xs hidden md:table-cell">{product.sku}</td>
+                    <td className="px-4 py-3.5 text-muted text-xs hidden lg:table-cell">
+                      {product.category_id}
                     </td>
                     <td className="px-4 py-3.5 text-right">
-                      <Chip size="sm" variant={stockBadge.color}>
-                        {stockBadge.label === "Out" ? "Out of stock" : `${stockBadge.label} in stock`}
-                      </Chip>
+                      <p className="font-bold text-sm">{formatCurrency(product.price)}</p>
+                      {product.comparePrice && (
+                        <p className="text-xs text-muted line-through">{formatCurrency(product.comparePrice)}</p>
+                      )}
+                    </td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        allOut ? "bg-danger/15 text-danger" :
+                        isLow ? "bg-warning/15 text-warning" :
+                        "bg-success/15 text-success"
+                      }`}>
+                        {allOut ? "Out of stock" : isLow ? `Low (${totalStock})` : `${totalStock} in stock`}
+                      </span>
                     </td>
                     <td className="px-4 py-3.5">
-                      <Chip size="sm" variant={colorMap[product.status]}>
-                        {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
-                      </Chip>
+                      <StatusBadge status={product.status} />
                     </td>
-                    <td className="px-4 py-3.5">
-                      <div className="flex gap-1.5 flex-wrap">
-                        {product.isNew && (
-                          <span className="text-xs bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded-md font-medium">New</span>
-                        )}
-                        {product.isBestSeller && (
-                          <span className="text-xs bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded-md font-medium">⭐ Best</span>
-                        )}
-                        {product.isFeatured && (
-                          <span className="text-xs bg-violet-500/10 text-violet-400 px-1.5 py-0.5 rounded-md font-medium">Featured</span>
-                        )}
+                    <td className="px-4 py-3.5 hidden xl:table-cell">
+                      <div className="flex gap-1 flex-wrap">
+                        {product.is_new && <span className="text-xs bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded-md font-semibold">New</span>}
+                        {product.is_featured && <span className="text-xs bg-violet-500/10 text-violet-400 px-1.5 py-0.5 rounded-md font-semibold">Featured</span>}
+                        {product.is_trending && <span className="text-xs bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded-md font-semibold">🔥 Hot</span>}
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-1">
-                        <button className="p-1.5 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors">
+                        <button
+                          className="p-1.5 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors"
+                          title="Edit product"
+                          onClick={() => (window.location.href = `/dashboard/inventory/products/edit/${product.id}`)}
+                        >
                           <Icon icon="solar:pen-bold-duotone" className="text-base" />
                         </button>
-                        <button className="p-1.5 rounded-lg hover:bg-danger/10 text-muted hover:text-danger transition-colors">
+                        <button
+                          className="p-1.5 rounded-lg hover:bg-danger/10 text-muted hover:text-danger transition-colors"
+                          title="Delete product"
+                          onClick={() => {
+                            if (window.confirm(`Delete "${product.title}"?`)) {
+                              deleteProduct(product.id);
+                            }
+                          }}
+                        >
                           <Icon icon="solar:trash-bin-trash-bold-duotone" className="text-base" />
                         </button>
                       </div>
@@ -157,12 +182,11 @@ export default function ProductsPage() {
                   </tr>
                 );
               })}
-
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-muted">
-                    <Icon icon="solar:box-bold-duotone" className="text-4xl mx-auto mb-2 opacity-30" />
-                    <p>No products found</p>
+                  <td colSpan={8} className="py-16 text-center">
+                    <Icon icon="solar:box-bold-duotone" className="text-5xl mx-auto mb-3 opacity-20" />
+                    <p className="text-muted text-sm">No products found</p>
                   </td>
                 </tr>
               )}

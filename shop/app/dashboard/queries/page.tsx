@@ -1,185 +1,196 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Chip, Input, Textarea } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { tickets, type TicketStatus } from "@/lib/mock-data";
-
-const STATUS_COLORS: Record<TicketStatus, string> = {
-  open: "text-danger bg-danger/10",
-  in_progress: "text-warning bg-warning/10",
-  resolved: "text-success bg-success/10",
-};
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { useTicketsStore } from "@/lib/store";
 
 const PRIORITY_COLORS: Record<string, string> = {
-  high: "text-danger",
-  medium: "text-warning",
-  low: "text-muted",
+  high: "bg-danger/15 text-danger",
+  medium: "bg-warning/15 text-warning",
+  low: "bg-default text-muted",
 };
 
 export default function QueriesPage() {
-  const [activeTab, setActiveTab] = useState<TicketStatus | "all">("all");
-  const [selectedTicket, setSelectedTicket] = useState(tickets[0]);
-  const [reply, setReply] = useState("");
+  const { tickets, updateTicketStatus, addMessage } = useTicketsStore();
+  const [selected, setSelected] = useState(tickets[0]?.id ?? "");
+  const [replyText, setReplyText] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "open" | "in_progress" | "resolved">("all");
 
-  const filtered = tickets.filter((t) => activeTab === "all" || t.status === activeTab);
+  const filtered = tickets.filter((t) => statusFilter === "all" || t.status === statusFilter);
+  const selectedTicket = tickets.find((t) => t.id === selected);
 
-  const TABS: { key: TicketStatus | "all"; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "open", label: "Open" },
-    { key: "in_progress", label: "In Progress" },
-    { key: "resolved", label: "Resolved" },
-  ];
+  const handleReply = () => {
+    if (!replyText.trim() || !selected) return;
+    addMessage(selected, replyText.trim(), "admin");
+    setReplyText("");
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Customer Queries"
-        subtitle={`${tickets.filter((t) => t.status === "open").length} open tickets`}
+        subtitle={`${tickets.filter(t => t.status === "open").length} open tickets`}
         icon="solar:chat-round-bold-duotone"
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 h-[calc(100vh-220px)] min-h-0">
-        {/* Ticket List */}
-        <div className="lg:col-span-2 bg-surface rounded-2xl border border-border/50 overflow-hidden flex flex-col">
-          {/* Tabs */}
-          <div className="flex gap-1 p-2 border-b border-border/40">
-            {TABS.map((tab) => {
-              const count = tab.key === "all" ? tickets.length : tickets.filter((t) => t.status === tab.key).length;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    activeTab === tab.key ? "bg-accent/10 text-accent" : "text-muted hover:text-foreground"
-                  }`}
-                >
-                  {tab.label} ({count})
-                </button>
-              );
-            })}
+      {/* Status tabs */}
+      <div className="flex gap-1 p-1 bg-default/40 rounded-xl w-fit">
+        {(["all", "open", "in_progress", "resolved"] as const).map((opt) => {
+          const count = opt === "all" ? tickets.length : tickets.filter(t => t.status === opt).length;
+          return (
+            <button
+              key={opt}
+              onClick={() => setStatusFilter(opt)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all capitalize whitespace-nowrap ${
+                statusFilter === opt ? "bg-surface text-accent shadow-sm" : "text-muted hover:text-foreground"
+              }`}
+            >
+              {opt === "in_progress" ? "In Progress" : opt}
+              <span className={`text-xs px-1.5 py-0.5 rounded-full ${statusFilter === opt ? "bg-accent/10 text-accent" : "bg-default/80 text-muted"}`}>{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 h-[calc(100vh-280px)] min-h-[500px]">
+        {/* Ticket list */}
+        <div className="lg:col-span-2 bg-surface border border-border rounded-2xl overflow-hidden flex flex-col">
+          <div className="p-3 border-b border-border">
+            <Input
+              placeholder="Search tickets…"
+              size="sm"
+              startContent={<Icon icon="solar:magnifer-bold-duotone" className="text-muted text-base" />}
+            />
           </div>
-          {/* List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-border/30">
+          <div className="flex-1 overflow-y-auto divide-y divide-border">
             {filtered.map((ticket) => (
-              <button
+              <div
                 key={ticket.id}
-                onClick={() => setSelectedTicket(ticket)}
-                className={`w-full text-left px-4 py-3.5 hover:bg-default/40 transition-colors ${
-                  selectedTicket.id === ticket.id ? "bg-accent/5 border-l-2 border-l-accent" : ""
+                onClick={() => setSelected(ticket.id)}
+                className={`p-4 cursor-pointer transition-colors ${
+                  selected === ticket.id ? "bg-accent/8 border-l-2 border-accent" : "hover:bg-default/40"
                 }`}
               >
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <p className="text-sm font-medium leading-snug">{ticket.subject}</p>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${STATUS_COLORS[ticket.status]}`}>
-                    {ticket.status === "in_progress" ? "In Progress" : ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <p className="text-sm font-semibold leading-snug line-clamp-1">{ticket.subject}</p>
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ${PRIORITY_COLORS[ticket.priority]}`}>
+                    {ticket.priority}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 text-xs text-muted">
-                  <span>{ticket.customer.name}</span>
-                  <span>·</span>
-                  <span className={PRIORITY_COLORS[ticket.priority]}>
-                    {ticket.priority === "high" ? "🔴" : ticket.priority === "medium" ? "🟡" : "🟢"} {ticket.priority}
-                  </span>
-                  <span>·</span>
-                  <span>{ticket.category}</span>
+                <p className="text-xs text-muted mb-2">{ticket.customer.name} · {ticket.category}</p>
+                <div className="flex items-center justify-between">
+                  <StatusBadge status={ticket.status} />
+                  <span className="text-xs text-muted">{new Date(ticket.updatedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</span>
                 </div>
-              </button>
+              </div>
             ))}
+            {filtered.length === 0 && (
+              <div className="py-12 text-center text-muted text-sm">
+                <Icon icon="solar:inbox-bold-duotone" className="text-4xl mx-auto mb-2 opacity-20" />
+                No tickets
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Ticket Detail */}
-        <div className="lg:col-span-3 bg-surface rounded-2xl border border-border/50 overflow-hidden flex flex-col">
+        {/* Ticket detail */}
+        <div className="lg:col-span-3 bg-surface border border-border rounded-2xl overflow-hidden flex flex-col">
           {selectedTicket ? (
             <>
               {/* Header */}
-              <div className="px-5 py-4 border-b border-border/40">
-                <div className="flex items-start justify-between gap-4">
+              <div className="px-5 py-4 border-b border-border">
+                <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold font-[family-name:var(--font-outfit)]">{selectedTicket.subject}</h3>
-                    <p className="text-xs text-muted mt-0.5">
-                      {selectedTicket.customer.name} · {selectedTicket.customer.email}
-                      {selectedTicket.orderId && <span> · Order: <span className="text-accent">{selectedTicket.orderId}</span></span>}
-                    </p>
+                    <h3 className="font-bold text-base leading-snug mb-1">{selectedTicket.subject}</h3>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <StatusBadge status={selectedTicket.status} />
+                      <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${PRIORITY_COLORS[selectedTicket.priority]}`}>
+                        {selectedTicket.priority} priority
+                      </span>
+                      <span className="text-xs text-muted">{selectedTicket.customer.name} · #{selectedTicket.id}</span>
+                    </div>
                   </div>
-                  <div className="flex gap-2 flex-shrink-0">
-                    <Select label="" placeholder="Change Status" className="w-36 text-xs" />
-                    <button className="p-1.5 rounded-lg bg-default text-muted hover:text-foreground transition-colors">
-                      <Icon icon="solar:close-bold-duotone" className="text-sm" />
-                    </button>
+                  <div className="flex gap-1.5 flex-shrink-0">
+                    {(["open", "in_progress", "resolved"] as const).map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => updateTicketStatus(selectedTicket.id, s)}
+                        className={`text-xs px-2 py-1 rounded-lg border font-medium transition-colors ${
+                          selectedTicket.status === s
+                            ? "bg-accent/10 border-accent text-accent"
+                            : "border-border text-muted hover:border-accent/50"
+                        }`}
+                      >
+                        {s === "in_progress" ? "In Progress" : s.charAt(0).toUpperCase() + s.slice(1)}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
 
-              {/* Messages thread */}
+              {/* Messages */}
               <div className="flex-1 overflow-y-auto p-5 space-y-4">
                 {selectedTicket.messages.map((msg, i) => (
-                  <div key={i} className={`flex gap-3 ${msg.from === "admin" ? "flex-row-reverse" : ""}`}>
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-bold ${
-                      msg.from === "admin" ? "bg-accent text-white" : "bg-default text-muted"
+                  <div
+                    key={i}
+                    className={`flex gap-3 ${msg.from === "admin" ? "flex-row-reverse" : ""}`}
+                  >
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                      msg.from === "admin" ? "bg-accent/20 text-accent" : "bg-default text-muted"
                     }`}>
-                      {msg.from === "admin" ? "A" : selectedTicket.customer.name.charAt(0)}
+                      {msg.from === "admin" ? "A" : selectedTicket.customer.name[0]}
                     </div>
-                    <div className={`max-w-[80%] ${msg.from === "admin" ? "items-end" : "items-start"} flex flex-col gap-1`}>
-                      <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                    <div
+                      className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm ${
                         msg.from === "admin"
-                          ? "bg-accent text-white rounded-tr-sm"
-                          : "bg-default text-foreground rounded-tl-sm"
-                      }`}>
-                        {msg.text}
-                      </div>
-                      <span className="text-xs text-muted">
+                          ? "bg-accent/10 text-foreground rounded-tr-sm"
+                          : "bg-default/60 text-foreground rounded-tl-sm"
+                      }`}
+                    >
+                      <p className="leading-relaxed">{msg.text}</p>
+                      <p className="text-xs text-muted mt-1.5">
                         {new Date(msg.at).toLocaleString("en-IN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" })}
-                      </span>
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Reply box */}
-              <div className="p-4 border-t border-border/40">
-                <Textarea
-                  placeholder="Type your reply…"
-                  value={reply}
-                  onValueChange={setReply}
-                  minRows={2}
-                  maxRows={5}
-                />
-                <div className="flex items-center justify-between mt-3">
-                  <label className="flex items-center gap-2 text-xs text-muted cursor-pointer">
-                    <input type="checkbox" className="rounded" />
-                    Internal note (not sent to customer)
-                  </label>
-                  <Button variant="primary" size="sm" className="gap-2" isDisabled={!reply.trim()}>
+              {/* Reply */}
+              {selectedTicket.status !== "resolved" && (
+                <div className="p-4 border-t border-border flex gap-2">
+                  <input
+                    type="text"
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleReply()}
+                    placeholder="Type your reply…"
+                    className="flex-1 bg-default/60 border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
+                  />
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onPress={handleReply}
+                    isDisabled={!replyText.trim()}
+                    className="gap-2 flex-shrink-0"
+                  >
                     <Icon icon="solar:send-bold-duotone" className="text-base" />
-                    Send Reply
+                    Send
                   </Button>
                 </div>
-              </div>
+              )}
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-muted">
-              <div className="text-center">
-                <Icon icon="solar:chat-round-bold-duotone" className="text-5xl mb-3 opacity-30" />
-                <p>Select a ticket to view</p>
-              </div>
+            <div className="flex-1 flex items-center justify-center flex-col gap-3 text-muted">
+              <Icon icon="solar:chat-round-bold-duotone" className="text-5xl opacity-20" />
+              <p className="text-sm">Select a ticket to view</p>
             </div>
           )}
         </div>
       </div>
     </div>
-  );
-}
-
-function Select({ label, placeholder, className }: { label: string; placeholder: string; className?: string }) {
-  return (
-    <select className={`bg-default border border-border/50 text-sm rounded-lg px-3 py-1.5 text-muted ${className}`}>
-      <option value="">{placeholder}</option>
-      <option value="open">Open</option>
-      <option value="in_progress">In Progress</option>
-      <option value="resolved">Resolved</option>
-    </select>
   );
 }

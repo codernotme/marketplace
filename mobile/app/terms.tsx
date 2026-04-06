@@ -1,13 +1,17 @@
 import { Text, View } from 'react-native';
 import { Screen, SiteHeader } from '@/components/storefront';
+import { storefrontContent } from '@/data/mock';
 
 export default function TermsScreen() {
+  const content = storefrontContent.legal.terms;
+
   return (
     <Screen>
-      <SiteHeader title="Terms of Service" subtitle="Legal" />
+      <SiteHeader title={content.headerTitle} subtitle={content.headerSubtitle} />
       <View className="px-4 gap-4 pb-8">
-        <Text className="text-black leading-7">By using the store you agree to standard commerce terms, product availability, and order processing rules.</Text>
-        <Text className="text-black leading-7">All product content, images, and mock checkout interactions are provided for demonstration inside this Expo clone.</Text>
+        {content.paragraphs.map((paragraph) => (
+          <Text key={paragraph} className="text-black leading-7">{paragraph}</Text>
+        ))}
       </View>
     </Screen>
   );

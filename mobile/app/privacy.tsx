@@ -1,13 +1,17 @@
 import { Text, View } from 'react-native';
 import { Screen, SiteHeader } from '@/components/storefront';
+import { storefrontContent } from '@/data/mock';
 
 export default function PrivacyScreen() {
+  const content = storefrontContent.legal.privacy;
+
   return (
     <Screen>
-      <SiteHeader title="Privacy Policy" subtitle="Legal" />
+      <SiteHeader title={content.headerTitle} subtitle={content.headerSubtitle} />
       <View className="px-4 gap-4 pb-8">
-        <Text className="text-black leading-7">We only use the data needed to process orders, support accounts, and improve the storefront experience.</Text>
-        <Text className="text-black leading-7">This mobile clone uses local mock data only. No external personal data is transmitted from these screens.</Text>
+        {content.paragraphs.map((paragraph) => (
+          <Text key={paragraph} className="text-black leading-7">{paragraph}</Text>
+        ))}
       </View>
     </Screen>
   );

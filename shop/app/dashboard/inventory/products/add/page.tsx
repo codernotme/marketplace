@@ -1,207 +1,331 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Textarea, Switch, Select, SelectItem, Tabs, Tab } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { categories, brands } from "@/lib/mock-data";
+import { useProductsStore, useCategoriesStore, useBrandsStore } from "@/lib/store";
+import type { Product } from "@/lib/mock-data";
 
-function Section({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-surface rounded-2xl border border-border/50 overflow-hidden">
-      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-border/40">
-        <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-          <Icon icon={icon} className="text-accent text-base" />
-        </div>
-        <h2 className="font-semibold font-[family-name:var(--font-outfit)]">{title}</h2>
-      </div>
-      <div className="p-5">{children}</div>
-    </div>
-  );
-}
+const EMPTY_PRODUCT: Omit<Product, "id"> = {
+  slug: "", title: "", description: "", price: 0, comparePrice: null, category_id: "1", brand: "",
+  images: [], ratings_avg: 0, ratings_count: 0, is_new: false, is_trending: false, is_featured: false,
+  tags: [], variants: [{ id: "v_new_1", name: "Default", price: 0, stock: 0 }], status: "draft", sku: "",
+};
 
 export default function AddProductPage() {
-  const [trackInventory, setTrackInventory] = useState(true);
-  const [isDigital, setIsDigital] = useState(false);
-  const [taxInclusive, setTaxInclusive] = useState(false);
-  const [allowBackorder, setAllowBackorder] = useState(false);
-  const [isNew, setIsNew] = useState(false);
-  const [isFeatured, setIsFeatured] = useState(false);
-  const [isBestSeller, setIsBestSeller] = useState(false);
-  const [isTrending, setIsTrending] = useState(false);
+  const { addProduct } = useProductsStore();
+  const { categories } = useCategoriesStore();
+  const { brands } = useBrandsStore();
+
+  const [form, setForm] = useState({ ...EMPTY_PRODUCT });
+  const [tagInput, setTagInput] = useState("");
+  const [imageUrlInput, setImageUrlInput] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [activeSection, setActiveSection] = useState("basic");
+
+  const set = (key: keyof typeof form, value: unknown) => setForm((f) => ({ ...f, [key]: value }));
+
+  const addTag = () => {
+    const t = tagInput.trim().toLowerCase();
+    if (t && !form.tags.includes(t)) set("tags", [...form.tags, t]);
+    setTagInput("");
+  };
+
+  const removeTag = (t: string) => set("tags", form.tags.filter((x) => x !== t));
+
+  const addImage = () => {
+    if (imageUrlInput.trim()) {
+      set("images", [...form.images, imageUrlInput.trim()]);
+      setImageUrlInput("");
+    }
+  };
+
+  const addVariant = () =>
+    set("variants", [...form.variants, { id: `v_${Date.now()}`, name: "", price: form.price, stock: 0 }]);
+
+  const updateVariant = (idx: number, key: string, value: string | number) => {
+    const v = [...form.variants];
+    v[idx] = { ...v[idx], [key]: value };
+    set("variants", v);
+  };
+
+  const handleSave = (status: "active" | "draft") => {
+    const product: Product = {
+      ...form,
+      id: `p_${Date.now()}`,
+      slug: form.slug || form.title.toLowerCase().replace(/\s+/g, "-"),
+      sku: form.sku || `SKU-${Date.now()}`,
+      status,
+    };
+    addProduct(product);
+    setSaved(true);
+    setTimeout(() => { window.location.href = "/dashboard/inventory/products"; }, 1200);
+  };
+
+  const SECTIONS = [
+    { key: "basic", label: "Basic Info", icon: "solar:info-circle-bold-duotone" },
+    { key: "media", label: "Images", icon: "solar:gallery-bold-duotone" },
+    { key: "pricing", label: "Pricing", icon: "solar:tag-bold-duotone" },
+    { key: "inventory", label: "Variants", icon: "solar:box-bold-duotone" },
+    { key: "flags", label: "Flags & Tags", icon: "solar:flag-bold-duotone" },
+  ];
+
+  const inputCls = "w-full bg-default/60 border border-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors";
+  const labelCls = "block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider";
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-5">
       <PageHeader
-        title="Add New Product"
-        subtitle="Fill in the details below to publish a new product"
+        title="Add Product"
+        subtitle="Create a new product listing"
         icon="solar:add-square-bold-duotone"
         actions={
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">Save as Draft</Button>
-            <Button variant="secondary" size="sm">Preview</Button>
-            <Button variant="primary" size="sm" className="gap-2">
-              <Icon icon="solar:cloud-upload-bold-duotone" className="text-base" />
-              Publish
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm" onPress={() => handleSave("draft")}>
+              Save as Draft
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              className="gap-2"
+              onPress={() => handleSave("active")}
+              isDisabled={!form.title || !form.price}
+            >
+              <Icon icon={saved ? "solar:check-circle-bold-duotone" : "solar:add-square-bold-duotone"} className="text-base" />
+              {saved ? "Saved!" : "Publish Product"}
             </Button>
           </div>
         }
       />
 
-      {/* Basic Info */}
-      <Section title="Basic Information" icon="solar:document-text-bold-duotone">
-        <div className="space-y-4">
-          <Input label="Product Title" placeholder="e.g. Apple iPhone 15 Pro Max 256GB" isRequired />
-          <Input label="Slug" placeholder="apple-iphone-15-pro-max" description="Auto-generated from title. You can edit it." />
-          <Textarea label="Short Description" placeholder="Brief description shown on product cards…" maxRows={3} />
-          <Textarea label="Full Description" placeholder="Detailed product description with features, specifications…" minRows={5} />
-          <div className="grid grid-cols-2 gap-4">
-            <Select label="Category" placeholder="Select category" isRequired>
-              {categories.map((cat) => (
-                <SelectItem key={cat.id}>{cat.name}</SelectItem>
-              ))}
-            </Select>
-            <Select label="Brand" placeholder="Select brand">
-              {brands.map((brand) => (
-                <SelectItem key={brand.id}>{brand.name}</SelectItem>
-              ))}
-            </Select>
-          </div>
-          <Input label="Tags" placeholder="Comma-separated: smartphone, 5g, apple…" description="Press Enter or comma to add tags" />
-        </div>
-      </Section>
-
-      {/* Media */}
-      <Section title="Media & Images" icon="solar:gallery-wide-bold-duotone">
-        <div>
-          <div className="border-2 border-dashed border-border/60 hover:border-accent/50 rounded-2xl p-10 text-center cursor-pointer transition-colors group">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mx-auto mb-3 group-hover:bg-accent/20 transition-colors">
-              <Icon icon="solar:upload-bold-duotone" className="text-accent text-2xl" />
-            </div>
-            <p className="font-semibold text-sm">Drag & drop images here</p>
-            <p className="text-xs text-muted mt-1">PNG, JPG, WEBP up to 10MB each. First image is primary.</p>
-            <Button variant="secondary" size="sm" className="mt-3 gap-2">
-              <Icon icon="solar:folder-open-bold-duotone" className="text-base" />
-              Browse Files
-            </Button>
-          </div>
-          <div className="mt-4">
-            <Input label="Video URL (optional)" placeholder="https://youtube.com/… or MP4 URL" />
-          </div>
-        </div>
-      </Section>
-
-      {/* Pricing */}
-      <Section title="Pricing" icon="solar:wallet-money-bold-duotone">
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
-            <Input label="Price (₹)" placeholder="0.00" type="number" isRequired startContent={<span className="text-muted text-sm">₹</span>} />
-            <Input label="Compare Price (₹)" placeholder="0.00" type="number" startContent={<span className="text-muted text-sm">₹</span>} description="Strike-through price shown to customers" />
-            <Input label="Cost Price (₹)" placeholder="0.00" type="number" startContent={<span className="text-muted text-sm">₹</span>} description="For margin calculation (not shown)" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Tax Rate (%)" placeholder="18" type="number" endContent={<span className="text-muted text-sm">%</span>} />
-            <div className="flex items-center gap-3 pt-5">
-              <Switch isSelected={taxInclusive} onValueChange={setTaxInclusive} />
-              <div>
-                <p className="text-sm font-medium">Tax Inclusive</p>
-                <p className="text-xs text-muted">Price includes tax</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* Inventory */}
-      <Section title="Inventory" icon="solar:box-bold-duotone">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-background rounded-xl border border-border/40">
-            <div>
-              <p className="font-medium text-sm">Track Inventory</p>
-              <p className="text-xs text-muted mt-0.5">Monitor and update stock levels</p>
-            </div>
-            <Switch isSelected={trackInventory} onValueChange={setTrackInventory} />
-          </div>
-          {trackInventory && (
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="Stock Quantity" placeholder="0" type="number" />
-              <Input label="Low Stock Threshold" placeholder="5" type="number" description="Alert when stock falls below this" />
-            </div>
-          )}
-          <div className="flex items-center justify-between p-4 bg-background rounded-xl border border-border/40">
-            <div>
-              <p className="font-medium text-sm">Allow Backorders</p>
-              <p className="text-xs text-muted mt-0.5">Accept orders even when out of stock</p>
-            </div>
-            <Switch isSelected={allowBackorder} onValueChange={setAllowBackorder} />
-          </div>
-        </div>
-      </Section>
-
-      {/* Shipping */}
-      <Section title="Shipping" icon="solar:delivery-bold-duotone">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-background rounded-xl border border-border/40">
-            <div>
-              <p className="font-medium text-sm">Digital Product</p>
-              <p className="text-xs text-muted mt-0.5">Skip shipping for downloadable products</p>
-            </div>
-            <Switch isSelected={isDigital} onValueChange={setIsDigital} />
-          </div>
-          {!isDigital && (
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="Weight (kg)" placeholder="0.00" type="number" />
-              <Input label="Dimensions (cm)" placeholder="L × W × H" />
-            </div>
-          )}
-        </div>
-      </Section>
-
-      {/* SEO */}
-      <Section title="SEO" icon="solar:global-bold-duotone">
-        <div className="space-y-4">
-          <Input label="Meta Title" placeholder="SEO-optimized title…" />
-          <Textarea label="Meta Description" placeholder="Brief description for search engines (max 160 chars)…" maxRows={3} />
-          <Input label="Meta Keywords" placeholder="keyword1, keyword2, keyword3…" />
-          <div className="p-4 bg-background rounded-xl border border-border/40">
-            <p className="text-xs text-muted mb-2 font-semibold uppercase tracking-wider">Search Preview</p>
-            <p className="text-blue-400 text-sm font-medium hover:underline cursor-pointer">Product Title — Luminary Store</p>
-            <p className="text-green-500 text-xs">luminarystore.com/products/product-slug</p>
-            <p className="text-muted text-xs mt-1">Brief description for search engines (max 160 chars)…</p>
-          </div>
-        </div>
-      </Section>
-
-      {/* Flags */}
-      <Section title="Product Flags" icon="solar:flag-bold-duotone">
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: "New Arrival", desc: "Show 'New' badge", value: isNew, onChange: setIsNew },
-            { label: "Featured", desc: "Show in featured section", value: isFeatured, onChange: setIsFeatured },
-            { label: "Best Seller", desc: "Show best seller badge", value: isBestSeller, onChange: setIsBestSeller },
-            { label: "Trending", desc: "Show trending badge", value: isTrending, onChange: setIsTrending },
-          ].map((flag) => (
-            <div key={flag.label} className="flex items-center justify-between p-4 bg-background rounded-xl border border-border/40">
-              <div>
-                <p className="font-medium text-sm">{flag.label}</p>
-                <p className="text-xs text-muted mt-0.5">{flag.desc}</p>
-              </div>
-              <Switch isSelected={flag.value} onValueChange={flag.onChange} />
-            </div>
+      <div className="flex flex-col lg:flex-row gap-5">
+        {/* Section nav */}
+        <div className="flex lg:flex-col gap-1 p-1 bg-surface border border-border rounded-2xl lg:w-44 h-fit flex-shrink-0 overflow-x-auto">
+          {SECTIONS.map((s) => (
+            <button
+              key={s.key}
+              onClick={() => setActiveSection(s.key)}
+              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex-shrink-0 lg:flex-shrink ${
+                activeSection === s.key ? "bg-accent/10 text-accent" : "text-muted hover:text-foreground hover:bg-default/60"
+              }`}
+            >
+              <Icon icon={s.icon} className="text-base flex-shrink-0" />
+              {s.label}
+            </button>
           ))}
         </div>
-      </Section>
 
-      {/* Action bar */}
-      <div className="sticky bottom-0 bg-surface/90 backdrop-blur-md border border-border/50 rounded-2xl p-4 flex items-center justify-between">
-        <p className="text-sm text-muted">All changes are saved locally until published</p>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">Discard</Button>
-          <Button variant="ghost" size="sm">Save Draft</Button>
-          <Button variant="primary" size="sm" className="gap-2">
-            <Icon icon="solar:cloud-upload-bold-duotone" className="text-base" />
-            Publish Product
-          </Button>
+        {/* Form panel */}
+        <div className="flex-1">
+          {activeSection === "basic" && (
+            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+              <h3 className="font-bold text-base mb-2">Basic Information</h3>
+              <div>
+                <label className={labelCls}>Product Title *</label>
+                <input type="text" value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Premium Leather Wallet" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Description</label>
+                <textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={4} placeholder="Describe your product in detail…" className={`${inputCls} resize-none`} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>SKU</label>
+                  <input type="text" value={form.sku} onChange={(e) => set("sku", e.target.value)} placeholder="AUTO-GENERATED" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Slug (URL)</label>
+                  <input type="text" value={form.slug} onChange={(e) => set("slug", e.target.value)} placeholder="auto from title" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Category</label>
+                  <select value={form.category_id} onChange={(e) => set("category_id", e.target.value)} className={inputCls}>
+                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Brand</label>
+                  <input list="brands-list" type="text" value={form.brand} onChange={(e) => set("brand", e.target.value)} placeholder="Select or type brand" className={inputCls} />
+                  <datalist id="brands-list">
+                    {brands.map((b) => <option key={b.id} value={b.name} />)}
+                  </datalist>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "media" && (
+            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+              <h3 className="font-bold text-base mb-2">Product Images</h3>
+              <div className="flex gap-2">
+                <input type="url" value={imageUrlInput} onChange={(e) => setImageUrlInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addImage()} placeholder="https://images.unsplash.com/..." className={`${inputCls} flex-1`} />
+                <Button variant="secondary" size="sm" onPress={addImage} className="flex-shrink-0">Add</Button>
+              </div>
+              {form.images.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {form.images.map((img, i) => (
+                    <div key={i} className="relative group aspect-square rounded-xl overflow-hidden bg-default">
+                      <img src={img} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => set("images", form.images.filter((_, j) => j !== i))}
+                        className="absolute top-1.5 right-1.5 w-6 h-6 bg-danger text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="h-32 border-2 border-dashed border-border rounded-xl flex items-center justify-center text-muted text-sm">
+                  <div className="text-center">
+                    <Icon icon="solar:gallery-add-bold-duotone" className="text-3xl mb-1 opacity-40 mx-auto" />
+                    Add image URLs above
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeSection === "pricing" && (
+            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+              <h3 className="font-bold text-base mb-2">Pricing</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className={labelCls}>Selling Price (₹) *</label>
+                  <input type="number" value={form.price || ""} onChange={(e) => set("price", Number(e.target.value))} placeholder="0" className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Compare at (₹)</label>
+                  <input type="number" value={form.comparePrice ?? ""} onChange={(e) => set("comparePrice", e.target.value ? Number(e.target.value) : null)} placeholder="Strike-through price" className={inputCls} />
+                </div>
+              </div>
+              <div className="p-4 bg-default/40 rounded-xl text-sm">
+                <p className="text-muted text-xs mb-2">Preview</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-black text-foreground">₹{Number(form.price).toLocaleString("en-IN")}</span>
+                  {form.comparePrice && <span className="text-base text-muted line-through">₹{Number(form.comparePrice).toLocaleString("en-IN")}</span>}
+                  {form.comparePrice && form.comparePrice > form.price && (
+                    <span className="text-xs bg-success/15 text-success px-1.5 py-0.5 rounded-full font-semibold">
+                      {Math.round(((form.comparePrice - form.price) / form.comparePrice) * 100)}% off
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "inventory" && (
+            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-bold text-base">Variants & Stock</h3>
+                <Button variant="secondary" size="sm" className="gap-1.5" onPress={addVariant}>
+                  <Icon icon="solar:add-square-bold-duotone" className="text-sm" />
+                  Add Variant
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {form.variants.map((v, i) => (
+                  <div key={v.id} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-default/40 rounded-xl">
+                    <div>
+                      <label className={labelCls}>Variant Name</label>
+                      <input type="text" value={v.name} onChange={(e) => updateVariant(i, "name", e.target.value)} placeholder="e.g. Red / L" className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Price (₹)</label>
+                      <input type="number" value={v.price || ""} onChange={(e) => updateVariant(i, "price", Number(e.target.value))} placeholder="0" className={inputCls} />
+                    </div>
+                    <div className="flex gap-2 items-end">
+                      <div className="flex-1">
+                        <label className={labelCls}>Stock Qty</label>
+                        <input type="number" value={v.stock || ""} onChange={(e) => updateVariant(i, "stock", Number(e.target.value))} placeholder="0" className={inputCls} />
+                      </div>
+                      {form.variants.length > 1 && (
+                        <button
+                          onClick={() => set("variants", form.variants.filter((_, j) => j !== i))}
+                          className="p-2.5 rounded-xl hover:bg-danger/10 text-muted hover:text-danger transition-colors mb-0.5"
+                        >
+                          <Icon icon="solar:trash-bin-trash-bold-duotone" className="text-base" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeSection === "flags" && (
+            <div className="bg-surface border border-border rounded-2xl p-5 space-y-5">
+              <h3 className="font-bold text-base mb-2">Product Flags & Tags</h3>
+
+              {/* Flags */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { key: "is_new", label: "New Arrival", icon: "solar:star-shine-bold-duotone", color: "text-blue-400" },
+                  { key: "is_featured", label: "Featured", icon: "solar:crown-bold-duotone", color: "text-violet-400" },
+                  { key: "is_trending", label: "Trending 🔥", icon: "solar:fire-bold-duotone", color: "text-orange-400" },
+                ].map((f) => {
+                  const val = form[f.key as keyof typeof form] as boolean;
+                  return (
+                    <button
+                      key={f.key}
+                      onClick={() => set(f.key as keyof typeof form, !val)}
+                      className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${val ? `border-accent bg-accent/8` : "border-border hover:border-accent/40"}`}
+                    >
+                      <Icon icon={f.icon} className={`text-2xl ${val ? f.color : "text-muted"}`} />
+                      <div className="text-left">
+                        <p className="text-sm font-semibold">{f.label}</p>
+                        <p className="text-xs text-muted">{val ? "Enabled" : "Disabled"}</p>
+                      </div>
+                      {val && <Icon icon="solar:check-circle-bold-duotone" className="ml-auto text-accent text-base" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className={labelCls}>Product Status</label>
+                <div className="flex gap-2">
+                  {(["active", "draft", "archived"] as const).map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => set("status", s)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all capitalize ${form.status === s ? "border-accent bg-accent/10 text-accent" : "border-border text-muted hover:border-accent/40"}`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className={labelCls}>Tags</label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addTag()}
+                    placeholder="Add a tag and press Enter"
+                    className={`${inputCls} flex-1`}
+                  />
+                  <Button variant="secondary" size="sm" onPress={addTag}>Add</Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {form.tags.map((t) => (
+                    <span key={t} className="flex items-center gap-1 bg-accent/10 text-accent px-2 py-0.5 rounded-full text-xs font-medium">
+                      {t}
+                      <button onClick={() => removeTag(t)} className="text-accent/60 hover:text-accent ml-0.5">×</button>
+                    </span>
+                  ))}
+                  {form.tags.length === 0 && <p className="text-xs text-muted">No tags yet</p>}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

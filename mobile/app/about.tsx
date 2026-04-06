@@ -1,13 +1,17 @@
 import { Text, View } from 'react-native';
 import { Screen, SiteHeader } from '@/components/storefront';
+import { storefrontContent } from '@/data/mock';
 
 export default function AboutScreen() {
+  const content = storefrontContent.about;
+
   return (
     <Screen>
-      <SiteHeader title="About Us" subtitle="Company" />
+      <SiteHeader title={content.headerTitle} subtitle={content.headerSubtitle} />
       <View className="px-4 gap-4 pb-8">
-        <Text className="text-black leading-7">We build curated ecommerce experiences focused on quality products, clear discovery, and a fast checkout flow.</Text>
-        <Text className="text-black leading-7">The mobile app mirrors the storefront catalogue, account journeys, and content sections so customers can move between web and app without losing context.</Text>
+        {content.paragraphs.map((paragraph) => (
+          <Text key={paragraph} className="text-black leading-7">{paragraph}</Text>
+        ))}
       </View>
     </Screen>
   );

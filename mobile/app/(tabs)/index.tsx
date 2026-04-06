@@ -69,8 +69,8 @@ export default function HomeScreen() {
     <Screen bg="bg-white">
       <SiteHeader title={hero?.title || 'Shop the Future of Style.'} subtitle={hero?.badge || 'New season arrivals'} />
 
-      <View className="px-4 mb-8">
-        <View className="rounded-[40px] overflow-hidden bg-black min-h-[520px] shadow-2xl relative">
+      <View className="px-4 mb-10">
+        <View className="rounded-[44px] overflow-hidden bg-black min-h-[580px] shadow-2xl relative border border-white/5">
           <Image
             source={{ uri: hero?.image || 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1400&q=80' }}
             className="absolute inset-0 w-full h-full opacity-60"
@@ -79,46 +79,51 @@ export default function HomeScreen() {
           <View className="absolute inset-0 bg-black/40" />
           
           <View className="absolute inset-0 p-8 justify-between">
-            <View className="self-start px-4 py-2 rounded-full bg-white/10 border border-white/20 flex-row items-center gap-2.5">
-              <View className="w-2 h-2 rounded-full bg-[#84D347]" />
+            {/* Top Badge */}
+            <View className="self-start px-5 py-2.5 rounded-full bg-white/10 border border-white/15 flex-row items-center gap-3 backdrop-blur-md">
+              <View className="w-1.5 h-1.5 rounded-full bg-[#84D347]" />
               <Text className="text-white text-[10px] font-black uppercase tracking-[3px] font-mono">{hero?.badge || 'New Season Arrivals'}</Text>
             </View>
 
+            {/* Floating Stat Cards - Mobile Style */}
+            <View className="absolute right-6 top-40 gap-4 items-end">
+               <View className="bg-white/10 border border-white/20 px-4 py-3 rounded-2xl backdrop-blur-md items-end">
+                  <Text className="text-[#84D347] text-xl font-bold font-display">12K+</Text>
+                  <Text className="text-white/40 text-[8px] font-black uppercase tracking-widest font-mono">Happy Customers</Text>
+               </View>
+               <View className="bg-[#84D347] px-4 py-3 rounded-2xl items-end shadow-lg">
+                  <Text className="text-black text-xl font-bold font-display">500+</Text>
+                  <Text className="text-black/60 text-[8px] font-black uppercase tracking-widest font-mono">Premium Products</Text>
+               </View>
+            </View>
+
+            {/* Bottom Content */}
             <View>
-              <Text className="text-white text-5xl font-bold leading-[54px] tracking-tight mb-4 font-display">
+              <Text className="text-white text-6xl font-bold leading-[64px] tracking-tight mb-6 font-display">
                 {hero?.titleLead || 'Shop the'}{'\n'}
                 <Text className="text-[#84D347]">{hero?.titleHighlight || 'Future'}</Text>{'\n'}
                 {hero?.titleTail || 'of Style.'}
               </Text>
-              <Text className="text-white/70 text-base leading-relaxed mb-8 max-w-[280px] font-body">
-                {hero?.description || 'Curated collections from the world\'s most innovative brands.'}
+              
+              <Text className="text-white/70 text-base leading-relaxed mb-10 max-w-[300px] font-body">
+                {hero?.description || 'Curated collections from the world\'s most innovative brands. Experience the next generation of premium streetwear.'}
               </Text>
+
               <View className="flex-row gap-4">
                 <Pressable 
                   onPress={() => router.push(hero?.primaryCtaHref || '/shop')}
-                  className="bg-[#84D347] h-14 px-8 rounded-full items-center justify-center shadow-lg active:scale-95 transition-transform"
+                  className="bg-white h-16 px-10 rounded-full items-center justify-center shadow-2xl active:scale-95 transition-transform"
                 >
                   <Text className="text-black font-black text-sm uppercase tracking-widest font-mono">Shop Now</Text>
                 </Pressable>
                 <Pressable 
                   onPress={() => router.push(hero?.secondaryCtaHref || '/category/men')}
-                  className="bg-white/10 border border-white/20 h-14 px-8 rounded-full items-center justify-center active:scale-95 transition-transform"
+                  className="bg-white/5 border border-white/20 h-16 px-10 rounded-full items-center justify-center active:scale-95 transition-transform backdrop-blur-sm"
                 >
                   <Text className="text-white font-black text-sm uppercase tracking-widest font-mono">Browse</Text>
                 </Pressable>
               </View>
             </View>
-          </View>
-        </View>
-
-        <View className="flex-row gap-4 mt-6">
-          <View className="flex-1 rounded-[32px] bg-black p-5 border border-white/10">
-            <Text className="text-[#84D347] text-3xl font-bold font-display">{hero?.stats?.[0]?.value || '10k+'}</Text>
-            <Text className="text-white/40 text-[10px] font-black uppercase tracking-[2px] mt-1 font-mono">{hero?.stats?.[0]?.label || 'Active Users'}</Text>
-          </View>
-          <View className="flex-1 rounded-[32px] bg-[#84D347] p-5">
-            <Text className="text-black text-3xl font-bold font-display">{hero?.stats?.[1]?.value || '25+'}</Text>
-            <Text className="text-black/60 text-[10px] font-black uppercase tracking-[2px] mt-1 font-mono">{hero?.stats?.[1]?.label || 'Global Brands'}</Text>
           </View>
         </View>
       </View>

@@ -12,6 +12,7 @@ import Animated, {
   cancelAnimation
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppContext } from '@/context/app-context';
 
 import { storefrontContent } from '@/data/mock';
 
@@ -116,35 +117,56 @@ export function CategoryTile({ item }: { item: { id: string; slug: string; name:
 }
 
 export function ProductCard({ product }: { product: any }) {
+  const { toggleWishlist, wishlistIds } = useAppContext();
   const image = product.images?.[0] || product.image || '';
+  const isInWishlist = wishlistIds.includes(product.id);
   const discount = product.comparePrice && product.comparePrice > product.price
     ? Math.round((1 - product.price / product.comparePrice) * 100)
     : 0;
 
   return (
-    <Pressable onPress={() => router.push(`/products/${product.slug}`)} className="w-[48%] mb-6">
-      <View className="rounded-[28px] overflow-hidden bg-[#F5F5F5] border border-black/5">
-        <View className="aspect-square bg-white relative">
+    <Pressable onPress={() => router.push(`/products/${product.slug}`)} className="w-[48%] mb-8 active:scale-[0.98] transition-transform">
+      <View className="rounded-[36px] overflow-hidden bg-white border border-black/5 shadow-sm">
+        <View className="aspect-[4/5] bg-[#F5F5F5] relative items-center justify-center">
           <Image source={{ uri: image }} className="w-full h-full" contentFit="cover" />
-          <View className="absolute top-2.5 left-2.5 flex-row flex-wrap gap-1.5">
-            {discount > 0 ? <Badge variant="success">{`-${discount}%`}</Badge> : null}
-            {product.is_new ? <Badge>NEW</Badge> : null}
-            {product.is_trending ? <Badge>TRENDING</Badge> : null}
+          
+          <View className="absolute top-4 left-4 flex-row flex-wrap gap-2">
+            {product.is_new ? (
+              <View className="bg-black px-3 py-1 rounded-full items-center justify-center">
+                <Text className="text-white text-[8px] font-black uppercase tracking-widest font-mono">NEW</Text>
+              </View>
+            ) : null}
+            {discount > 0 ? (
+              <View className="bg-[#EF4444] px-3 py-1 rounded-full items-center justify-center">
+                <Text className="text-white text-[8px] font-black uppercase tracking-widest font-mono">-{discount}%</Text>
+              </View>
+            ) : null}
           </View>
+
+          <Pressable 
+            onPress={() => toggleWishlist(product.id)}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white items-center justify-center shadow-sm"
+          >
+            <Ionicons name={isInWishlist ? "heart" : "heart-outline"} size={18} color={isInWishlist ? "#EF4444" : "#111"} />
+          </Pressable>
         </View>
-        <View className="p-3.5">
-          <Text className="font-bold text-black text-sm font-body leading-tight" numberOfLines={1}>{product.title}</Text>
-          <View className="flex-row items-center justify-between mt-2.5">
-            <View className="flex-row items-center gap-1.5">
-              <Text className="font-bold text-black text-base font-display tracking-tight">${product.price}</Text>
-              {product.comparePrice ? (
-                <Text className="text-[10px] text-gray-400 line-through font-body">${product.comparePrice}</Text>
-              ) : null}
-            </View>
-            <View className="flex-row items-center gap-0.5">
-              <Ionicons name="star" size={10} color="#FFB800" />
-              <Text className="text-[10px] text-gray-500 font-bold font-mono">{product.ratings_avg}</Text>
-            </View>
+
+        <View className="p-4">
+          <View className="flex-row items-center gap-1.5 mb-2">
+            <Ionicons name="star" size={12} color="#FFB800" />
+            <Text className="text-[11px] font-bold text-black font-mono">{product.ratings_avg}</Text>
+            <Text className="text-[11px] text-gray-400 font-body">({product.ratings_count})</Text>
+          </View>
+          
+          <Text className="text-black font-bold text-lg font-display tracking-tight leading-6 mb-2" numberOfLines={1}>
+            {product.title}
+          </Text>
+
+          <View className="flex-row items-baseline gap-2">
+            <Text className="text-black font-bold text-2xl font-display tracking-tight">${product.price}</Text>
+            {product.comparePrice ? (
+              <Text className="text-gray-400 line-through text-xs font-body italic">${product.comparePrice}</Text>
+            ) : null}
           </View>
         </View>
       </View>
@@ -194,14 +216,14 @@ export function BlogCard({ post }: { post: any }) {
 export function Marquee({ items }: { items: string[] }) {
   const scrollX = useSharedValue(0);
   const marqueeItems = [...items, ...items, ...items];
-  const itemWidth = 180; // Estimated width
+  const itemWidth = 240; // Increased width for better spacing
   const totalWidth = items.length * itemWidth;
 
   useEffect(() => {
     scrollX.value = 0;
     scrollX.value = withRepeat(
       withTiming(-totalWidth, {
-        duration: items.length * 4000,
+        duration: items.length * 6000, // Slightly slower, more premium
         paddingLeft: 0,
         easing: Easing.linear,
       } as any),
@@ -216,12 +238,12 @@ export function Marquee({ items }: { items: string[] }) {
   }));
 
   return (
-    <View className="bg-[#84D347] py-4 overflow-hidden -mx-4 mb-8">
+    <View className="bg-[#84D347] py-6 overflow-hidden -mx-4 mb-12">
       <Animated.View style={[animatedStyle, { flexDirection: 'row', alignItems: 'center' }]}>
         {marqueeItems.map((item, i) => (
-          <View key={i} className="flex-row items-center px-6">
-            <MaterialCommunityIcons name="star-four-points" size={14} color="rgba(0,0,0,0.3)" />
-            <Text className="text-black text-[11px] font-black font-mono uppercase tracking-[3px] ml-4 font-bold">
+          <View key={i} className="flex-row items-center px-10">
+            <MaterialCommunityIcons name="star-four-points" size={24} color="black" />
+            <Text className="text-black text-[15px] font-black font-mono uppercase tracking-[6px] ml-10">
               {item}
             </Text>
           </View>
@@ -233,25 +255,39 @@ export function Marquee({ items }: { items: string[] }) {
 
 export function FeatureBanner({ deal }: { deal: any }) {
   return (
-    <View className="relative bg-black rounded-[36px] overflow-hidden p-8 mb-8 min-h-[340px] justify-between border border-white/10 mx-4">
-      <Image source={{ uri: deal.image }} className="absolute inset-0 w-full h-full opacity-40" contentFit="cover" />
-      <View className="absolute inset-0 bg-black/60" />
-      
-      <View className="relative z-10">
-        <View className="self-start px-3 py-1 rounded-full bg-[#84D347] mb-6">
-          <Text className="text-[10px] font-black text-black font-mono uppercase tracking-widest font-bold">{deal.badge}</Text>
-        </View>
-        <Text className="text-white text-4xl font-bold font-display leading-[42px] mb-3">{deal.title}</Text>
-        <Text className="text-white/60 text-sm font-body leading-relaxed max-w-[240px]">{deal.description}</Text>
-      </View>
-
-      <View className="relative z-10 flex-row gap-3">
-        {(deal.timerValues || [2, 14, 45]).map((val: number, i: number) => (
-          <View key={i} className="bg-white/10 border border-white/20 rounded-2xl px-4 py-3 items-center min-w-[64px]">
-            <Text className="text-white text-2xl font-bold font-display leading-tight">{val < 10 ? `0${val}` : val}</Text>
-            <Text className="text-white/40 text-[9px] font-mono uppercase tracking-tighter">{(deal.timerUnits || ['HRS', 'MIN', 'SEC'])[i]}</Text>
+    <View className="px-4 mb-12">
+      <View className="relative bg-black rounded-[40px] overflow-hidden p-10 min-h-[460px] justify-between border border-white/5">
+        <View className="absolute top-[-50px] right-[-50px] w-80 h-80 rounded-full bg-[#84D347]/10 border border-[#84D347]/5" />
+        <View className="absolute bottom-[-100px] left-[-40px] w-64 h-64 rounded-full bg-[#84D347]/5" />
+        
+        <View className="relative z-10">
+          <View className="self-start px-4 py-2 rounded-full bg-[#84D347] mb-8">
+            <Text className="text-[10px] font-black text-black font-mono uppercase tracking-[3px] font-bold">{deal.badge}</Text>
           </View>
-        ))}
+          <Text className="text-white text-5xl font-bold font-display leading-[54px] mb-4">{deal.title}</Text>
+          <Text className="text-white/60 text-base font-body leading-relaxed max-w-[280px] mb-10">{deal.description}</Text>
+          
+          <View className="flex-row gap-4 mb-10">
+            {(deal.timerValues || [2, 14, 45]).map((val: number, i: number) => (
+              <View key={i} className="items-center">
+                <View className="bg-white/10 border border-white/15 rounded-[20px] px-5 py-4 items-center justify-center min-w-[76px] shadow-sm">
+                  <Text className="text-white text-3xl font-bold font-display leading-tight">{val < 10 ? `0${val}` : val}</Text>
+                </View>
+                <Text className="text-white/40 text-[10px] font-black font-mono uppercase tracking-[2px] mt-3">
+                  {(deal.timerUnits || ['HRS', 'MIN', 'SEC'])[i]}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          <Pressable 
+            onPress={() => router.push(deal.ctaHref || '/shop')}
+            className="self-start bg-white h-16 px-10 rounded-full flex-row items-center gap-3 active:scale-95 transition-transform shadow-xl"
+          >
+            <Text className="text-black font-black text-sm uppercase tracking-widest font-mono">Shop Deal</Text>
+            <Ionicons name="arrow-forward" size={20} color="black" />
+          </Pressable>
+        </View>
       </View>
     </View>
   );

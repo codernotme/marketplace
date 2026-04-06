@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
+import { storefrontContent } from '@/data/mock';
 
 export const Footer = () => {
   const currentYear = 2026; // Fixed year to avoid hydration mismatch with new Date()
+  const { brand, footer } = storefrontContent;
 
   return (
     <footer className="w-full bg-black text-white pt-16 pb-8 px-6 mt-auto">
@@ -11,24 +13,21 @@ export const Footer = () => {
         <div className="col-span-1 md:col-span-2">
           <Link href="/" className="font-display font-bold text-2xl tracking-tighter text-white flex items-center gap-1.5 mb-4">
             <div className="w-7 h-7 bg-white rounded flex items-center justify-center">
-              <span className="text-black text-sm font-bold">tm.</span>
+              <span className="text-black text-sm font-bold">{brand.logoText}</span>
             </div>
-            themrktplace
+            {brand.siteName}
           </Link>
           <p className="text-gray-400 font-body text-sm leading-relaxed max-w-sm mb-6">
-            The most innovative store for curated essentials. Authentic products, premium quality, delivered to your door.
+            {footer.description}
           </p>
           {/* Social Icons */}
           <div className="flex gap-3">
-            {[
-              { icon: 'mdi:instagram', href: '#' },
-              { icon: 'simple-icons:x', href: '#' }, // X (formerly Twitter)
-              { icon: 'mdi:facebook', href: '#' },
-              { icon: 'mdi:youtube', href: '#' },
-            ].map((s) => (
+            {footer.socialLinks.map((s) => (
               <a
                 key={s.icon}
                 href={s.href}
+                title={s.icon.replace('mdi:', '').replace('simple-icons:', '')}
+                aria-label={s.icon.replace('mdi:', '').replace('simple-icons:', '')}
                 className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-black hover:text-black transition-all hover:scale-110"
               >
                 <Icon icon={s.icon} className="text-base" />
@@ -39,16 +38,9 @@ export const Footer = () => {
 
         {/* Shop */}
         <div>
-          <h4 className="font-display text-base font-semibold mb-5">Shop</h4>
+          <h4 className="font-display text-base font-semibold mb-5">{footer.headings.shop}</h4>
           <ul className="flex flex-col gap-3 text-gray-400 font-body text-sm">
-            {[
-              { label: 'All Products', href: '/products' },
-              { label: 'Menswear', href: '/category/men' },
-              { label: 'Womenswear', href: '/category/women' },
-              { label: 'Electronics', href: '/category/electronics' },
-              { label: 'Footwear', href: '/category/shoes' },
-              { label: 'Home & Living', href: '/category/home' },
-            ].map(l => (
+            {footer.shopLinks.map(l => (
               <li key={l.href}><Link href={l.href} className="hover:text-white transition-colors hover:translate-x-1 inline-block">{l.label}</Link></li>
             ))}
           </ul>
@@ -56,17 +48,9 @@ export const Footer = () => {
 
         {/* Help & Company */}
         <div>
-          <h4 className="font-display text-base font-semibold mb-5">Help & Company</h4>
+          <h4 className="font-display text-base font-semibold mb-5">{footer.headings.company}</h4>
           <ul className="flex flex-col gap-3 text-gray-400 font-body text-sm">
-            {[
-              { label: 'FAQs', href: '/faq' },
-              { label: 'Contact Us', href: '/contact' },
-              { label: 'About Us', href: '/about' },
-              { label: 'Blog', href: '/blog' },
-              { label: 'Privacy Policy', href: '/privacy' },
-              { label: 'Refund Policy', href: '/refund' },
-              { label: 'Terms & Conditions', href: '/terms' },
-            ].map(l => (
+            {footer.companyLinks.map(l => (
               <li key={l.href}><Link href={l.href} className="hover:text-white transition-colors hover:translate-x-1 inline-block">{l.label}</Link></li>
             ))}
           </ul>
@@ -76,24 +60,24 @@ export const Footer = () => {
       {/* Newsletter strip */}
       <div className="max-w-7xl mx-auto bg-white/5 rounded-2xl px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-10">
         <div className="flex-1">
-          <p className="font-body font-bold text-sm text-white mb-0.5">Stay in the loop</p>
-          <p className="font-body text-xs text-gray-500">Get deals & new arrivals straight to your inbox.</p>
+          <p className="font-body font-bold text-sm text-white mb-0.5">{footer.newsletter.title}</p>
+          <p className="font-body text-xs text-gray-500">{footer.newsletter.subtitle}</p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           <input
             type="email"
-            placeholder="your@email.com"
+            placeholder={footer.newsletter.placeholder}
             className="flex-1 sm:w-52 bg-white/10 border border-white/10 text-white placeholder:text-gray-600 rounded-full px-4 h-9 text-xs font-body outline-none focus:border-[#84D347] transition-colors"
           />
           <button className="bg-[#84D347] text-black font-bold rounded-full px-5 h-9 text-xs font-body hover:scale-105 transition-transform flex-shrink-0">
-            Subscribe
+            {footer.newsletter.ctaLabel}
           </button>
         </div>
       </div>
 
       {/* Bottom bar */}
       <div className="max-w-7xl mx-auto border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-gray-600 font-body text-xs">
-        <p>© {currentYear} themrktplace. All rights reserved.</p>
+        <p>© {currentYear} {brand.siteName}. All rights reserved.</p>
         <a
           href="https://tacklestudioz.tech"
           target="_blank"

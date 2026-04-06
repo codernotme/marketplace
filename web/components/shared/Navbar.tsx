@@ -5,22 +5,12 @@ import { Icon } from '@iconify/react';
 import { useCartStore } from '@/store/cart.store';
 import { useAuthStore } from '@/store/auth.store';
 import { useState, useEffect } from 'react';
+import { storefrontContent } from '@/data/mock';
 
-const categories = [
-  { label: 'All Products', href: '/products', icon: 'mdi:view-grid-outline' },
-  { label: 'Menswear', href: '/category/men', icon: 'mdi:tshirt-crew-outline' },
-  { label: 'Womenswear', href: '/category/women', icon: 'mdi:hanger' },
-  { label: 'Electronics', href: '/category/electronics', icon: 'mdi:laptop' },
-  { label: 'Footwear', href: '/category/shoes', icon: 'mdi:shoe-sneaker' },
-  { label: 'Home & Living', href: '/category/home', icon: 'mdi:home-outline' },
-];
-
-const navLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'Blog', href: '/blog' },
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
-];
+const categories = storefrontContent.navigation.shopCategories;
+const navLinks = storefrontContent.navigation.primaryLinks;
+const brand = storefrontContent.brand;
+const navContent = storefrontContent.navigation;
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -56,21 +46,21 @@ export const Navbar = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-7 h-7 bg-black rounded flex items-center justify-center">
-              <span className="text-white font-black text-xs">tm.</span>
+              <span className="text-white font-black text-xs">{brand.logoText}</span>
             </div>
-            <span className="font-display font-black text-lg tracking-tighter text-black">themrktplace</span>
+            <span className="font-display font-black text-lg tracking-tighter text-black">{brand.siteName}</span>
           </Link>
 
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-1 ml-6">
             <Link href="/" className={`px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${pathname === '/' ? 'text-black' : 'text-gray-500 hover:text-black hover:bg-[#F5F5F5]'}`}>
-              Home
+              {navContent.desktopHomeLabel}
             </Link>
 
             {/* Shop / Categories dropdown */}
             <div className="relative" onMouseEnter={() => setCatOpen(true)} onMouseLeave={() => setCatOpen(false)}>
               <button className={`flex items-center gap-1 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${pathname.startsWith('/products') || pathname.startsWith('/category') ? 'text-black' : 'text-gray-500 hover:text-black hover:bg-[#F5F5F5]'}`}>
-                Shop <Icon icon="lucide:chevron-down" className={`text-xs transition-transform ${catOpen ? 'rotate-180' : ''}`} />
+                {navContent.desktopShopLabel} <Icon icon="lucide:chevron-down" className={`text-xs transition-transform ${catOpen ? 'rotate-180' : ''}`} />
               </button>
               {catOpen && (
                 <div className="absolute top-full left-0 pt-2 z-50">
@@ -105,15 +95,15 @@ export const Navbar = () => {
                 <input
                   autoFocus
                   type="search"
-                  placeholder="Search products..."
+                  placeholder={storefrontContent.navigation.searchPlaceholder}
                   className="bg-[#F5F5F5] rounded-full px-5 h-9 text-sm outline-none focus:ring-2 focus:ring-black w-56 transition-all font-body"
                 />
-                <button onClick={() => setSearchOpen(false)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#F5F5F5] text-gray-500">
+                <button title="Close search" aria-label="Close search" onClick={() => setSearchOpen(false)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#F5F5F5] text-gray-500">
                   <Icon icon="mdi:close" />
                 </button>
               </div>
             ) : (
-              <button onClick={() => setSearchOpen(true)} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F5] text-gray-600 hover:text-black transition-colors">
+              <button title="Open search" aria-label="Open search" onClick={() => setSearchOpen(true)} className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[#F5F5F5] text-gray-600 hover:text-black transition-colors">
                 <Icon icon="mdi:magnify" className="text-xl" />
               </button>
             )}
@@ -143,24 +133,20 @@ export const Navbar = () => {
             <div className="hidden md:flex items-center gap-2 relative group">
               <button className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 hover:bg-[#F5F5F5] transition-colors">
                 <img src={user?.avatar || 'https://i.pravatar.cc/40?img=47'} alt="Avatar" className="w-7 h-7 rounded-full object-cover" />
-                <span className="font-semibold text-sm text-black max-w-[80px] truncate">{user?.name?.split(' ')[0] || 'Account'}</span>
+                <span className="font-semibold text-sm text-black max-w-[80px] truncate">{user?.name?.split(' ')[0] || navContent.authLabels.accountShortName}</span>
                 <Icon icon="lucide:chevron-down" className="text-xs text-gray-400" />
               </button>
               {/* Dropdown */}
               <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                 <div className="bg-white border border-gray-100 rounded-2xl shadow-xl p-2 w-48 flex flex-col gap-0.5">
-                  {[
-                    { label: 'My Orders', href: '/account/orders', icon: 'mdi:shopping-outline' },
-                    { label: 'Wishlist', href: '/account/wishlist', icon: 'mdi:heart-outline' },
-                    { label: 'Profile', href: '/account/profile', icon: 'mdi:account-outline' },
-                  ].map(item => (
+                  {navContent.accountMenuLinks.map(item => (
                     <Link key={item.href} href={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#F5F5F5] text-sm font-semibold text-black">
                       <Icon icon={item.icon} className="text-base text-gray-500" /> {item.label}
                     </Link>
                   ))}
                   <div className="border-t border-gray-100 mt-1 pt-1">
                     <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 text-sm font-semibold text-red-500">
-                      <Icon icon="mdi:logout" className="text-base" /> Sign Out
+                      <Icon icon="mdi:logout" className="text-base" /> {navContent.authLabels.signOut}
                     </button>
                   </div>
                 </div>
@@ -168,7 +154,7 @@ export const Navbar = () => {
             </div>
           ) : (
             <Link href="/login" className="hidden md:flex bg-black text-white font-bold text-sm rounded-full px-5 h-9 items-center hover:scale-105 transition-transform">
-              Sign In
+              {navContent.authLabels.signIn}
             </Link>
           )}
 
@@ -198,12 +184,14 @@ export const Navbar = () => {
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2">
             <div className="w-7 h-7 bg-black rounded flex items-center justify-center">
-              <span className="text-white font-black text-xs">tm.</span>
+              <span className="text-white font-black text-xs">{brand.logoText}</span>
             </div>
-            <span className="font-display font-black text-lg tracking-tighter text-black">themrktplace</span>
+            <span className="font-display font-black text-lg tracking-tighter text-black">{brand.siteName}</span>
           </Link>
           <button
             onClick={() => setMobileOpen(false)}
+            title="Close menu"
+            aria-label="Close menu"
             className="w-9 h-9 rounded-full bg-[#F5F5F5] flex items-center justify-center"
           >
             <Icon icon="mdi:close" className="text-xl text-black" />
@@ -216,7 +204,7 @@ export const Navbar = () => {
             <Icon icon="mdi:magnify" className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
             <input
               type="search"
-              placeholder="Search products..."
+              placeholder={storefrontContent.navigation.searchPlaceholder}
               className="w-full bg-[#F5F5F5] rounded-full pl-11 pr-4 h-11 text-sm font-body outline-none focus:ring-2 focus:ring-black transition-all"
             />
           </div>
@@ -239,7 +227,7 @@ export const Navbar = () => {
           </div>
 
           {/* Divider */}
-          <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 mb-2">Shop by Category</div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 mb-2">{navContent.mobile.categoriesSectionLabel}</div>
 
           <div className="flex flex-col gap-0.5 mb-6">
             {categories.map(cat => (
@@ -257,13 +245,9 @@ export const Navbar = () => {
           {/* User links when auth */}
           {isAuthenticated && (
             <>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 mb-2">Account</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 mb-2">{navContent.mobile.accountSectionLabel}</div>
               <div className="flex flex-col gap-0.5">
-                {[
-                  { label: 'My Orders', href: '/account/orders', icon: 'mdi:shopping-outline' },
-                  { label: 'Wishlist', href: '/account/wishlist', icon: 'mdi:heart-outline' },
-                  { label: 'Profile', href: '/account/profile', icon: 'mdi:account-outline' },
-                ].map(item => (
+                {navContent.accountMenuLinks.map(item => (
                   <Link key={item.href} href={item.href} className="flex items-center gap-3 px-4 h-11 rounded-xl font-semibold text-sm text-gray-700 hover:bg-[#F5F5F5] transition-colors">
                     <Icon icon={item.icon} className="text-base flex-shrink-0" /> {item.label}
                   </Link>
@@ -279,20 +263,20 @@ export const Navbar = () => {
             <div className="flex items-center gap-3">
               <img src={user?.avatar || 'https://i.pravatar.cc/40?img=47'} alt="User" className="w-10 h-10 rounded-full object-cover" />
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm text-black truncate">{user?.name || 'My Account'}</p>
+                <p className="font-bold text-sm text-black truncate">{user?.name || navContent.authLabels.accountFallbackName}</p>
                 <p className="text-xs text-gray-400 truncate">{user?.email}</p>
               </div>
-              <button onClick={logout} className="w-9 h-9 bg-red-50 rounded-full flex items-center justify-center text-red-500 flex-shrink-0">
+              <button title="Sign out" aria-label="Sign out" onClick={logout} className="w-9 h-9 bg-red-50 rounded-full flex items-center justify-center text-red-500 flex-shrink-0">
                 <Icon icon="mdi:logout" />
               </button>
             </div>
           ) : (
             <div className="flex gap-3">
               <Link href="/login" className="flex-1 h-12 bg-black text-white font-bold rounded-xl flex items-center justify-center text-sm">
-                Sign In
+                {navContent.authLabels.signIn}
               </Link>
               <Link href="/register" className="flex-1 h-12 border-2 border-gray-100 text-black font-bold rounded-xl flex items-center justify-center text-sm hover:border-black transition-colors">
-                Register
+                {navContent.authLabels.register}
               </Link>
             </div>
           )}
@@ -301,9 +285,9 @@ export const Navbar = () => {
               <Icon icon="mdi:cart-outline" /> Cart {itemCount > 0 && `(${itemCount})`}
             </Link>
             <span className="w-px h-4 bg-gray-200" />
-            <Link href="/terms" className="text-xs font-semibold text-gray-500 hover:text-black transition-colors">Terms</Link>
+            <Link href={navContent.mobile.footerLinks[0].href} className="text-xs font-semibold text-gray-500 hover:text-black transition-colors">{navContent.mobile.footerLinks[0].label}</Link>
             <span className="w-px h-4 bg-gray-200" />
-            <Link href="/contact" className="text-xs font-semibold text-gray-500 hover:text-black transition-colors">Help</Link>
+            <Link href={navContent.mobile.footerLinks[1].href} className="text-xs font-semibold text-gray-500 hover:text-black transition-colors">{navContent.mobile.footerLinks[1].label}</Link>
           </div>
         </div>
       </div>

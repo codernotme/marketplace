@@ -2,15 +2,18 @@ import { Icon } from '@iconify/react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { fetchBlogPostBySlug, fetchRelatedBlogPosts } from '@/lib/api';
+import { fetchBlogPostBySlug, fetchRelatedBlogPosts, fetchStorefrontContent } from '@/lib/api';
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  const [post, relatedPosts] = await Promise.all([
+  const [post, relatedPosts, content] = await Promise.all([
     fetchBlogPostBySlug(slug),
     fetchRelatedBlogPosts(slug, 3),
+    fetchStorefrontContent(),
   ]);
+
+  const detailContent = content.blog.detail;
 
   if (!post) {
     notFound();
@@ -20,7 +23,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
     <article className="bg-white min-h-screen">
       <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-12">
         <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-black transition-colors mb-6">
-          <Icon icon="lucide:arrow-left" /> Back to blog
+          <Icon icon="lucide:arrow-left" /> {detailContent.backLabel}
         </Link>
 
         <p className="text-xs uppercase tracking-widest font-bold text-[#84D347] mb-2">{post.category}</p>
@@ -53,9 +56,9 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 
         <section className="pt-8 border-t border-gray-100">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-display text-2xl font-bold text-black">Related Articles</h2>
+            <h2 className="font-display text-2xl font-bold text-black">{detailContent.relatedHeading}</h2>
             <Link href="/blog" className="text-sm font-semibold text-gray-500 hover:text-black transition-colors">
-              View all
+              {detailContent.relatedActionLabel}
             </Link>
           </div>
 

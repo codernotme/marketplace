@@ -1,4 +1,4 @@
-import { products, categories, reviews } from '@/data/mock';
+import { products, categories, reviews, storefrontContent } from '@/data/mock';
 
 // Re-export types as needed
 export type ProductType = typeof products[0];
@@ -520,5 +520,11 @@ export const fetchRelatedBlogPosts = async (slug: string, limit = 3) => {
         .slice(0, limit),
     );
   }, 260));
+};
+
+export const fetchStorefrontContent = async () => {
+  return new Promise<typeof storefrontContent>((resolve) => setTimeout(() => {
+    resolve(storefrontContent);
+  }, 220));
 };
 

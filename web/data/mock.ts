@@ -16,6 +16,157 @@ export const brands = [
   { id: 'b6', name: 'H&M', slug: 'hm' },
 ];
 
+export const storefrontContent = {
+  brand: {
+    siteName: 'themrktplace',
+    logoText: 'tm.',
+  },
+  navigation: {
+    desktopHomeLabel: 'Home',
+    desktopShopLabel: 'Shop',
+    primaryLinks: [
+      { label: 'Home', href: '/' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'About', href: '/about' },
+      { label: 'Contact', href: '/contact' },
+    ],
+    shopCategories: [
+      { label: 'All Products', href: '/products', icon: 'mdi:view-grid-outline' },
+      { label: 'Menswear', href: '/category/men', icon: 'mdi:tshirt-crew-outline' },
+      { label: 'Womenswear', href: '/category/women', icon: 'mdi:hanger' },
+      { label: 'Electronics', href: '/category/electronics', icon: 'mdi:laptop' },
+      { label: 'Footwear', href: '/category/shoes', icon: 'mdi:shoe-sneaker' },
+      { label: 'Home & Living', href: '/category/home', icon: 'mdi:home-outline' },
+    ],
+    searchPlaceholder: 'Search products...',
+    mobile: {
+      categoriesSectionLabel: 'Shop by Category',
+      accountSectionLabel: 'Account',
+      footerLinks: [
+        { label: 'Terms', href: '/terms' },
+        { label: 'Help', href: '/contact' },
+      ],
+    },
+    accountMenuLinks: [
+      { label: 'My Orders', href: '/account/orders', icon: 'mdi:shopping-outline' },
+      { label: 'Wishlist', href: '/account/wishlist', icon: 'mdi:heart-outline' },
+      { label: 'Profile', href: '/account/profile', icon: 'mdi:account-outline' },
+    ],
+    authLabels: {
+      signIn: 'Sign In',
+      register: 'Register',
+      signOut: 'Sign Out',
+      accountFallbackName: 'My Account',
+      accountShortName: 'Account',
+    },
+  },
+  blog: {
+    hero: {
+      eyebrow: 'The Journal',
+      title: 'Stories, Trends & Inspiration',
+      description: 'Stay ahead of the curve with the latest in fashion, tech, and lifestyle.',
+    },
+    featuredBadge: 'Featured',
+    latest: {
+      heading: 'Latest Articles',
+      filters: ['All', 'Fashion', 'Electronics', 'Lifestyle', 'Home'],
+    },
+    newsletter: {
+      title: 'Subscribe to The Journal',
+      description: 'Get weekly articles, style guides, and exclusive deals in your inbox.',
+      inputPlaceholder: 'Enter your email...',
+      ctaLabel: 'Subscribe',
+    },
+    detail: {
+      backLabel: 'Back to blog',
+      relatedHeading: 'Related Articles',
+      relatedActionLabel: 'View all',
+    },
+  },
+  home: {
+    hero: {
+      badge: 'New Season Arrivals',
+      titleLead: 'Shop the',
+      titleHighlight: 'Future',
+      titleTail: 'of Style.',
+      description: 'Curated collections from the world\'s most innovative brands. Premium quality, authentic products, delivered to your door.',
+      image: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=2000&q=80',
+      primaryCta: { label: 'Shop Now', href: '/products' },
+      secondaryCta: { label: 'Browse Men', href: '/category/men' },
+      stats: [
+        { value: '12K+', label: 'Happy Customers' },
+        { value: '500+', label: 'Products' },
+      ],
+    },
+    marqueeItems: ['New Arrivals', 'Free Shipping', 'Top Brands', 'Authentic Gear', 'Exclusive Drops', 'Best Sellers'],
+    sections: {
+      categories: { eyebrow: 'Browse', title: 'Shop by Category', action: 'See All' },
+      trending: { eyebrow: 'Hot Right Now', title: 'Trending Products', action: 'See More' },
+      featured: { eyebrow: 'Handpicked', title: 'Featured Collection' },
+      reviews: { eyebrow: 'Reviews', title: 'What Customers Say' },
+    },
+    deal: {
+      badge: 'Deal of the Day',
+      title: 'DR CRZ Varsity Jacket',
+      description: 'Limited stock. Up to 25% off premium outerwear.',
+      ctaLabel: 'Shop Deal',
+      ctaHref: '/products/varsity-jacket',
+      timerUnits: ['HRS', 'MIN', 'SEC', '???'],
+      timerValues: ['12', '08', '45', '22'],
+      image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80',
+    },
+    testimonials: [
+      { name: 'Alexa Watson', avatar: 'https://i.pravatar.cc/100?img=1', rating: 5, text: 'Absolutely love this platform! Stylish products and super fast delivery. Highly recommend to everyone.', product: 'Minimalist Watch' },
+      { name: 'Emily Mendez', avatar: 'https://i.pravatar.cc/100?img=5', rating: 5, text: 'The quality of their products exceeded my expectations completely. Will definitely buy again!', product: 'Varsity Jacket' },
+      { name: 'David Swagner', avatar: 'https://i.pravatar.cc/100?img=11', rating: 5, text: 'Amazing customer service, genuine products, and beautiful packaging. 10/10 shopping experience.', product: 'Earbuds Pro' },
+    ],
+    newsletter: {
+      eyebrow: 'Insider Access',
+      title: 'Get Exclusive Offers First',
+      description: 'Subscribe to our insider list and get early access to deals, drops and new arrivals.',
+      inputPlaceholder: 'Enter your email address...',
+      ctaLabel: 'Subscribe',
+      footnote: 'No spam, ever. Unsubscribe at any time.',
+    },
+  },
+  footer: {
+    headings: {
+      shop: 'Shop',
+      company: 'Help & Company',
+    },
+    description: 'The most innovative store for curated essentials. Authentic products, premium quality, delivered to your door.',
+    socialLinks: [
+      { icon: 'mdi:instagram', href: '#' },
+      { icon: 'simple-icons:x', href: '#' },
+      { icon: 'mdi:facebook', href: '#' },
+      { icon: 'mdi:youtube', href: '#' },
+    ],
+    shopLinks: [
+      { label: 'All Products', href: '/products' },
+      { label: 'Menswear', href: '/category/men' },
+      { label: 'Womenswear', href: '/category/women' },
+      { label: 'Electronics', href: '/category/electronics' },
+      { label: 'Footwear', href: '/category/shoes' },
+      { label: 'Home & Living', href: '/category/home' },
+    ],
+    companyLinks: [
+      { label: 'FAQs', href: '/faq' },
+      { label: 'Contact Us', href: '/contact' },
+      { label: 'About Us', href: '/about' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Refund Policy', href: '/refund' },
+      { label: 'Terms & Conditions', href: '/terms' },
+    ],
+    newsletter: {
+      title: 'Stay in the loop',
+      subtitle: 'Get deals & new arrivals straight to your inbox.',
+      placeholder: 'your@email.com',
+      ctaLabel: 'Subscribe',
+    },
+  },
+};
+
 export const reviews = [
   { id: 'r1', productId: 'p1', author: 'Alexa Watson', avatar: 'https://i.pravatar.cc/100?img=1', rating: 5, date: '2026-03-15', text: 'Absolutely love this product! Stylish and comfortable. Highly recommend to everyone looking for quality.' },
   { id: 'r2', productId: 'p1', author: 'Emily Mendez', avatar: 'https://i.pravatar.cc/100?img=5', rating: 5, date: '2026-03-10', text: 'Great purchase, the quality exceeded my expectations. Will definitely buy again.' },

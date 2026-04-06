@@ -60,7 +60,7 @@ export default function SalesAnalyticsPage() {
               />
               <Tooltip
                 contentStyle={{ background: "var(--overlay)", border: "1px solid var(--border)", borderRadius: "12px", fontSize: 12 }}
-                formatter={(v: number) => [formatCurrency(v), "Revenue"]}
+                formatter={(v: any) => [formatCurrency(Number(v)), "Revenue"]}
               />
               <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2.5} fill="url(#areaGrad)" dot={false} activeDot={{ r: 5 }} />
             </AreaChart>
@@ -145,7 +145,7 @@ export default function SalesAnalyticsPage() {
             <YAxis type="category" dataKey="title" tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} width={160} />
             <Tooltip
               contentStyle={{ background: "var(--overlay)", border: "1px solid var(--border)", borderRadius: "12px", fontSize: 12 }}
-              formatter={(v: number) => [formatCurrency(v), "Revenue"]}
+              formatter={(v: any) => [formatCurrency(Number(v)), "Revenue"]}
             />
             <Bar dataKey="revenue" fill="#6366f1" radius={[0, 5, 5, 0]} />
           </BarChart>

@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+import { Button, Input, Label, TextField } from 'heroui-native';
 
 import { EmptyState, Screen, SiteHeader } from '@/components/storefront';
 import { fetchTrackOrder } from '@/lib/api';
@@ -21,11 +22,17 @@ export default function TrackOrderScreen() {
       <SiteHeader title="Track Order" subtitle="Public tracking" />
       <ScrollView className="px-4" contentContainerClassName="pb-8 gap-4">
         <View className="bg-white border border-[#F0F0F0] rounded-3xl p-4 gap-4">
-          <TextInput value={orderNumber} onChangeText={setOrderNumber} placeholder="Order number" className="h-12 rounded-2xl bg-[#F5F5F5] px-4 text-black" />
-          <TextInput value={email} onChangeText={setEmail} placeholder="Email address" keyboardType="email-address" className="h-12 rounded-2xl bg-[#F5F5F5] px-4 text-black" />
-          <Pressable onPress={lookup} className="h-12 rounded-full bg-black items-center justify-center">
-            <Text className="text-white font-bold">Track Order</Text>
-          </Pressable>
+          <TextField>
+            <Label>Order number</Label>
+            <Input value={orderNumber} onChangeText={setOrderNumber} placeholder="Order number" autoCapitalize="characters" />
+          </TextField>
+          <TextField>
+            <Label>Email address</Label>
+            <Input value={email} onChangeText={setEmail} placeholder="Email address" keyboardType="email-address" autoCapitalize="none" />
+          </TextField>
+          <Button variant="primary" onPress={lookup}>
+            <Button.Label>Track Order</Button.Label>
+          </Button>
         </View>
 
         {searched && !order ? (

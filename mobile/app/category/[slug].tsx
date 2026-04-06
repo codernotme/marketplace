@@ -3,8 +3,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { Button } from 'heroui-native';
 
+import { BrandLoader } from '@/components/brand-loader';
 import { ProductCard, Screen } from '@/components/storefront';
 import { fetchCategoryBySlug, fetchProductsByCategory, fetchProducts } from '@/lib/api';
 
@@ -34,11 +36,7 @@ export default function CategoryScreen() {
   }, [slug]);
 
   if (loading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator color="#111111" />
-      </View>
-    );
+    return <BrandLoader subtitle="Loading category" />;
   }
 
   if (!category) {
@@ -47,9 +45,9 @@ export default function CategoryScreen() {
         <Ionicons name="alert-circle-outline" size={48} color="#D1D5DB" />
         <Text className="text-black font-black text-2xl mt-4 mb-2">Category not found</Text>
         <Text className="text-gray-500 text-center mb-5">We could not locate that category in the catalogue.</Text>
-        <Pressable onPress={() => router.back()} className="h-11 px-5 rounded-full bg-black items-center justify-center">
-          <Text className="text-white font-bold">Go Back</Text>
-        </Pressable>
+        <Button variant="primary" onPress={() => router.back()}>
+          <Button.Label>Go Back</Button.Label>
+        </Button>
       </View>
     );
   }
@@ -57,9 +55,11 @@ export default function CategoryScreen() {
   return (
     <Screen>
       <View className="px-4 pt-4 pb-2 flex-row items-center justify-between">
-        <Pressable onPress={() => router.back()} className="w-10 h-10 rounded-full bg-[#F5F5F5] items-center justify-center">
-          <Ionicons name="arrow-back" size={18} color="#111" />
-        </Pressable>
+        <Button variant="secondary" size="sm" onPress={() => router.back()}>
+          <Button.Label>
+            <Ionicons name="arrow-back" size={16} color="#111" />
+          </Button.Label>
+        </Button>
         <Text className="text-black font-black text-lg">{category.name}</Text>
         <View className="w-10 h-10" />
       </View>

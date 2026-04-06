@@ -3,8 +3,10 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+import { Button } from 'heroui-native';
 
+import { BrandLoader } from '@/components/brand-loader';
 import { ProductCard, ReviewCard, Screen } from '@/components/storefront';
 import { useAppContext } from '@/context/app-context';
 import { fetchProductBySlug, fetchProductReviews, fetchProducts } from '@/lib/api';
@@ -45,11 +47,7 @@ export default function ProductDetailScreen() {
   );
 
   if (loading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator color="#111111" />
-      </View>
-    );
+    return <BrandLoader subtitle="Loading product details" />;
   }
 
   if (!product) {
@@ -58,9 +56,9 @@ export default function ProductDetailScreen() {
         <MaterialCommunityIcons name="close-circle-outline" size={48} color="#D1D5DB" />
         <Text className="text-black font-black text-2xl mt-4 mb-2">Product not found</Text>
         <Text className="text-gray-500 text-center mb-5">The product you opened is not available in the catalog.</Text>
-        <Pressable onPress={() => router.back()} className="h-11 px-5 rounded-full bg-black items-center justify-center">
-          <Text className="text-white font-bold">Go Back</Text>
-        </Pressable>
+        <Button variant="primary" onPress={() => router.back()}>
+          <Button.Label>Go Back</Button.Label>
+        </Button>
       </View>
     );
   }
@@ -72,13 +70,17 @@ export default function ProductDetailScreen() {
   return (
     <Screen>
       <View className="px-4 pt-4 pb-2 flex-row items-center justify-between">
-        <Pressable onPress={() => router.back()} className="w-10 h-10 rounded-full bg-[#F5F5F5] items-center justify-center">
-          <Ionicons name="arrow-back" size={18} color="#111" />
-        </Pressable>
+        <Button variant="secondary" size="sm" onPress={() => router.back()}>
+          <Button.Label>
+            <Ionicons name="arrow-back" size={16} color="#111" />
+          </Button.Label>
+        </Button>
         <Text className="text-black font-black text-lg">Product Detail</Text>
-        <Pressable onPress={() => toggleWishlist(product.id)} className="w-10 h-10 rounded-full bg-[#F5F5F5] items-center justify-center">
-          <Ionicons name={isInWishlist ? 'heart' : 'heart-outline'} size={18} color={isInWishlist ? '#EF4444' : '#111'} />
-        </Pressable>
+        <Button variant="secondary" size="sm" onPress={() => toggleWishlist(product.id)}>
+          <Button.Label>
+            <Ionicons name={isInWishlist ? 'heart' : 'heart-outline'} size={16} color={isInWishlist ? '#EF4444' : '#111'} />
+          </Button.Label>
+        </Button>
       </View>
 
       <View className="px-4 mb-5">
@@ -124,28 +126,36 @@ export default function ProductDetailScreen() {
           <Text className="text-black font-black mb-3">Select Option</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {(product.variants || []).map((variant: any, index: number) => (
-              <Pressable key={variant.id} onPress={() => setSelectedVariant(index)} className={`mr-2 px-4 h-11 rounded-full justify-center border ${selectedVariant === index ? 'bg-black border-black' : 'bg-white border-gray-200'}`}>
-                <Text className={`text-sm font-bold ${selectedVariant === index ? 'text-white' : 'text-black'}`}>{variant.name}</Text>
-              </Pressable>
+              <Button
+                key={variant.id}
+                variant={selectedVariant === index ? 'primary' : 'secondary'}
+                size="sm"
+                className="mr-2"
+                onPress={() => setSelectedVariant(index)}
+              >
+                <Button.Label>{variant.name}</Button.Label>
+              </Button>
             ))}
           </ScrollView>
         </View>
 
         <View className="flex-row items-center gap-3 mb-5">
           <View className="flex-row items-center rounded-full bg-[#F5F5F5] p-1">
-            <Pressable onPress={() => setQuantity((current) => Math.max(1, current - 1))} className="w-10 h-10 rounded-full items-center justify-center">
-              <Text className="text-black font-black text-xl">-</Text>
-            </Pressable>
+            <Button variant="secondary" size="sm" onPress={() => setQuantity((current) => Math.max(1, current - 1))}>
+              <Button.Label>-</Button.Label>
+            </Button>
             <Text className="w-10 text-center font-black text-black">{quantity}</Text>
-            <Pressable onPress={() => setQuantity((current) => current + 1)} className="w-10 h-10 rounded-full items-center justify-center">
-              <Text className="text-black font-black text-xl">+</Text>
-            </Pressable>
+            <Button variant="secondary" size="sm" onPress={() => setQuantity((current) => current + 1)}>
+              <Button.Label>+</Button.Label>
+            </Button>
           </View>
           <Text className="text-sm text-gray-400">{activeVariant?.stock ?? 0} units left</Text>
         </View>
 
         <View className="flex-row gap-3 mb-6">
-          <Pressable
+          <Button
+            variant="primary"
+            className="flex-1"
             onPress={() => addToCart({
               id: `${product.id}-${activeVariant?.id || 'base'}`,
               productId: product.id,
@@ -155,13 +165,12 @@ export default function ProductDetailScreen() {
               image: product.images?.[0],
               variantLabel: activeVariant?.name || 'Default',
             }, quantity)}
-            className="flex-1 h-12 rounded-2xl bg-black items-center justify-center"
           >
-            <Text className="text-white font-bold">Add to Cart</Text>
-          </Pressable>
-          <Pressable onPress={() => router.push('/checkout')} className="flex-1 h-12 rounded-2xl border border-gray-200 items-center justify-center">
-            <Text className="text-black font-bold">Buy Now</Text>
-          </Pressable>
+            <Button.Label>Add to Cart</Button.Label>
+          </Button>
+          <Button variant="outline" className="flex-1" onPress={() => router.push('/checkout')}>
+            <Button.Label>Buy Now</Button.Label>
+          </Button>
         </View>
 
         <View className="flex-row flex-wrap gap-2 mb-6">

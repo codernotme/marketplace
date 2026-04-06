@@ -1,7 +1,8 @@
 // @ts-nocheck
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { Button } from 'heroui-native';
 
 import { EmptyState, Screen, SiteHeader } from '@/components/storefront';
 // @ts-nocheck
@@ -38,17 +39,19 @@ export default function CartScreen() {
                 </View>
                 <View className="items-end gap-2">
                   <View className="flex-row items-center rounded-full bg-[#F5F5F5] p-1">
-                    <Pressable onPress={() => updateQuantity(item.id, item.quantity - 1)} className="w-8 h-8 items-center justify-center rounded-full">
-                      <Text className="text-black font-black text-lg">-</Text>
-                    </Pressable>
+                    <Button variant="secondary" size="sm" onPress={() => updateQuantity(item.id, item.quantity - 1)}>
+                      <Button.Label>-</Button.Label>
+                    </Button>
                     <Text className="w-8 text-center font-bold text-black">{item.quantity}</Text>
-                    <Pressable onPress={() => updateQuantity(item.id, item.quantity + 1)} className="w-8 h-8 items-center justify-center rounded-full">
-                      <Text className="text-black font-black text-lg">+</Text>
-                    </Pressable>
+                    <Button variant="secondary" size="sm" onPress={() => updateQuantity(item.id, item.quantity + 1)}>
+                      <Button.Label>+</Button.Label>
+                    </Button>
                   </View>
-                  <Pressable onPress={() => removeFromCart(item.id)}>
-                    <MaterialCommunityIcons name="close" size={18} color="#9CA3AF" />
-                  </Pressable>
+                  <Button variant="tertiary" size="sm" onPress={() => removeFromCart(item.id)}>
+                    <Button.Label>
+                      <MaterialCommunityIcons name="close" size={18} color="#9CA3AF" />
+                    </Button.Label>
+                  </Button>
                 </View>
               </View>
             ))}
@@ -60,9 +63,9 @@ export default function CartScreen() {
                 <View className="flex-row justify-between"><Text className="text-gray-600">Shipping</Text><Text className="text-black font-bold">{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</Text></View>
               </View>
               <View className="flex-row justify-between items-center mb-5"><Text className="text-black text-lg font-black">Total</Text><Text className="text-black text-2xl font-black">${total.toFixed(2)}</Text></View>
-              <Pressable onPress={() => router.push('/checkout')} className="h-12 rounded-full bg-black items-center justify-center">
-                <Text className="text-white font-bold">Proceed to Checkout</Text>
-              </Pressable>
+              <Button variant="primary" onPress={() => router.push('/checkout')}>
+                <Button.Label>Proceed to Checkout</Button.Label>
+              </Button>
             </View>
           </View>
         )}

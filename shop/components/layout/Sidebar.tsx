@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { cn } from "@/lib/utils";
 import { navItems, siteConfig, type NavItem } from "@/lib/mock-data";
-import { Tooltip } from "@heroui/react";
+import { Tooltip, Dropdown } from "@heroui/react";
 import { useUIStore } from "@/lib/store";
 
 function NavItemRow({
@@ -21,24 +21,122 @@ function NavItemRow({
   onLinkClick?: () => void;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const checkIsActive = (href?: string, children?: NavItem[]) => {
+    if (!href) {
+      return children?.some((c) => c.href && checkIsActive(c.href));
+    }
+
+    const [baseUrl, queryStr] = href.split("?");
+    const pathMatch = pathname === baseUrl || (baseUrl !== "/dashboard" && pathname.startsWith(baseUrl + "/"));
+    
+    if (pathMatch && queryStr) {
+      const itemParams = new URLSearchParams(queryStr);
+      return Array.from(itemParams.entries()).every(([key, val]) => searchParams.get(key) === val);
+    }
+    
+    // For base URLs, only active if NO search params (or at least no relevant ones)
+    return pathMatch && (!queryStr ? searchParams.toString() === "" : true);
+  };
+
   const { expandedNavKeys, toggleNavKey } = useUIStore();
   const isExpanded = expandedNavKeys.includes(item.key);
   const hasChildren = !!item.children?.length;
+  const isActive = checkIsActive(item.href, item.children);
 
-  const isActive = item.href
-    ? pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href.split("?")[0]))
-    : item.children?.some((c) => c.href && (pathname === c.href || pathname.startsWith(c.href.split("?")[0])));
+  if (hasChildren) {
+    if (collapsed) {
+      return (
+        <Dropdown>
+          <Dropdown.Trigger className="w-full">
+            <div className="w-full flex justify-center py-1.5">
+              <button
+                className={cn(
+                  "flex items-center justify-center p-2.5 rounded-xl transition-all duration-200 group select-none hover:bg-default/60",
+                  isActive ? "bg-accent/10 text-accent font-bold shadow-sm" : "text-foreground/40 hover:text-foreground"
+                )}
+              >
+                <Icon icon={item.icon} className="text-2xl" />
+              </button>
+            </div>
+          </Dropdown.Trigger>
+          <Dropdown.Popover className="min-w-[190px] bg-surface/95 backdrop-blur-xl border border-border shadow-2xl p-1 rounded-2xl ml-2 overflow-hidden">
+            <Dropdown.Menu onSelectionChange={(keys) => {}} selectionMode="none">
+              <Dropdown.Section>
+                <div className="px-3.5 py-3 mb-1 bg-default/5 border-b border-border/40">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent leading-none">{item.label}</p>
+                </div>
+                {item.children!.map((child) => (
+                  <Dropdown.Item key={child.key} id={child.key} className="p-0 hover:bg-transparent">
+                    <Link
+                      href={child.href || "#"}
+                      onClick={onLinkClick}
+                      className={cn(
+                        "w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all",
+                        checkIsActive(child.href) ? "text-accent bg-accent/5" : "text-muted hover:text-foreground hover:bg-default/50"
+                      )}
+                    >
+                      <Icon icon={child.icon} className="text-lg opacity-70" />
+                      {child.label}
+                    </Link>
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Section>
+            </Dropdown.Menu>
+          </Dropdown.Popover>
+        </Dropdown>
+      );
+    }
 
-  const content = hasChildren ? (
+    return (
+      <div className="w-full px-2">
+        <button
+          onClick={() => toggleNavKey(item.key)}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group select-none",
+            isActive ? "bg-accent/10 text-accent font-bold" : "text-foreground/60 hover:text-foreground hover:bg-default/60"
+          )}
+        >
+          <Icon
+            icon={item.icon}
+            className={cn(
+              "flex-shrink-0 transition-colors text-xl",
+              isActive ? "text-accent" : "text-foreground/40 group-hover:text-foreground"
+            )}
+          />
+          <span className="flex-1 text-left">{item.label}</span>
+          <Icon
+            icon="solar:alt-arrow-down-bold-duotone"
+            className={cn(
+              "text-sm text-foreground/30 transition-transform duration-300",
+              isExpanded && "rotate-180"
+            )}
+          />
+        </button>
+        {isExpanded && (
+          <div className="ml-4 mt-0.5 border-l-2 border-border/40 pl-3 space-y-0.5 mb-1 animate-in fade-in slide-in-from-top-1 duration-200">
+            {item.children!.map((child) => (
+              <NavItemRow key={child.key} item={child} collapsed={false} depth={depth + 1} onLinkClick={onLinkClick} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
     <Tooltip isDisabled={!collapsed || depth > 0}>
       <Tooltip.Trigger>
-        <div>
-          <button
-            onClick={() => toggleNavKey(item.key)}
+        <div className={cn("w-full flex justify-center py-1.5")}>
+          <Link
+            href={item.href!}
+            onClick={onLinkClick}
             className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group select-none",
+              "flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200 group",
+              collapsed ? "p-2.5 justify-center" : "px-3 py-2.5",
               isActive
-                ? "bg-accent/10 text-accent"
+                ? "bg-accent/10 text-accent font-bold"
                 : "text-foreground/60 hover:text-foreground hover:bg-default/60"
             )}
           >
@@ -46,72 +144,22 @@ function NavItemRow({
               icon={item.icon}
               className={cn(
                 "flex-shrink-0 transition-colors",
-                collapsed ? "text-2xl" : "text-xl",
-                isActive ? "text-accent" : "text-foreground/50 group-hover:text-foreground"
+                collapsed ? "text-2xl" : depth === 1 ? "text-base" : "text-xl",
+                isActive ? "text-accent" : "text-foreground/40 group-hover:text-foreground"
               )}
             />
-            {!collapsed && (
-              <>
-                <span className="flex-1 text-left">{item.label}</span>
-                <Icon
-                  icon="solar:alt-arrow-down-bold-duotone"
-                  className={cn(
-                    "text-sm text-foreground/40 transition-transform duration-300",
-                    isExpanded && "rotate-180"
-                  )}
-                />
-              </>
+            {!collapsed && <span className="flex-1">{item.label}</span>}
+            {isActive && !collapsed && (
+              <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
             )}
-          </button>
-
-          {!collapsed && isExpanded && (
-            <div className="ml-3 mt-0.5 border-l-2 border-border/50 pl-3 space-y-0.5 mb-1">
-              {item.children!.map((child) => (
-                <NavItemRow key={child.key} item={child} collapsed={false} depth={depth + 1} onLinkClick={onLinkClick} />
-              ))}
-            </div>
-          )}
+          </Link>
         </div>
       </Tooltip.Trigger>
-      <Tooltip.Content placement="right" offset={12} className="font-semibold px-3 py-1.5 translate-x-1">
-        {item.label}
-      </Tooltip.Content>
-    </Tooltip>
-  ) : (
-    <Tooltip isDisabled={!collapsed || depth > 0}>
-      <Tooltip.Trigger>
-        <Link
-          href={item.href!}
-          onClick={onLinkClick}
-          className={cn(
-            "flex items-center gap-3 px-3 rounded-xl text-sm font-medium transition-all duration-200 group",
-            depth === 0 ? "py-2.5" : "py-2",
-            isActive
-              ? "bg-accent/10 text-accent"
-              : "text-foreground/60 hover:text-foreground hover:bg-default/60"
-          )}
-        >
-          <Icon
-            icon={item.icon}
-            className={cn(
-              "flex-shrink-0 transition-colors",
-              collapsed ? "text-2xl" : depth === 1 ? "text-base" : "text-xl",
-              isActive ? "text-accent" : "text-foreground/50 group-hover:text-foreground"
-            )}
-          />
-          {!collapsed && <span className="flex-1">{item.label}</span>}
-          {isActive && !collapsed && (
-            <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
-          )}
-        </Link>
-      </Tooltip.Trigger>
-      <Tooltip.Content placement="right" offset={12} className="font-semibold px-3 py-1.5 translate-x-1">
+      <Tooltip.Content placement="right" offset={12} className="font-bold text-[10px] uppercase tracking-widest px-3 py-1.5 translate-x-1">
         {item.label}
       </Tooltip.Content>
     </Tooltip>
   );
-
-  return content;
 }
 
 export function Sidebar() {
@@ -124,35 +172,40 @@ export function Sidebar() {
         sidebarCollapsed ? "w-[68px]" : "w-[256px]"
       )}
     >
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-4 border-b border-border flex-shrink-0">
-        <Image
-          src="/logo.svg"
-          alt={siteConfig.name}
-          width={36}
-          height={36}
-          className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
-          priority
-        />
-        {!sidebarCollapsed && (
-          <div className="overflow-hidden flex-1">
-            <p className="font-black text-base leading-tight truncate" style={{ fontFamily: "var(--font-outfit)" }}>
-              {siteConfig.name}
-            </p>
-            <p className="text-xs text-muted truncate">Admin Dashboard</p>
-          </div>
-        )}
+      {/* Logo Section */}
+      <div className={cn(
+        "flex items-center gap-3 py-4 border-b border-border flex-shrink-0 sticky top-0 bg-surface z-10 transition-all duration-300",
+        sidebarCollapsed ? "px-0 justify-center h-[72px]" : "px-4"
+      )}>
+        <div className="flex items-center gap-3 flex-1 overflow-hidden">
+          <Image
+            src="/logo.svg"
+            alt={siteConfig.name}
+            width={36}
+            height={36}
+            className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
+            priority
+          />
+          {!sidebarCollapsed && (
+            <div className="overflow-hidden flex-1 fade-in">
+              <p className="font-black text-base leading-tight truncate" style={{ fontFamily: "var(--font-outfit)" }}>
+                {siteConfig.name}
+              </p>
+              <p className="text-xs text-muted truncate">Admin Dashboard</p>
+            </div>
+          )}
+        </div>
         <button
           onClick={toggleSidebarCollapsed}
           className={cn(
-            "z-99 flex-shrink-0 p-1.5 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors",
-            sidebarCollapsed && "mx-auto"
+            "flex-shrink-0 p-1.5 rounded-lg hover:bg-default text-muted hover:text-foreground transition-all duration-200",
+            sidebarCollapsed ? "absolute -right-3 top-1/2 -translate-y-1/2 bg-surface border border-border shadow-md z-50 hover:scale-110" : ""
           )}
           title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <Icon
             icon={sidebarCollapsed ? "solar:alt-arrow-right-bold-duotone" : "solar:alt-arrow-left-bold-duotone"}
-            className="text-base"
+            className={cn("transition-transform duration-300", sidebarCollapsed ? "text-accent" : "text-base")}
           />
         </button>
       </div>
@@ -161,10 +214,10 @@ export function Sidebar() {
       <div className="p-2.5 pb-0">
         <Tooltip isDisabled={!sidebarCollapsed}>
           <Tooltip.Trigger>
-            <Link
-              href="/dashboard/inventory/products/add"
+            <button
+              onClick={() => useUIStore.getState().openModal("product", "add")}
               className={cn(
-                "flex items-center gap-3 w-full transition-all duration-300 group",
+                "flex items-center gap-3 w-full transition-all duration-300 group cursor-pointer",
                 sidebarCollapsed 
                   ? "justify-center h-10 w-10 mx-auto rounded-xl bg-accent text-white shadow-lg shadow-accent/20 hover:scale-105 active:scale-95" 
                   : "px-4 py-2.5 bg-accent/5 hover:bg-accent/10 border border-accent/20 rounded-2xl text-accent"
@@ -172,7 +225,7 @@ export function Sidebar() {
             >
               <Icon icon="solar:add-circle-bold-duotone" className={cn("flex-shrink-0", sidebarCollapsed ? "text-2xl" : "text-xl")} />
               {!sidebarCollapsed && <span className="font-bold text-sm">Quick Add</span>}
-            </Link>
+            </button>
           </Tooltip.Trigger>
           <Tooltip.Content placement="right" offset={12} className="font-semibold px-3 py-1.5">
             Quick Add Product
@@ -200,9 +253,9 @@ export function Sidebar() {
             <div className="w-7 h-7 rounded-lg bg-accent/20 text-accent flex items-center justify-center font-bold text-xs flex-shrink-0">
               A
             </div>
-            <div className="overflow-hidden flex-1">
-              <p className="text-sm font-semibold truncate">Aryan Sharma</p>
-              <p className="text-xs text-muted truncate">Admin</p>
+            <div className="overflow-hidden flex-1 group-hover:translate-x-0.5 transition-transform">
+              <p className="text-sm font-bold truncate">Aryan Sharma</p>
+              <p className="text-[10px] text-muted truncate uppercase tracking-widest font-black opacity-60">Administrator</p>
             </div>
             <Icon
               icon="solar:logout-bold-duotone"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input } from "@heroui/react";
+import { Button, Input, InputGroup } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -59,11 +59,15 @@ export default function QueriesPage() {
         {/* Ticket list */}
         <div className="lg:col-span-2 bg-surface border border-border rounded-2xl overflow-hidden flex flex-col">
           <div className="p-3 border-b border-border">
-            <Input
-              placeholder="Search tickets…"
-              size="sm"
-              startContent={<Icon icon="solar:magnifer-bold-duotone" className="text-muted text-base" />}
-            />
+            <InputGroup className="bg-default/40 border border-border rounded-xl">
+              <InputGroup.Prefix className="pl-2 text-muted">
+                <Icon icon="solar:magnifer-bold-duotone" className="text-base" />
+              </InputGroup.Prefix>
+              <Input
+                placeholder="Search tickets…"
+                className="flex-1 bg-transparent border-none focus:ring-0 text-xs py-1.5 px-2"
+              />
+            </InputGroup>
           </div>
           <div className="flex-1 overflow-y-auto divide-y divide-border">
             {filtered.map((ticket) => (

@@ -1,7 +1,8 @@
 // @ts-nocheck
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { View } from 'react-native';
+import { Input } from 'heroui-native';
 
 import { EmptyState, ProductCard, Screen, SiteHeader } from '@/components/storefront';
 import { fetchProducts } from '@/lib/api';
@@ -28,7 +29,13 @@ export default function SearchScreen() {
       <View className="px-4 mt-2 mb-4">
         <View className="flex-row items-center gap-3 bg-[#F5F5F5] rounded-2xl px-4 h-14">
           <MaterialCommunityIcons name="magnify" size={18} color="#9CA3AF" />
-          <TextInput value={query} onChangeText={setQuery} placeholder="Search by product, brand, or tag" className="flex-1 text-black text-sm" />
+          <Input
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search by product, brand, or tag"
+            className="flex-1"
+            autoCapitalize="none"
+          />
         </View>
       </View>
 

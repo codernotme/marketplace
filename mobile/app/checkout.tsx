@@ -1,8 +1,9 @@
 // @ts-nocheck
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Button, Input, Label, TextField } from 'heroui-native';
 
 import { Screen, SiteHeader } from '@/components/storefront';
 import { useAppContext } from '@/context/app-context';
@@ -39,13 +40,25 @@ export default function CheckoutScreen() {
 
           {step === 1 ? (
             <>
-              <TextInput value={name} onChangeText={setName} placeholder="Full name" className="h-12 rounded-2xl bg-[#F5F5F5] px-4 text-black" />
-              <TextInput value={email} onChangeText={setEmail} placeholder="Email address" keyboardType="email-address" className="h-12 rounded-2xl bg-[#F5F5F5] px-4 text-black" />
+              <TextField>
+                <Label>Full name</Label>
+                <Input value={name} onChangeText={setName} placeholder="Full name" />
+              </TextField>
+              <TextField>
+                <Label>Email address</Label>
+                <Input value={email} onChangeText={setEmail} placeholder="Email address" keyboardType="email-address" autoCapitalize="none" />
+              </TextField>
             </>
           ) : step === 2 ? (
             <>
-              <TextInput value={address} onChangeText={setAddress} placeholder="Street address" className="h-12 rounded-2xl bg-[#F5F5F5] px-4 text-black" />
-              <TextInput value={city} onChangeText={setCity} placeholder="City" className="h-12 rounded-2xl bg-[#F5F5F5] px-4 text-black" />
+              <TextField>
+                <Label>Street address</Label>
+                <Input value={address} onChangeText={setAddress} placeholder="Street address" />
+              </TextField>
+              <TextField>
+                <Label>City</Label>
+                <Input value={city} onChangeText={setCity} placeholder="City" />
+              </TextField>
             </>
           ) : (
             <View className="rounded-2xl bg-[#F5F5F5] p-4 flex-row items-center gap-3">
@@ -58,10 +71,14 @@ export default function CheckoutScreen() {
           )}
 
           <View className="flex-row gap-3">
-            {step > 1 ? <Pressable onPress={() => setStep((current) => current - 1)} className="flex-1 h-12 rounded-full border border-gray-200 items-center justify-center"><Text className="text-black font-bold">Back</Text></Pressable> : null}
-            <Pressable onPress={() => (step < 3 ? setStep((current) => current + 1) : placeOrder())} className="flex-1 h-12 rounded-full bg-black items-center justify-center">
-              <Text className="text-white font-bold">{step < 3 ? 'Continue' : 'Place Order'}</Text>
-            </Pressable>
+            {step > 1 ? (
+              <Button variant="outline" className="flex-1" onPress={() => setStep((current) => current - 1)}>
+                <Button.Label>Back</Button.Label>
+              </Button>
+            ) : null}
+            <Button variant="primary" className="flex-1" onPress={() => (step < 3 ? setStep((current) => current + 1) : placeOrder())}>
+              <Button.Label>{step < 3 ? 'Continue' : 'Place Order'}</Button.Label>
+            </Button>
           </View>
         </View>
 

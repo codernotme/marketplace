@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input } from "@heroui/react";
+import { Button, Input, InputGroup } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useCustomersStore } from "@/lib/store";
@@ -70,13 +70,19 @@ export default function CustomersPage() {
 
       {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-3">
-        <Input
-          placeholder="Search customers…"
-          value={search}
-          onValueChange={setSearch}
-          startContent={<Icon icon="solar:magnifer-bold-duotone" className="text-muted text-lg" />}
-          className="max-w-xs"
-        />
+        <div className="max-w-xs w-full">
+          <InputGroup className="bg-default/40 border border-border rounded-xl">
+            <InputGroup.Prefix className="pl-3 text-muted">
+              <Icon icon="solar:magnifer-bold-duotone" className="text-lg" />
+            </InputGroup.Prefix>
+            <Input
+              placeholder="Search customers…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2"
+            />
+          </InputGroup>
+        </div>
         <div className="flex gap-1 p-1 bg-default/40 rounded-xl">
           {(["all", "active", "inactive"] as const).map((opt) => (
             <button

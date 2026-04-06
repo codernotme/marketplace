@@ -1,7 +1,9 @@
 import React from 'react';
 import { router } from 'expo-router';
-import { Pressable, Text, TextInput, View, ScrollView } from 'react-native';
+import { Text, View, ScrollView } from 'react-native';
+import { Button, Input } from 'heroui-native';
 
+import { BrandLoader } from '@/components/brand-loader';
 import { ProductCard, Screen, SectionHeading, SiteHeader } from '@/components/storefront';
 import { fetchCategories, fetchProducts, fetchStorefrontContent } from '@/lib/api';
 
@@ -10,45 +12,55 @@ export default function ShopScreen() {
   const [products, setProducts] = useState([] as any[]);
   const [categories, setCategories] = useState([] as any[]);
   const [content, setContent] = useState(null as any);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([fetchProducts(), fetchCategories(), fetchStorefrontContent()]).then(([loadedProducts, loadedCategories, loadedContent]) => {
       setProducts(loadedProducts);
       setCategories(loadedCategories);
       setContent(loadedContent);
+      setLoading(false);
     });
   }, []);
 
   const shopContent = content?.shop;
+
+  if (loading) {
+    return <BrandLoader subtitle="Loading catalogue" />;
+  }
 
   return (
     <Screen>
       <SiteHeader title={shopContent?.title || 'Full Catalogue'} subtitle={shopContent?.subtitle || 'Browse'} />
 
       <View className="px-4 mb-4">
-        <View className="flex-row items-center gap-3 bg-[#F5F5F5] rounded-2xl px-4 h-14">
+        <View className="flex-row items-center gap-3">
           <Text className="text-gray-400">{shopContent?.searchLeadingLabel || 'Search'}</Text>
-          <TextInput placeholder={shopContent?.searchPlaceholder || 'T-shirts, Jackets, Earbuds...'} className="flex-1 text-black text-sm" />
-          <Pressable onPress={() => router.push('/search')}>
-            <Text className="text-black font-bold text-sm">Go</Text>
-          </Pressable>
+          <Input
+            className="flex-1"
+            placeholder={shopContent?.searchPlaceholder || 'T-shirts, Jackets, Earbuds...'}
+            placeholderColorClassName="field-placeholder"
+          />
+          <Button variant="secondary" size="sm" onPress={() => router.push('/search')}>
+            <Button.Label>Go</Button.Label>
+          </Button>
         </View>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingBottom: 12 }}>
         {(shopContent?.filterChips || ['All', 'Relevance', 'Price', 'Newest', 'Rating', 'Best Sellers']).map((item: string, index: number) => (
-          <Pressable key={item} className={`h-9 px-4 rounded-full justify-center ${index === 0 ? 'bg-black' : 'bg-[#F5F5F5]'}`}>
-            <Text className={`text-sm font-bold ${index === 0 ? 'text-white' : 'text-gray-600'}`}>{item}</Text>
-          </Pressable>
+          <Button key={item} variant={index === 0 ? 'primary' : 'secondary'} size="sm">
+            <Button.Label>{item}</Button.Label>
+          </Button>
         ))}
       </ScrollView>
 
       <SectionHeading title={shopContent?.categoriesHeading || 'Categories'} />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12, gap: 8 }}>
         {categories.map((item: any) => (
-          <Pressable key={item.id} onPress={() => router.push(`/category/${item.slug}`)} className="h-10 px-4 rounded-full bg-[#F5F5F5] justify-center">
-            <Text className="text-sm font-bold text-black">{item.name}</Text>
-          </Pressable>
+          <Button key={item.id} variant="secondary" size="sm" onPress={() => router.push(`/category/${item.slug}`)}>
+            <Button.Label>{item.name}</Button.Label>
+          </Button>
         ))}
       </ScrollView>
 

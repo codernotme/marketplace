@@ -17,19 +17,28 @@ import {
   type Ticket,
   type TicketStatus,
   type OrderStatus,
+  type DeliveryAgent,
 } from "./mock-data";
 
 // ──────────────────────────────────────────────────
 // UI State Store
 // ──────────────────────────────────────────────────
+export type ModalType = "product" | "category" | "brand" | "coupon" | "banner" | "order" | null;
+export type ModalMode = "add" | "edit";
+
 interface UIState {
   sidebarCollapsed: boolean;
   mobileSidebarOpen: boolean;
   expandedNavKeys: string[];
+  activeModal: ModalType;
+  modalMode: ModalMode;
+  modalData: any;
   toggleSidebarCollapsed: () => void;
   setMobileSidebarOpen: (open: boolean) => void;
   toggleNavKey: (key: string) => void;
   expandNavKey: (key: string) => void;
+  openModal: (type: ModalType, mode?: ModalMode, data?: any) => void;
+  closeModal: () => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -38,6 +47,9 @@ export const useUIStore = create<UIState>()(
       sidebarCollapsed: false,
       mobileSidebarOpen: false,
       expandedNavKeys: ["dashboard"],
+      activeModal: null,
+      modalMode: "add",
+      modalData: null,
       toggleSidebarCollapsed: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
       setMobileSidebarOpen: (open) => set({ mobileSidebarOpen: open }),
       toggleNavKey: (key) => {
@@ -48,6 +60,8 @@ export const useUIStore = create<UIState>()(
         const curr = get().expandedNavKeys;
         if (!curr.includes(key)) set({ expandedNavKeys: [...curr, key] });
       },
+      openModal: (type, mode = "add", data = null) => set({ activeModal: type, modalMode: mode, modalData: data }),
+      closeModal: () => set({ activeModal: null, modalData: null }),
     }),
     { name: "tm-ui-store" }
   )
@@ -98,6 +112,8 @@ interface OrdersStore {
   updateOrderStatus: (id: string, status: OrderStatus) => void;
   updatePaymentStatus: (id: string, status: Order["paymentStatus"]) => void;
   updateTracking: (id: string, trackingNumber: string, courier: string) => void;
+  updateOrderStage: (id: string, stage: number) => void;
+  addDeliveryAgent: (id: string, agent: DeliveryAgent) => void;
 }
 
 export const useOrdersStore = create<OrdersStore>()(
@@ -120,6 +136,18 @@ export const useOrdersStore = create<OrdersStore>()(
         set((s) => ({
           orders: s.orders.map((o) =>
             o.id === id ? { ...o, trackingNumber, courier, updatedAt: new Date().toISOString() } : o
+          ),
+        })),
+      updateOrderStage: (id, stage) =>
+        set((s) => ({
+          orders: s.orders.map((o) =>
+            o.id === id ? { ...o, currentStage: stage, updatedAt: new Date().toISOString() } : o
+          ),
+        })),
+      addDeliveryAgent: (id, agent) =>
+        set((s) => ({
+          orders: s.orders.map((o) =>
+            o.id === id ? { ...o, deliveryAgents: [...o.deliveryAgents, agent], updatedAt: new Date().toISOString() } : o
           ),
         })),
     }),

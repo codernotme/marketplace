@@ -1,17 +1,27 @@
 // @ts-nocheck
 import { useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { router } from 'expo-router';
+import { Button } from 'heroui-native';
 
+import { BrandLoader } from '@/components/brand-loader';
 import { EmptyState, Screen, SiteHeader } from '@/components/storefront';
 import { fetchCustomerOrders } from '@/lib/api';
 
 export default function OrdersScreen() {
   const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCustomerOrders().then(setOrders);
+    fetchCustomerOrders().then((data) => {
+      setOrders(data);
+      setLoading(false);
+    });
   }, []);
+
+  if (loading) {
+    return <BrandLoader subtitle="Loading orders" />;
+  }
 
   return (
     <Screen>
@@ -31,9 +41,9 @@ export default function OrdersScreen() {
                 <Text className="text-gray-500 text-xs mb-2">{new Date(order.createdAt).toLocaleDateString()} • {order.items.length} item(s)</Text>
                 <View className="flex-row items-center justify-between">
                   <Text className="font-black text-black text-lg">${order.pricing.grandTotal.toFixed(2)}</Text>
-                  <Pressable onPress={() => router.push(`/account/orders/${order.id}`)} className="h-9 px-4 rounded-full border border-gray-200 justify-center">
-                    <Text className="text-black font-bold text-sm">Details</Text>
-                  </Pressable>
+                  <Button variant="outline" size="sm" onPress={() => router.push(`/account/orders/${order.id}`)}>
+                    <Button.Label>Details</Button.Label>
+                  </Button>
                 </View>
               </View>
             ))}

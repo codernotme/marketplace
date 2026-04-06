@@ -1,5 +1,6 @@
 // @ts-nocheck
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { Button } from 'heroui-native';
 
 import { EmptyState, Screen, SiteHeader } from '@/components/storefront';
 // @ts-nocheck
@@ -41,9 +42,9 @@ export default function WishlistScreen() {
                     <Text className="text-gray-500 text-xs mt-1">{product.brand}</Text>
                     <Text className="text-black font-black mt-2">${product.price}</Text>
                   </View>
-                  <Pressable onPress={() => toggleWishlist(product.id)}>
-                    <Text className="text-red-500 font-bold text-sm">Remove</Text>
-                  </Pressable>
+                  <Button variant="danger-soft" size="sm" onPress={() => toggleWishlist(product.id)}>
+                    <Button.Label>Remove</Button.Label>
+                  </Button>
                 </View>
               </View>
             ))}

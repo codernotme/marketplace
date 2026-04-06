@@ -1,8 +1,10 @@
 import React from 'react';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
+import { Button } from 'heroui-native';
 
+import { BrandLoader } from '@/components/brand-loader';
 import { BlogCard, CategoryTile, ProductCard, ReviewCard, Screen, SectionHeading, SiteHeader } from '@/components/storefront';
 import { fetchBlogPosts, fetchCategories, fetchFeaturedProducts, fetchNewArrivals, fetchProductReviews, fetchStorefrontContent, fetchTrendingProducts } from '@/lib/api';
 
@@ -40,6 +42,10 @@ export default function HomeScreen() {
   const hero = homeContent?.hero;
   const sections = homeContent?.sections;
 
+  if (!content) {
+    return <BrandLoader subtitle="Loading storefront" />;
+  }
+
   return (
     <Screen>
       <SiteHeader title={hero?.title || 'Shop the Future of Style.'} subtitle={hero?.badge || 'New season arrivals'} />
@@ -63,12 +69,12 @@ export default function HomeScreen() {
               <Text className="text-white text-4xl font-black leading-[44px] tracking-tight mb-4">{hero?.title || 'Shop the Future of Style.'}</Text>
               <Text className="text-white/75 text-sm leading-5 mb-5 max-w-[280px]">{hero?.description || 'Curated collections from the world\'s most innovative brands. Premium quality, authentic products, delivered to your door.'}</Text>
               <View className="flex-row gap-3">
-                <Pressable onPress={() => router.push(hero?.primaryCtaHref || '/shop')} className="h-12 px-5 rounded-full bg-white items-center justify-center">
-                  <Text className="text-black font-bold text-sm">{hero?.primaryCtaLabel || 'Shop Now'}</Text>
-                </Pressable>
-                <Pressable onPress={() => router.push(hero?.secondaryCtaHref || '/category/men')} className="h-12 px-5 rounded-full border border-white/30 items-center justify-center">
-                  <Text className="text-white font-bold text-sm">{hero?.secondaryCtaLabel || 'Browse Men'}</Text>
-                </Pressable>
+                <Button variant="primary" onPress={() => router.push(hero?.primaryCtaHref || '/shop')}>
+                  <Button.Label>{hero?.primaryCtaLabel || 'Shop Now'}</Button.Label>
+                </Button>
+                <Button variant="outline" onPress={() => router.push(hero?.secondaryCtaHref || '/category/men')}>
+                  <Button.Label>{hero?.secondaryCtaLabel || 'Browse Men'}</Button.Label>
+                </Button>
               </View>
             </View>
           </View>
@@ -122,28 +128,32 @@ export default function HomeScreen() {
             <Text className="text-xs font-black uppercase tracking-[3px] text-[#84D347] mb-3">{homeContent?.deal?.badge || 'Deal of the day'}</Text>
             <Text className="text-white text-2xl font-black mb-2">{homeContent?.deal?.title || 'DR CRZ Varsity Jacket'}</Text>
             <Text className="text-white/70 text-sm mb-5">{homeContent?.deal?.description || 'Limited stock. Up to 25% off premium outerwear.'}</Text>
-            <Pressable onPress={() => router.push(homeContent?.deal?.ctaHref || '/products/varsity-jacket')} className="h-11 w-36 rounded-full bg-white items-center justify-center">
-              <Text className="text-black font-bold text-sm">{homeContent?.deal?.ctaLabel || 'Shop Deal'}</Text>
-            </Pressable>
+            <Button variant="primary" className="w-36" onPress={() => router.push(homeContent?.deal?.ctaHref || '/products/varsity-jacket')}>
+              <Button.Label>{homeContent?.deal?.ctaLabel || 'Shop Deal'}</Button.Label>
+            </Button>
           </View>
         </View>
 
         <View className="rounded-[24px] bg-[#F5F5F5] p-4">
           <View className="flex-row items-center justify-between mb-3">
             <Text className="text-black text-xl font-black">New Arrivals</Text>
-            <Pressable onPress={() => router.push('/shop')}>
-              <Text className="text-xs font-bold uppercase tracking-[2px] text-gray-400">See all</Text>
-            </Pressable>
+            <Button variant="tertiary" size="sm" onPress={() => router.push('/shop')}>
+              <Button.Label>See all</Button.Label>
+            </Button>
           </View>
           <View className="gap-3">
             {newArrivals.slice(0, 4).map((item: any) => (
-              <Pressable key={item.id} onPress={() => router.push(`/products/${item.slug}`)} className="bg-white rounded-2xl p-3 flex-row items-center justify-between">
-                <View>
-                  <Text className="text-black font-bold" numberOfLines={1}>{item.title}</Text>
-                  <Text className="text-gray-500 text-xs mt-1">{item.brand}</Text>
-                </View>
-                <Text className="text-black font-black">${item.price}</Text>
-              </Pressable>
+              <Button key={item.id} variant="secondary" onPress={() => router.push(`/products/${item.slug}`)}>
+                <Button.Label>
+                  <View className="w-full flex-row items-center justify-between">
+                    <View>
+                      <Text className="text-black font-bold" numberOfLines={1}>{item.title}</Text>
+                      <Text className="text-gray-500 text-xs mt-1">{item.brand}</Text>
+                    </View>
+                    <Text className="text-black font-black">${item.price}</Text>
+                  </View>
+                </Button.Label>
+              </Button>
             ))}
           </View>
         </View>
@@ -184,9 +194,9 @@ export default function HomeScreen() {
             <View className="flex-1 h-12 rounded-2xl bg-white/5 border border-white/10 px-4 justify-center">
               <Text className="text-white/40 text-sm">{homeContent?.newsletter?.placeholder || 'Enter your email...'}</Text>
             </View>
-            <Pressable className="h-12 px-5 rounded-2xl bg-[#84D347] justify-center">
-              <Text className="text-black font-black text-sm">{homeContent?.newsletter?.ctaLabel || 'Subscribe'}</Text>
-            </Pressable>
+            <Button variant="primary" onPress={() => undefined}>
+              <Button.Label>{homeContent?.newsletter?.ctaLabel || 'Subscribe'}</Button.Label>
+            </Button>
           </View>
         </View>
       </View>

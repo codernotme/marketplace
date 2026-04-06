@@ -1,6 +1,7 @@
 'use client';
 import { Icon } from '@iconify/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { PageWrapper } from '@/components/shared/PageWrapper';
 
@@ -24,10 +25,14 @@ export default function CheckoutPage() {
         <PageWrapper>
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-black rounded flex items-center justify-center">
-                <span className="text-white font-black text-sm">m</span>
-              </div>
-              <span className="font-display font-black text-black tracking-tight">themrktplace</span>
+              <Image
+                src="/logo.svg"
+                alt="themrktplace"
+                width={96}
+                height={36}
+                className="h-8 w-auto"
+                priority
+              />
             </Link>
             {/* Step Indicator */}
             <div className="hidden md:flex items-center gap-2">

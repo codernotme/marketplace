@@ -2,8 +2,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { Button } from 'heroui-native';
 
+import { BrandLoader } from '@/components/brand-loader';
 import { Screen } from '@/components/storefront';
 import { fetchCustomerOrderById } from '@/lib/api';
 
@@ -20,9 +22,7 @@ export default function OrderDetailScreen() {
   }, [id]);
 
   if (loading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white"><ActivityIndicator color="#111" /></View>
-    );
+    return <BrandLoader subtitle="Loading order details" />;
   }
 
   if (!order) {
@@ -30,9 +30,9 @@ export default function OrderDetailScreen() {
       <View className="flex-1 items-center justify-center bg-white px-6">
         <Ionicons name="alert-circle-outline" size={48} color="#D1D5DB" />
         <Text className="text-black font-black text-2xl mt-4 mb-2">Order not found</Text>
-        <Pressable onPress={() => router.back()} className="h-11 px-5 rounded-full bg-black items-center justify-center">
-          <Text className="text-white font-bold">Go Back</Text>
-        </Pressable>
+        <Button variant="primary" onPress={() => router.back()}>
+          <Button.Label>Go Back</Button.Label>
+        </Button>
       </View>
     );
   }
@@ -40,9 +40,11 @@ export default function OrderDetailScreen() {
   return (
     <Screen>
       <View className="px-4 pt-4 pb-2 flex-row items-center justify-between">
-        <Pressable onPress={() => router.back()} className="w-10 h-10 rounded-full bg-[#F5F5F5] items-center justify-center">
-          <Ionicons name="arrow-back" size={18} color="#111" />
-        </Pressable>
+        <Button variant="secondary" size="sm" onPress={() => router.back()}>
+          <Button.Label>
+            <Ionicons name="arrow-back" size={16} color="#111" />
+          </Button.Label>
+        </Button>
         <Text className="text-black font-black text-lg">{order.orderNumber}</Text>
         <View className="w-10 h-10" />
       </View>

@@ -2,8 +2,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, ScrollView, Text, View } from 'react-native';
+import { Button } from 'heroui-native';
 
+import { BrandLoader } from '@/components/brand-loader';
 import { BlogCard, Screen, SectionHeading } from '@/components/storefront';
 import { fetchBlogPostBySlug, fetchRelatedBlogPosts } from '@/lib/api';
 
@@ -22,7 +24,7 @@ export default function BlogDetailScreen() {
   }, [slug]);
 
   if (loading) {
-    return <View className="flex-1 items-center justify-center bg-white"><ActivityIndicator color="#111" /></View>;
+    return <BrandLoader subtitle="Loading article" />;
   }
 
   if (!post) {
@@ -33,9 +35,11 @@ export default function BlogDetailScreen() {
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="px-4 pt-4">
-          <Pressable onPress={() => router.back()} className="w-10 h-10 rounded-full bg-[#F5F5F5] items-center justify-center mb-4">
-            <Ionicons name="arrow-back" size={18} color="#111" />
-          </Pressable>
+          <Button variant="secondary" size="sm" className="mb-4" onPress={() => router.back()}>
+            <Button.Label>
+              <Ionicons name="arrow-back" size={16} color="#111" />
+            </Button.Label>
+          </Button>
           <Image source={{ uri: post.image }} className="w-full h-72 rounded-[28px]" />
           <Text className="text-gray-500 text-xs uppercase tracking-[2px] font-bold mt-4">{post.category} • {post.readTime}</Text>
           <Text className="text-black font-black text-3xl mt-2 leading-tight">{post.title}</Text>

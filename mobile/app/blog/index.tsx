@@ -2,15 +2,24 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
+import { BrandLoader } from '@/components/brand-loader';
 import { BlogCard, Screen, SectionHeading, SiteHeader } from '@/components/storefront';
 import { fetchBlogPosts } from '@/lib/api';
 
 export default function BlogListScreen() {
   const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchBlogPosts().then(setPosts);
+    fetchBlogPosts().then((data) => {
+      setPosts(data);
+      setLoading(false);
+    });
   }, []);
+
+  if (loading) {
+    return <BrandLoader subtitle="Loading blog posts" />;
+  }
 
   return (
     <Screen>

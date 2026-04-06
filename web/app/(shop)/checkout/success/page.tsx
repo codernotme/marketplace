@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
+import Image from 'next/image';
 
 export default function CheckoutSuccessPage() {
   return (
     <div className="bg-[#F9F9F9] min-h-screen flex items-center justify-center p-6 font-body">
       <div className="max-w-lg w-full text-center">
+        <div className="flex justify-center mb-6">
+          <Image src="/logo.svg" alt="themrktplace" width={120} height={44} className="h-10 w-auto" priority />
+        </div>
+
         {/* Animated check circle */}
         <div className="relative mx-auto w-28 h-28 mb-8">
           <div className="absolute inset-0 bg-black/20 rounded-full animate-ping" />

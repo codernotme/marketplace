@@ -9,12 +9,13 @@ import { StatCard } from "@/components/ui/StatCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { kpiData, analyticsData, recentActivity } from "@/lib/mock-data";
-import { useProductsStore, useOrdersStore } from "@/lib/store";
+import { useProductsStore, useOrdersStore, useUIStore } from "@/lib/store";
 import { formatCurrency, percentChange } from "@/lib/utils";
 
 export default function DashboardPage() {
   const { products } = useProductsStore();
   const { orders } = useOrdersStore();
+  const { openModal } = useUIStore();
 
   const monthChange = percentChange(kpiData.revenueThisMonth, kpiData.revenueLastMonth);
   const lowStockProducts = products.filter(
@@ -31,7 +32,7 @@ export default function DashboardPage() {
         icon="solar:chart-2-bold-duotone"
         actions={
           <Button variant="primary" size="sm" className="gap-2"
-            onPress={() => (window.location.href = "/dashboard/inventory/products/add")}
+            onPress={() => openModal("product", "add")}
           >
             <Icon icon="solar:add-square-bold-duotone" className="text-base" />
             Add Product
@@ -88,7 +89,7 @@ export default function DashboardPage() {
               />
               <Tooltip
                 contentStyle={{ background: "var(--overlay)", border: "1px solid var(--border)", borderRadius: "12px", fontSize: 12 }}
-                formatter={(v: number) => [formatCurrency(v), "Revenue"]}
+                formatter={(v: any) => [formatCurrency(Number(v)), "Revenue"]}
               />
               <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2.5} fill="url(#revGradient)" dot={false} activeDot={{ r: 5, fill: "#6366f1" }} />
             </AreaChart>
@@ -112,7 +113,7 @@ export default function DashboardPage() {
               <XAxis dataKey="day" tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: "var(--overlay)", border: "1px solid var(--border)", borderRadius: "12px", fontSize: 11 }}
-                formatter={(v: number) => [formatCurrency(v), "Revenue"]}
+                formatter={(v: any) => [formatCurrency(Number(v)), "Revenue"]}
               />
               <Bar dataKey="revenue" fill="#6366f1" radius={[5, 5, 0, 0]} />
             </BarChart>

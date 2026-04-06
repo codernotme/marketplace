@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Link } from 'expo-router';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { router } from 'expo-router';
+import { Text, View } from 'react-native';
+import { Button, FieldError, Input, Label, TextField } from 'heroui-native';
 import { Screen, SiteHeader } from '@/components/storefront';
 import { storefrontContent } from '@/data/mock';
 
 export default function ForgotPasswordScreen() {
+  const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const content = storefrontContent.auth.forgotPassword;
+  const isEmailInvalid = email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   return (
     <Screen>
@@ -14,10 +17,21 @@ export default function ForgotPasswordScreen() {
       <View className="px-4 gap-4 pb-8">
         {!sent ? (
           <>
-            <TextInput placeholder={content.emailPlaceholder} className="h-12 rounded-2xl bg-[#F5F5F5] px-4 text-black" />
-            <Pressable className="h-12 rounded-full bg-black items-center justify-center" onPress={() => setSent(true)}>
-              <Text className="text-white font-bold">{content.submitLabel}</Text>
-            </Pressable>
+            <TextField isRequired isInvalid={isEmailInvalid}>
+              <Label>{content.emailPlaceholder}</Label>
+              <Input
+                value={email}
+                onChangeText={setEmail}
+                placeholder={content.emailPlaceholder}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              <FieldError>Please enter a valid email address.</FieldError>
+            </TextField>
+
+            <Button variant="primary" onPress={() => setSent(true)}>
+              <Button.Label>{content.submitLabel}</Button.Label>
+            </Button>
           </>
         ) : (
           <View className="rounded-3xl bg-white border border-[#EFEFEF] p-4 gap-2">
@@ -25,11 +39,10 @@ export default function ForgotPasswordScreen() {
             <Text className="text-gray-600">{content.successDescription}</Text>
           </View>
         )}
-        <Link href="/login" asChild>
-          <Pressable className="h-11 rounded-full border border-[#D9D9D9] items-center justify-center">
-            <Text className="text-black font-bold">{content.secondaryLabel}</Text>
-          </Pressable>
-        </Link>
+
+        <Button variant="outline" onPress={() => router.push('/login')}>
+          <Button.Label>{content.secondaryLabel}</Button.Label>
+        </Button>
       </View>
     </Screen>
   );

@@ -1,43 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@heroui/react";
+import { Button, Dropdown, Label, Separator } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { useCategoriesStore } from "@/lib/store";
+import { useCategoriesStore, useUIStore } from "@/lib/store";
 
 export default function CategoriesPage() {
-  const { categories, addCategory, updateCategory, deleteCategory, toggleCategory } = useCategoriesStore();
-  const [showForm, setShowForm] = useState(false);
-  const [editId, setEditId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", slug: "", icon: "solar:folder-bold-duotone", image: "" });
-
-  const resetForm = () => { setForm({ name: "", slug: "", icon: "solar:folder-bold-duotone", image: "" }); setEditId(null); setShowForm(false); };
-
-  const handleSubmit = () => {
-    if (!form.name.trim()) return;
-    if (editId) {
-      updateCategory(editId, { name: form.name, slug: form.slug || form.name.toLowerCase().replace(/\s+/g, "-"), icon: form.icon });
-    } else {
-      addCategory({
-        id: `cat_${Date.now()}`,
-        slug: form.slug || form.name.toLowerCase().replace(/\s+/g, "-"),
-        name: form.name,
-        icon: form.icon,
-        image: form.image,
-        parentId: null,
-        isActive: true,
-        productCount: 0,
-      });
-    }
-    resetForm();
-  };
-
-  const startEdit = (cat: typeof categories[0]) => {
-    setForm({ name: cat.name, slug: cat.slug, icon: cat.icon, image: cat.image });
-    setEditId(cat.id);
-    setShowForm(true);
-  };
+  const { categories, deleteCategory, toggleCategory } = useCategoriesStore();
+  const { openModal } = useUIStore();
 
   return (
     <div className="space-y-5">
@@ -46,116 +16,77 @@ export default function CategoriesPage() {
         subtitle={`${categories.length} categories`}
         icon="solar:folder-bold-duotone"
         actions={
-          <Button variant="primary" size="sm" className="gap-2" onPress={() => { resetForm(); setShowForm(true); }}>
+          <Button
+            variant="primary"
+            size="sm"
+            className="gap-2"
+            onPress={() => openModal("category", "add")}
+          >
             <Icon icon="solar:add-square-bold-duotone" className="text-base" />
             Add Category
           </Button>
         }
       />
 
-      {/* Form */}
-      {showForm && (
-        <div className="bg-surface border border-border rounded-2xl p-5">
-          <h3 className="font-semibold text-base mb-4">{editId ? "Edit Category" : "New Category"}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Name *</label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. Electronics"
-                className="w-full bg-default/60 border border-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Slug</label>
-              <input
-                type="text"
-                value={form.slug}
-                onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                placeholder="auto-generated if empty"
-                className="w-full bg-default/60 border border-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Icon (Iconify)</label>
-              <input
-                type="text"
-                value={form.icon}
-                onChange={(e) => setForm({ ...form, icon: e.target.value })}
-                placeholder="solar:folder-bold-duotone"
-                className="w-full bg-default/60 border border-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Image URL</label>
-              <input
-                type="text"
-                value={form.image}
-                onChange={(e) => setForm({ ...form, image: e.target.value })}
-                placeholder="https://..."
-                className="w-full bg-default/60 border border-border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-accent transition-colors"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="primary" size="sm" onPress={handleSubmit}>{editId ? "Save Changes" : "Create Category"}</Button>
-            <Button variant="secondary" size="sm" onPress={resetForm}>Cancel</Button>
-          </div>
-        </div>
-      )}
-
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {categories.map((cat) => (
-          <div key={cat.id} className="bg-surface border border-border rounded-2xl overflow-hidden stat-card">
+          <div key={cat.id} className="bg-surface border border-border rounded-2xl overflow-hidden stat-card group">
             {cat.image ? (
-              <div className="h-28 overflow-hidden">
-                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+              <div className="h-28 overflow-hidden relative">
+                <img src={cat.image} alt={cat.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </div>
             ) : (
               <div className="h-28 bg-gradient-to-br from-accent/10 to-violet-500/10 flex items-center justify-center">
                 <Icon icon={cat.icon} className="text-5xl text-accent/40" />
               </div>
             )}
-            <div className="p-4">
+            <div className="p-4 relative">
+              <div className="absolute top-4 right-4 z-10">
+                <Dropdown>
+                  <Dropdown.Trigger className="p-1 rounded-lg hover:bg-default/40 text-muted hover:text-foreground transition-colors outline-none cursor-pointer">
+                    <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
+                  </Dropdown.Trigger>
+                  <Dropdown.Popover className="min-w-[160px]">
+                    <Dropdown.Menu onAction={(key) => {
+                      if (key === "edit") openModal("category", "edit", cat);
+                      if (key === "toggle") toggleCategory(cat.id);
+                      if (key === "delete" && window.confirm(`Delete "${cat.name}"?`)) deleteCategory(cat.id);
+                    }}>
+                      <Dropdown.Item id="edit" textValue="Edit Category">
+                        <Icon icon="solar:pen-bold-duotone" className="text-lg text-muted" />
+                        <Label className="font-bold">Edit Category</Label>
+                      </Dropdown.Item>
+                      <Dropdown.Item id="toggle" textValue={cat.isActive ? "Hide Category" : "Show Category"}>
+                        <Icon icon={cat.isActive ? "solar:eye-closed-bold-duotone" : "solar:eye-bold-duotone"} className="text-lg text-muted" />
+                        <Label className="font-bold">{cat.isActive ? "Hide Category" : "Show Category"}</Label>
+                      </Dropdown.Item>
+                      <Separator className="my-1 border-border/50" />
+                      <Dropdown.Item id="delete" textValue="Delete Category" variant="danger">
+                        <Icon icon="solar:trash-bin-trash-bold-duotone" className="text-lg text-danger" />
+                        <Label className="font-bold text-danger">Delete Category</Label>
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown.Popover>
+                </Dropdown>
+              </div>
+
               <div className="flex items-start justify-between">
-                <div>
+                <div className="flex-1 min-w-0 pr-8">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <Icon icon={cat.icon} className="text-accent text-base" />
-                    <h3 className="font-bold text-sm">{cat.name}</h3>
+                    <Icon icon={cat.icon} className="text-accent text-base flex-shrink-0" />
+                    <h3 className="font-bold text-sm truncate">{cat.name}</h3>
                   </div>
-                  <p className="text-xs text-muted font-mono">{cat.slug}</p>
-                  <p className="text-xs text-muted mt-1">{cat.productCount} products</p>
+                  <p className="text-[10px] text-muted font-mono tracking-tighter truncate uppercase opacity-80">{cat.slug}</p>
                 </div>
-                <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${cat.isActive ? "bg-success/15 text-success" : "bg-default text-muted"}`}>
-                  {cat.isActive ? "Active" : "Hidden"}
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter ${cat.isActive ? "bg-success/15 text-success" : "bg-default text-muted"}`}>
+                    {cat.isActive ? "Active" : "Hidden"}
+                  </span>
+                </div>
               </div>
-              <div className="flex gap-2 mt-3 pt-3 border-t border-border">
-                <button
-                  onClick={() => startEdit(cat)}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium rounded-lg hover:bg-default/60 text-muted hover:text-foreground transition-colors"
-                >
-                  <Icon icon="solar:pen-bold-duotone" className="text-sm" />
-                  Edit
-                </button>
-                <button
-                  onClick={() => toggleCategory(cat.id)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${cat.isActive ? "hover:bg-warning/10 text-muted hover:text-warning" : "hover:bg-success/10 text-muted hover:text-success"}`}
-                >
-                  <Icon icon={cat.isActive ? "solar:eye-closed-bold-duotone" : "solar:eye-bold-duotone"} className="text-sm" />
-                  {cat.isActive ? "Hide" : "Show"}
-                </button>
-                <button
-                  onClick={() => { if (window.confirm(`Delete "${cat.name}"?`)) deleteCategory(cat.id); }}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium rounded-lg hover:bg-danger/10 text-muted hover:text-danger transition-colors"
-                >
-                  <Icon icon="solar:trash-bin-trash-bold-duotone" className="text-sm" />
-                  Delete
-                </button>
-              </div>
+              <p className="text-[10px] text-muted mt-3 font-bold uppercase tracking-wider">{cat.productCount} products</p>
             </div>
           </div>
         ))}

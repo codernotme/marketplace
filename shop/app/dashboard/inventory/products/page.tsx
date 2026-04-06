@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input } from "@heroui/react";
+import { Button, InputGroup, Input, Dropdown, Label, Separator } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { useProductsStore } from "@/lib/store";
+import { useProductsStore, useUIStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 import type { ProductStatus } from "@/lib/mock-data";
 
@@ -18,9 +18,9 @@ const STATUS_OPTS = [
 
 export default function ProductsPage() {
   const { products, deleteProduct, updateProduct } = useProductsStore();
+  const { openModal } = useUIStore();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const filtered = products.filter((p) => {
     const matchSearch = !search || p.title.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase());
@@ -51,7 +51,7 @@ export default function ProductsPage() {
               variant="primary"
               size="sm"
               className="gap-2"
-              onPress={() => (window.location.href = "/dashboard/inventory/products/add")}
+              onPress={() => openModal("product", "add")}
             >
               <Icon icon="solar:add-square-bold-duotone" className="text-base" />
               Add Product
@@ -79,13 +79,19 @@ export default function ProductsPage() {
       </div>
 
       {/* Search */}
-      <Input
-        placeholder="Search by name, SKU or brand…"
-        value={search}
-        onValueChange={setSearch}
-        startContent={<Icon icon="solar:magnifer-bold-duotone" className="text-muted text-lg" />}
-        className="max-w-sm"
-      />
+      <div className="max-w-sm">
+        <InputGroup className="bg-default/40 border border-border rounded-xl">
+          <InputGroup.Prefix className="pl-3 text-muted">
+            <Icon icon="solar:magnifer-bold-duotone" className="text-lg" />
+          </InputGroup.Prefix>
+          <Input
+            placeholder="Search by name, SKU or brand…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2"
+          />
+        </InputGroup>
+      </div>
 
       {/* Table */}
       <div className="bg-surface rounded-2xl border border-border overflow-hidden">
@@ -158,26 +164,66 @@ export default function ProductsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-1">
-                        <button
-                          className="p-1.5 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors"
-                          title="Edit product"
-                          onClick={() => (window.location.href = `/dashboard/inventory/products/edit/${product.id}`)}
-                        >
-                          <Icon icon="solar:pen-bold-duotone" className="text-base" />
-                        </button>
-                        <button
-                          className="p-1.5 rounded-lg hover:bg-danger/10 text-muted hover:text-danger transition-colors"
-                          title="Delete product"
-                          onClick={() => {
-                            if (window.confirm(`Delete "${product.title}"?`)) {
-                              deleteProduct(product.id);
-                            }
-                          }}
-                        >
-                          <Icon icon="solar:trash-bin-trash-bold-duotone" className="text-base" />
-                        </button>
-                      </div>
+                      <Dropdown>
+                        <Dropdown.Trigger className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-colors outline-none cursor-pointer">
+                          <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
+                        </Dropdown.Trigger>
+                        <Dropdown.Popover className="min-w-[180px]">
+                          <Dropdown.Menu onAction={(key) => {
+                            if (key === "edit") openModal("product", "edit", product);
+                            if (key === "delete" && window.confirm(`Delete "${product.title}"?`)) deleteProduct(product.id);
+                            if (key === "active" || key === "draft" || key === "archived") updateProduct(product.id, { status: key });
+                          }}>
+                            <Dropdown.Section>
+                              <Dropdown.Item id="edit" textValue="Edit Details">
+                                <Icon icon="solar:pen-bold-duotone" className="text-lg text-muted" />
+                                <Label className="font-bold">Edit Details</Label>
+                              </Dropdown.Item>
+                              <Dropdown.Item id="duplicate" textValue="Make a Copy">
+                                <Icon icon="solar:copy-bold-duotone" className="text-lg text-muted" />
+                                <Label className="font-bold">Make a Copy</Label>
+                              </Dropdown.Item>
+                            </Dropdown.Section>
+                            
+                            <Separator className="my-1 border-border/50" />
+                            
+                            <Dropdown.Section>
+                              <Dropdown.SubmenuTrigger>
+                                <Dropdown.Item id="status" textValue="Change Status">
+                                  <Icon icon="solar:shield-check-bold-duotone" className="text-lg text-muted" />
+                                  <Label className="font-bold">Change Status</Label>
+                                  <Dropdown.SubmenuIndicator />
+                                </Dropdown.Item>
+                                <Dropdown.Popover className="min-w-[140px]">
+                                  <Dropdown.Menu>
+                                    <Dropdown.Item id="active" textValue="Active">
+                                      <div className="w-2 h-2 rounded-full bg-success mr-2" />
+                                      <Label className="font-bold text-success">Active</Label>
+                                    </Dropdown.Item>
+                                    <Dropdown.Item id="draft" textValue="Draft">
+                                      <div className="w-2 h-2 rounded-full bg-warning mr-2" />
+                                      <Label className="font-bold text-warning">Draft</Label>
+                                    </Dropdown.Item>
+                                    <Dropdown.Item id="archived" textValue="Archived">
+                                      <div className="w-2 h-2 rounded-full bg-muted mr-2" />
+                                      <Label className="font-bold text-muted">Archived</Label>
+                                    </Dropdown.Item>
+                                  </Dropdown.Menu>
+                                </Dropdown.Popover>
+                              </Dropdown.SubmenuTrigger>
+                            </Dropdown.Section>
+
+                            <Separator className="my-1 border-border/50" />
+
+                            <Dropdown.Section>
+                              <Dropdown.Item id="delete" textValue="Delete Product" variant="danger">
+                                <Icon icon="solar:trash-bin-trash-bold-duotone" className="text-lg text-danger" />
+                                <Label className="font-bold text-danger">Delete Product</Label>
+                              </Dropdown.Item>
+                            </Dropdown.Section>
+                          </Dropdown.Menu>
+                        </Dropdown.Popover>
+                      </Dropdown>
                     </td>
                   </tr>
                 );

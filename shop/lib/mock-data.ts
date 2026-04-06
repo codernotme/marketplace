@@ -269,6 +269,14 @@ export type OrderStatus = "pending" | "processing" | "packed" | "shipped" | "del
 export type PaymentStatus = "paid" | "pending" | "failed" | "refunded";
 export type PaymentMethod = "razorpay" | "upi" | "cod" | "netbanking";
 
+export interface DeliveryAgent {
+  id: string;
+  name: string;
+  trackingUrl: string;
+  courier: string;
+  assignedAt: string;
+}
+
 export interface Order {
   id: string;
   orderNumber: string;
@@ -282,7 +290,9 @@ export interface Order {
   paymentStatus: PaymentStatus;
   paymentMethod: PaymentMethod;
   fulfillmentStatus: OrderStatus;
+  currentStage: number; // 0: Pending, 1: Processing, 2: Packed, 3: Shipped, 4: Delivered
   shippingAddress: { line1: string; city: string; state: string; pincode: string };
+  deliveryAgents: DeliveryAgent[];
   trackingNumber?: string;
   courier?: string;
   createdAt: string;
@@ -291,12 +301,93 @@ export interface Order {
 }
 
 export const orders: Order[] = [
-  { id: "ord_1", orderNumber: "ORD-2026-4521", customer: { id: "cust_1", name: "Priya Mehta", email: "priya@example.com", phone: "9876543210" }, items: [{ productId: "p7", title: "DR CRZ Varsity Jacket", variant: "M", qty: 1, price: 34900 }], subtotal: 34900, shippingCost: 0, tax: 6282, discount: 1500, total: 39682, paymentStatus: "paid", paymentMethod: "razorpay", fulfillmentStatus: "shipped", shippingAddress: { line1: "12, MG Road", city: "Bengaluru", state: "Karnataka", pincode: "560001" }, trackingNumber: "DEL123456789", courier: "Delhivery", createdAt: "2026-04-06T08:30:00Z", updatedAt: "2026-04-06T10:00:00Z", source: "web" },
-  { id: "ord_2", orderNumber: "ORD-2026-4520", customer: { id: "cust_2", name: "Rahul Gupta", email: "rahul@example.com", phone: "9765432109" }, items: [{ productId: "p2", title: "Noise Cancelling Earbuds Pro", variant: "Midnight Black", qty: 1, price: 15900 }, { productId: "p8", title: "Nike Tech Hera Runners", variant: "Triple White", qty: 1, price: 16900 }], subtotal: 32800, shippingCost: 99, tax: 5904, discount: 0, total: 38803, paymentStatus: "paid", paymentMethod: "upi", fulfillmentStatus: "processing", shippingAddress: { line1: "5, Sector 18", city: "Noida", state: "Uttar Pradesh", pincode: "201301" }, createdAt: "2026-04-06T07:15:00Z", updatedAt: "2026-04-06T09:00:00Z", source: "mobile" },
-  { id: "ord_3", orderNumber: "ORD-2026-4519", customer: { id: "cust_3", name: "Ananya Singh", email: "ananya@example.com", phone: "9654321098" }, items: [{ productId: "p1", title: "Minimalist Leather Watch", variant: "Brown / Gold", qty: 1, price: 20900 }], subtotal: 20900, shippingCost: 0, tax: 3762, discount: 0, total: 24662, paymentStatus: "paid", paymentMethod: "netbanking", fulfillmentStatus: "pending", shippingAddress: { line1: "8, Anna Salai", city: "Chennai", state: "Tamil Nadu", pincode: "600002" }, createdAt: "2026-04-06T06:00:00Z", updatedAt: "2026-04-06T06:00:00Z", source: "web" },
-  { id: "ord_4", orderNumber: "ORD-2026-4518", customer: { id: "cust_4", name: "Vikram Patel", email: "vikram@example.com", phone: "9543210987" }, items: [{ productId: "p10", title: "High-Rise Sculpt Yoga Pants", variant: "M / Black", qty: 2, price: 6900 }], subtotal: 13800, shippingCost: 49, tax: 2484, discount: 500, total: 15833, paymentStatus: "paid", paymentMethod: "cod", fulfillmentStatus: "delivered", shippingAddress: { line1: "23, FC Road", city: "Pune", state: "Maharashtra", pincode: "411005" }, trackingNumber: "SHR987654321", courier: "Shiprocket", createdAt: "2026-04-04T14:00:00Z", updatedAt: "2026-04-06T11:00:00Z", source: "web" },
-  { id: "ord_5", orderNumber: "ORD-2026-4517", customer: { id: "cust_5", name: "Deepika Joshi", email: "deepika@example.com", phone: "9432109876" }, items: [{ productId: "p6", title: "65% Mechanical Keyboard", variant: "Linear (Red)", qty: 1, price: 12900 }], subtotal: 12900, shippingCost: 0, tax: 2322, discount: 0, total: 15222, paymentStatus: "failed", paymentMethod: "razorpay", fulfillmentStatus: "cancelled", shippingAddress: { line1: "17, Banjara Hills", city: "Hyderabad", state: "Telangana", pincode: "500034" }, createdAt: "2026-04-05T16:00:00Z", updatedAt: "2026-04-05T17:00:00Z", source: "mobile" },
-  { id: "ord_6", orderNumber: "ORD-2026-4516", customer: { id: "cust_6", name: "Arjun Kapoor", email: "arjun@example.com", phone: "9321098765" }, items: [{ productId: "p3", title: "Retro Canvas Sneakers", variant: "US 9", qty: 1, price: 7900 }], subtotal: 7900, shippingCost: 49, tax: 1422, discount: 0, total: 9371, paymentStatus: "paid", paymentMethod: "upi", fulfillmentStatus: "delivered", shippingAddress: { line1: "45, Linking Road", city: "Mumbai", state: "Maharashtra", pincode: "400050" }, trackingNumber: "DEL098765432", courier: "Delhivery", createdAt: "2026-04-03T10:00:00Z", updatedAt: "2026-04-05T14:00:00Z", source: "web" },
+  { 
+    id: "ord_1", 
+    orderNumber: "ORD-2026-4521", 
+    customer: { id: "cust_1", name: "Priya Mehta", email: "priya@example.com", phone: "9876543210" }, 
+    items: [{ productId: "p7", title: "DR CRZ Varsity Jacket", variant: "M", qty: 1, price: 34900 }], 
+    subtotal: 34900, shippingCost: 0, tax: 6282, discount: 1500, total: 39682, 
+    paymentStatus: "paid", paymentMethod: "razorpay", 
+    fulfillmentStatus: "shipped", 
+    currentStage: 3,
+    shippingAddress: { line1: "12, MG Road", city: "Bengaluru", state: "Karnataka", pincode: "560001" }, 
+    deliveryAgents: [
+      { id: "da_1", name: "Ramesh Kumar", courier: "Delhivery", trackingUrl: "https://delhivery.com/track/DEL123456789", assignedAt: "2026-04-06T10:00:00Z" }
+    ],
+    trackingNumber: "DEL123456789", courier: "Delhivery", 
+    createdAt: "2026-04-06T08:30:00Z", updatedAt: "2026-04-06T10:00:00Z", source: "web" 
+  },
+  { 
+    id: "ord_2", 
+    orderNumber: "ORD-2026-4520", 
+    customer: { id: "cust_2", name: "Rahul Gupta", email: "rahul@example.com", phone: "9765432109" }, 
+    items: [{ productId: "p2", title: "Noise Cancelling Earbuds Pro", variant: "Midnight Black", qty: 1, price: 15900 }, { productId: "p8", title: "Nike Tech Hera Runners", variant: "Triple White", qty: 1, price: 16900 }], 
+    subtotal: 32800, shippingCost: 99, tax: 5904, discount: 0, total: 38803, 
+    paymentStatus: "paid", paymentMethod: "upi", 
+    fulfillmentStatus: "processing", 
+    currentStage: 1,
+    shippingAddress: { line1: "5, Sector 18", city: "Noida", state: "Uttar Pradesh", pincode: "201301" }, 
+    deliveryAgents: [],
+    createdAt: "2026-04-06T07:15:00Z", updatedAt: "2026-04-06T09:00:00Z", source: "mobile" 
+  },
+  { 
+    id: "ord_3", 
+    orderNumber: "ORD-2026-4519", 
+    customer: { id: "cust_3", name: "Ananya Singh", email: "ananya@example.com", phone: "9654321098" }, 
+    items: [{ productId: "p1", title: "Minimalist Leather Watch", variant: "Brown / Gold", qty: 1, price: 20900 }], 
+    subtotal: 20900, shippingCost: 0, tax: 3762, discount: 0, total: 24662, 
+    paymentStatus: "paid", paymentMethod: "netbanking", 
+    fulfillmentStatus: "pending", 
+    currentStage: 0,
+    shippingAddress: { line1: "8, Anna Salai", city: "Chennai", state: "Tamil Nadu", pincode: "600002" }, 
+    deliveryAgents: [],
+    createdAt: "2026-04-06T06:00:00Z", updatedAt: "2026-04-06T06:00:00Z", source: "web" 
+  },
+  { 
+    id: "ord_4", 
+    orderNumber: "ORD-2026-4518", 
+    customer: { id: "cust_4", name: "Vikram Patel", email: "vikram@example.com", phone: "9543210987" }, 
+    items: [{ productId: "p10", title: "High-Rise Sculpt Yoga Pants", variant: "M / Black", qty: 2, price: 6900 }], 
+    subtotal: 13800, shippingCost: 49, tax: 2484, discount: 500, total: 15833, 
+    paymentStatus: "paid", paymentMethod: "cod", 
+    fulfillmentStatus: "delivered", 
+    currentStage: 4,
+    shippingAddress: { line1: "23, FC Road", city: "Pune", state: "Maharashtra", pincode: "411005" }, 
+    deliveryAgents: [
+      { id: "da_2", name: "Suresh Patil", courier: "Shiprocket", trackingUrl: "https://shiprocket.co/track/SHR987654321", assignedAt: "2026-04-06T11:00:00Z" }
+    ],
+    trackingNumber: "SHR987654321", courier: "Shiprocket", 
+    createdAt: "2026-04-04T14:00:00Z", updatedAt: "2026-04-06T11:00:00Z", source: "web" 
+  },
+  { 
+    id: "ord_5", 
+    orderNumber: "ORD-2026-4517", 
+    customer: { id: "cust_5", name: "Deepika Joshi", email: "deepika@example.com", phone: "9432109876" }, 
+    items: [{ productId: "p6", title: "65% Mechanical Keyboard", variant: "Linear (Red)", qty: 1, price: 12900 }], 
+    subtotal: 12900, shippingCost: 0, tax: 2322, discount: 0, total: 15222, 
+    paymentStatus: "failed", paymentMethod: "razorpay", 
+    fulfillmentStatus: "cancelled", 
+    currentStage: 0,
+    shippingAddress: { line1: "17, Banjara Hills", city: "Hyderabad", state: "Telangana", pincode: "500034" }, 
+    deliveryAgents: [],
+    createdAt: "2026-04-05T16:00:00Z", updatedAt: "2026-04-05T17:00:00Z", source: "mobile" 
+  },
+  { 
+    id: "ord_6", 
+    orderNumber: "ORD-2026-4516", 
+    customer: { id: "cust_6", name: "Arjun Kapoor", email: "arjun@example.com", phone: "9321098765" }, 
+    items: [{ productId: "p3", title: "Retro Canvas Sneakers", variant: "US 9", qty: 1, price: 7900 }], 
+    subtotal: 7900, shippingCost: 49, tax: 1422, discount: 0, total: 9371, 
+    paymentStatus: "paid", paymentMethod: "upi", 
+    fulfillmentStatus: "delivered", 
+    currentStage: 4,
+    shippingAddress: { line1: "45, Linking Road", city: "Mumbai", state: "Maharashtra", pincode: "400050" }, 
+    deliveryAgents: [
+      { id: "da_3", name: "Amit Shah", courier: "Delhivery", trackingUrl: "https://delhivery.com/track/DEL098765432", assignedAt: "2026-04-05T14:00:00Z" }
+    ],
+    trackingNumber: "DEL098765432", courier: "Delhivery", 
+    createdAt: "2026-04-03T10:00:00Z", updatedAt: "2026-04-05T14:00:00Z", source: "web" 
+  },
 ];
 
 // ──────────────────────────────────────────────────
@@ -502,7 +593,6 @@ export const navItems: NavItem[] = [
     key: "inventory", label: "Inventory", icon: "solar:box-bold-duotone",
     children: [
       { key: "products", label: "All Products", icon: "solar:tag-bold-duotone", href: "/dashboard/inventory/products" },
-      { key: "add-product", label: "Add Product", icon: "solar:add-square-bold-duotone", href: "/dashboard/inventory/products/add" },
       { key: "categories", label: "Categories", icon: "solar:folder-bold-duotone", href: "/dashboard/inventory/categories" },
       { key: "brands", label: "Brands", icon: "solar:shield-star-bold-duotone", href: "/dashboard/inventory/brands" },
     ],
@@ -512,8 +602,10 @@ export const navItems: NavItem[] = [
     children: [
       { key: "all-orders", label: "All Orders", icon: "solar:list-bold-duotone", href: "/dashboard/orders" },
       { key: "pending", label: "Pending", icon: "solar:clock-circle-bold-duotone", href: "/dashboard/orders?status=pending" },
+      { key: "processing", label: "Processing", icon: "solar:refresh-bold-duotone", href: "/dashboard/orders?status=processing" },
       { key: "shipped", label: "Shipped", icon: "solar:delivery-bold-duotone", href: "/dashboard/orders?status=shipped" },
       { key: "delivered", label: "Delivered", icon: "solar:check-circle-bold-duotone", href: "/dashboard/orders?status=delivered" },
+      { key: "cancelled", label: "Cancelled", icon: "solar:close-circle-bold-duotone", href: "/dashboard/orders?status=cancelled" },
     ],
   },
   {

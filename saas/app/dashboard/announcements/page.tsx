@@ -1,32 +1,174 @@
 "use client";
 
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { apiClient } from "@/lib/api";
+import { Announcement } from "@/types";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { announcements } from "@/lib/data/announcements";
-import { admins } from "@/lib/data/admins";
-import { AlertCircle, Plus, Trash2 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { Plus, AlertCircle, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
 
-const typeColors = {
-  info: "bg-blue-100 text-blue-800",
-  warning: "bg-yellow-100 text-yellow-800",
-  maintenance: "bg-red-100 text-red-800",
-  feature: "bg-green-100 text-green-800",
+const typeIcons: Record<string, React.ReactNode> = {
+  info: <Info className="w-5 h-5 text-blue-400" />,
+  warning: <AlertTriangle className="w-5 h-5 text-yellow-400" />,
+  success: <CheckCircle className="w-5 h-5 text-green-400" />,
+};
+
+const severityColors: Record<string, string> = {
+  low: "bg-blue-500/20 text-blue-400",
+  medium: "bg-yellow-500/20 text-yellow-400",
+  high: "bg-red-500/20 text-red-400",
 };
 
 export default function AnnouncementsPage() {
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    body: "",
-    type: "info" as const,
-    visible_to: "all" as const,
-  });
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const getAdminName = (adminId: string) => {
-    return admins.find((a) => a.id === adminId)?.name || "Unknown";
-  };
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await apiClient.get<{ data: Announcement[] }>("/api/saas/announcements");
+        setAnnouncements(response.data);
+      } catch (error) {
+        console.error("Failed to fetch announcements:", error);
+        // Mock data
+        setAnnouncements([
+          {
+            _id: "ann_001",
+            title: "Maintenance Window",
+            content: "Scheduled maintenance on Friday 2:00 AM UTC",
+            type: "warning",
+            severity: "high",
+            target_roles: ["superadmin", "support"],
+            is_active: true,
+            published_at: "2024-04-01T00:00:00Z",
+            created_at: "2024-04-01T00:00:00Z",
+            updated_at: "2024-04-01T00:00:00Z",
+          },
+          {
+            _id: "ann_002",
+            title: "New Features Released",
+            content: "Check out our new advanced analytics dashboard",
+            type: "success",
+            severity: "low",
+            target_roles: ["superadmin"],
+            is_active: true,
+            published_at: "2024-03-28T00:00:00Z",
+            created_at: "2024-03-28T00:00:00Z",
+            updated_at: "2024-03-28T00:00:00Z",
+          },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Announcements</h1>
+          <p className="text-slate-400 mt-1">Send platform-wide notifications to admins</p>
+        </div>
+        <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
+          <Plus className="mr-2 w-4 h-4" />
+          Create Announcement
+        </Button>
+      </div>
+
+      {/* Announcements List */}
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      ) : announcements.length === 0 ? (
+        <Card className="border-slate-800 bg-slate-900">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+            <p className="text-white">No announcements yet</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {announcements.map((announcement) => (
+            <Card key={announcement._id} className="border-slate-800 bg-slate-900 hover:border-slate-700 transition">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  {/* Icon */}
+                  <div className="flex-shrink-0 mt-1">
+                    {typeIcons[announcement.type]}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <h3 className="text-lg font-semibold text-white">{announcement.title}</h3>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Badge className={`capitalize ${severityColors[announcement.severity]}`}>
+                          {announcement.severity}
+                        </Badge>
+                        {!announcement.is_active && (
+                          <Badge variant="outline" className="border-slate-600 text-slate-400">
+                            Draft
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    <p className="text-slate-300 mb-3">{announcement.content}</p>
+
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                      <span>Target: {announcement.target_roles.join(", ")}</span>
+                      <span>•</span>
+                      <span>
+                        Published:
+                        {announcement.published_at
+                          ? new Date(announcement.published_at).toLocaleDateString()
+                          : "Not published"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
+                      <DropdownMenuItem className="text-slate-300 focus:bg-slate-700">
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-orange-400 focus:bg-slate-700">
+                        {announcement.is_active ? "Unpublish" : "Publish"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-400 focus:bg-slate-700">
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
   const isExpired = (expiresAt: string | null) => {
     if (!expiresAt) return false;

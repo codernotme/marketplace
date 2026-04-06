@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
 import { storefrontContent } from '@/data/mock';
@@ -12,10 +13,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#F9F9F9] p-6 font-body">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-sm p-10">
         <div className="flex items-center gap-2 mb-10">
-          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-            <span className="text-white font-black text-lg">{brand.logoText}</span>
-          </div>
-          <span className="font-display font-black text-black text-xl tracking-tight">{brand.siteName}</span>
+          <Image src="/logo.svg" alt={brand.siteName} width={96} height={38} className="h-8 w-auto" priority />
         </div>
 
         {!sent ? (

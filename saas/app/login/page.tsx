@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -42,8 +43,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8">
         {/* Logo & Branding */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-foreground text-background mb-4">
-            <LogIn className="w-6 h-6" />
+          <div className="flex justify-center mb-4">
+            <Image src="/logo.svg" alt="theMrktPlace" width={108} height={42} className="h-10 w-auto" priority />
           </div>
           <h1 className="text-3xl font-bold text-foreground">theMrktPlace</h1>
           <p className="text-muted-foreground">SaaS Admin Dashboard</p>

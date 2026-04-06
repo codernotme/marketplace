@@ -16,9 +16,7 @@ export function SiteHeader({ title, subtitle }: { title: string; subtitle?: stri
     <View className="px-4 pt-4 pb-3">
       <View className="flex-row items-center justify-between mb-4">
         <Link href="/" className="flex-row items-center gap-2">
-          <View className="w-9 h-9 rounded-xl bg-black items-center justify-center">
-            <Text className="text-white font-black text-xs">{brand.logoText}</Text>
-          </View>
+          <Image source={require('@/assets/images/logo.png')} className="w-9 h-9 rounded-xl" contentFit="cover" />
           <Text className="text-black font-black text-lg tracking-tight">{brand.siteName}</Text>
         </Link>
 

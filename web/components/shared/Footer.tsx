@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { storefrontContent } from '@/data/mock';
 
@@ -11,11 +12,14 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         {/* Brand */}
         <div className="col-span-1 md:col-span-2">
-          <Link href="/" className="font-display font-bold text-2xl tracking-tighter text-white flex items-center gap-1.5 mb-4">
-            <div className="w-7 h-7 bg-white rounded flex items-center justify-center">
-              <span className="text-black text-sm font-bold">{brand.logoText}</span>
-            </div>
-            {brand.siteName}
+          <Link href="/" className="flex items-center mb-4">
+            <Image
+              src="/logo.svg"
+              alt={brand.siteName}
+              width={120}
+              height={46}
+              className="h-9 w-auto"
+            />
           </Link>
           <p className="text-gray-400 font-body text-sm leading-relaxed max-w-sm mb-6">
             {footer.description}

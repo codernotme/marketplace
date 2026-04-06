@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Icon } from '@iconify/react';
 import { useCartStore } from '@/store/cart.store';
@@ -45,10 +46,14 @@ export const Navbar = () => {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-7 h-7 bg-black rounded flex items-center justify-center">
-              <span className="text-white font-black text-xs">{brand.logoText}</span>
-            </div>
-            <span className="font-display font-black text-lg tracking-tighter text-black">{brand.siteName}</span>
+            <Image
+              src="/logo.svg"
+              alt={brand.siteName}
+              width={88}
+              height={34}
+              priority
+              className="h-7 w-auto"
+            />
           </Link>
 
           {/* Desktop Nav Links */}
@@ -183,10 +188,13 @@ export const Navbar = () => {
         {/* Drawer Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <Link href="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-black rounded flex items-center justify-center">
-              <span className="text-white font-black text-xs">{brand.logoText}</span>
-            </div>
-            <span className="font-display font-black text-lg tracking-tighter text-black">{brand.siteName}</span>
+            <Image
+              src="/logo.svg"
+              alt={brand.siteName}
+              width={88}
+              height={34}
+              className="h-7 w-auto"
+            />
           </Link>
           <button
             onClick={() => setMobileOpen(false)}

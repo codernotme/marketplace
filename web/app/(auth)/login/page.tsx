@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
 import { storefrontContent } from '@/data/mock';
@@ -22,10 +23,7 @@ export default function LoginPage() {
         
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-2">
-          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-            <span className="text-white font-black text-lg">{brand.logoText}</span>
-          </div>
-          <span className="font-display font-black text-white text-xl tracking-tight">{brand.siteName}</span>
+          <Image src="/logo.svg" alt={brand.siteName} width={96} height={38} className="h-8 w-auto" priority />
         </div>
 
         {/* Testimonial */}
@@ -51,10 +49,7 @@ export default function LoginPage() {
         
         {/* Mobile Logo */}
         <div className="flex lg:hidden items-center gap-2 mb-10">
-          <div className="w-7 h-7 bg-black rounded flex items-center justify-center">
-            <span className="text-white font-black">{brand.logoText}</span>
-          </div>
-          <span className="font-display font-black text-black text-xl tracking-tight">{brand.siteName}</span>
+          <Image src="/logo.svg" alt={brand.siteName} width={96} height={38} className="h-8 w-auto" />
         </div>
 
         <Link href="/" className="hidden lg:flex items-center gap-2 text-gray-400 hover:text-black transition-colors text-sm font-medium mb-12 w-fit">
@@ -107,6 +102,8 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
                 >
                   <Icon icon={showPassword ? 'mdi:eye-off' : 'mdi:eye'} className="text-xl" />

@@ -529,7 +529,7 @@ export const navItems: NavItem[] = [
     ],
   },
   {
-    key: "marketing", label: "Marketing", icon: "solar:megaphone-bold-duotone",
+    key: "marketing", label: "Marketing", icon: "solar:graph-bold-duotone",
     children: [
       { key: "banners", label: "Banners & Ads", icon: "solar:gallery-wide-bold-duotone", href: "/dashboard/marketing/banners" },
       { key: "coupons", label: "Discounts & Coupons", icon: "solar:ticket-sale-bold-duotone", href: "/dashboard/marketing/coupons" },

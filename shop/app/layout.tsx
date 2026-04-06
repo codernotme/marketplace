@@ -18,6 +18,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "themrktplace — Admin Dashboard",
   description: "Admin dashboard for managing inventory, orders, customers, analytics and more.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

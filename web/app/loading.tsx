@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function Loading() {
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white overflow-hidden">
@@ -14,8 +16,8 @@ export default function Loading() {
         <div className="absolute w-16 h-16 rounded-full border-[2px] border-dashed border-gray-200 animate-[spin_3s_linear_infinite_reverse]" />
 
         {/* Center logo block */}
-        <div className="relative z-10 w-10 h-10 bg-black rounded-xl flex items-center justify-center shadow-lg">
-          <span className="text-white font-black text-sm leading-none">tm.</span>
+        <div className="relative z-10 w-10 h-10 rounded-xl overflow-hidden shadow-lg">
+          <Image src="/logo.svg" alt="themrktplace" width={40} height={40} className="w-full h-full object-cover" priority />
         </div>
       </div>
 

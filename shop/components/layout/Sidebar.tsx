@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { cn } from "@/lib/utils";
@@ -125,9 +126,14 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-border flex-shrink-0">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-violet-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-accent/20">
-          <span className="text-white text-base font-black tracking-tighter">tm.</span>
-        </div>
+        <Image
+          src="/logo.svg"
+          alt={siteConfig.name}
+          width={36}
+          height={36}
+          className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
+          priority
+        />
         {!sidebarCollapsed && (
           <div className="overflow-hidden flex-1">
             <p className="font-black text-base leading-tight truncate" style={{ fontFamily: "var(--font-outfit)" }}>
@@ -139,7 +145,7 @@ export function Sidebar() {
         <button
           onClick={toggleSidebarCollapsed}
           className={cn(
-            "flex-shrink-0 p-1.5 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors",
+            "z-99 flex-shrink-0 p-1.5 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors",
             sidebarCollapsed && "mx-auto"
           )}
           title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -222,15 +228,21 @@ export function MobileSidebar() {
       />
       <aside className="fixed left-0 top-0 bottom-0 z-50 w-[280px] bg-surface border-r border-border flex flex-col lg:hidden slide-in-left overflow-hidden">
         <div className="flex items-center gap-3 px-4 py-4 border-b border-border flex-shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-violet-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-accent/20">
-            <span className="text-white text-base font-black tracking-tighter">tm.</span>
-          </div>
+          <Image
+            src="/logo.svg"
+            alt={siteConfig.name}
+            width={36}
+            height={36}
+            className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
+          />
           <div className="flex-1">
             <p className="font-black text-base" style={{ fontFamily: "var(--font-outfit)" }}>{siteConfig.name}</p>
             <p className="text-xs text-muted">Admin Dashboard</p>
           </div>
           <button
             onClick={() => setMobileSidebarOpen(false)}
+            aria-label="Close sidebar"
+            title="Close sidebar"
             className="p-1.5 rounded-lg hover:bg-default text-muted hover:text-foreground transition-colors"
           >
             <Icon icon="solar:close-circle-bold-duotone" className="text-xl" />

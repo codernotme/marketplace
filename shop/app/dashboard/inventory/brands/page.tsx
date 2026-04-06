@@ -63,8 +63,10 @@ export default function BrandsPage() {
                   <td className="px-5 py-3.5">
                     <div className="flex justify-end">
                       <Dropdown>
-                        <Dropdown.Trigger className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-colors outline-none cursor-pointer">
-                          <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
+                        <Dropdown.Trigger>
+                          <button className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-colors outline-none cursor-pointer">
+                            <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
+                          </button>
                         </Dropdown.Trigger>
                         <Dropdown.Popover className="min-w-[160px]">
                           <Dropdown.Menu onAction={(key) => {

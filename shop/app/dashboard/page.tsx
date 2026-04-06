@@ -137,7 +137,7 @@ export default function DashboardPage() {
       {/* Recent orders + side column */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Recent Orders */}
-        <div className="lg:col-span-2 bg-surface rounded-2xl border border-border overflow-hidden">
+        <div className="lg:col-span-2 bg-surface rounded-2xl border border-border overflow-hidden shadow-sm">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <h3 className="font-semibold text-sm">Recent Orders</h3>
             <a href="/dashboard/orders" className="text-xs text-accent font-medium hover:underline">View All →</a>
@@ -154,7 +154,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-sm font-bold">{formatCurrency(order.total)}</p>
-                  <p className="text-xs text-muted">{new Date(order.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</p>
+                  <p className="text-xs text-muted" suppressHydrationWarning>{new Date(order.createdAt).toLocaleDateString("en-US", { day: "2-digit", month: "short" })}</p>
                 </div>
               </div>
             ))}

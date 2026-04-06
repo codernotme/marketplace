@@ -68,7 +68,7 @@ export function OrderDetailsModal({ isOpen, onClose, data }: { isOpen: boolean; 
                 </Modal.Icon>
                 <div>
                   <Modal.Heading className="text-xl font-black tracking-tight">{data.orderNumber}</Modal.Heading>
-                  <p className="text-xs text-muted font-medium">Placed on {new Date(data.createdAt).toLocaleString("en-IN")}</p>
+                  <p className="text-xs text-muted font-medium" suppressHydrationWarning>Placed on {new Date(data.createdAt).toLocaleString("en-US")}</p>
                 </div>
               </div>
               <Button variant="secondary" onPress={onClose} isIconOnly className="rounded-xl">

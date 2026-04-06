@@ -10,6 +10,7 @@ import {
   brands as initialBrands,
   banners as initialBanners,
   emailTemplates as initialEmailTemplates,
+  blogPosts as initialBlogPosts,
   type Product,
   type Order,
   type Customer,
@@ -18,12 +19,13 @@ import {
   type TicketStatus,
   type OrderStatus,
   type DeliveryAgent,
+  type BlogPost,
 } from "./mock-data";
 
 // ──────────────────────────────────────────────────
 // UI State Store
 // ──────────────────────────────────────────────────
-export type ModalType = "product" | "category" | "brand" | "coupon" | "banner" | "order" | null;
+export type ModalType = "product" | "category" | "brand" | "coupon" | "banner" | "order" | "blog" | null;
 export type ModalMode = "add" | "edit";
 
 interface UIState {
@@ -152,6 +154,34 @@ export const useOrdersStore = create<OrdersStore>()(
         })),
     }),
     { name: "tm-orders-store" }
+  )
+);
+
+// ──────────────────────────────────────────────────
+// Blog Store
+// ──────────────────────────────────────────────────
+interface BlogStore {
+  posts: BlogPost[];
+  addPost: (post: BlogPost) => void;
+  updatePost: (id: string, updates: Partial<BlogPost>) => void;
+  deletePost: (id: string) => void;
+  toggleFeatured: (id: string) => void;
+}
+
+export const useBlogStore = create<BlogStore>()(
+  persist(
+    (set) => ({
+      posts: initialBlogPosts,
+      addPost: (post) => set((s) => ({ posts: [post, ...s.posts] })),
+      updatePost: (id, updates) =>
+        set((s) => ({ posts: s.posts.map((p) => (p.id === id ? { ...p, ...updates } : p)) })),
+      deletePost: (id) => set((s) => ({ posts: s.posts.filter((p) => p.id !== id) })),
+      toggleFeatured: (id) =>
+        set((s) => ({
+          posts: s.posts.map((p) => (p.id === id ? { ...p, featured: !p.featured } : p)),
+        })),
+    }),
+    { name: "tm-blog-store" }
   )
 );
 

@@ -23,19 +23,19 @@ function NavItemRow({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const checkIsActive = (href?: string, children?: NavItem[]) => {
+  const checkIsActive = (href?: string, children?: NavItem[]): boolean => {
     if (!href) {
-      return children?.some((c) => c.href && checkIsActive(c.href));
+      return children?.some((c) => c.href && checkIsActive(c.href)) ?? false;
     }
 
     const [baseUrl, queryStr] = href.split("?");
     const pathMatch = pathname === baseUrl || (baseUrl !== "/dashboard" && pathname.startsWith(baseUrl + "/"));
-    
+
     if (pathMatch && queryStr) {
       const itemParams = new URLSearchParams(queryStr);
       return Array.from(itemParams.entries()).every(([key, val]) => searchParams.get(key) === val);
     }
-    
+
     // For base URLs, only active if NO search params (or at least no relevant ones)
     return pathMatch && (!queryStr ? searchParams.toString() === "" : true);
   };
@@ -49,20 +49,20 @@ function NavItemRow({
     if (collapsed) {
       return (
         <Dropdown>
-          <Dropdown.Trigger className="w-full">
-            <div className="w-full flex justify-center py-1.5">
-              <button
-                className={cn(
-                  "flex items-center justify-center p-2.5 rounded-xl transition-all duration-200 group select-none hover:bg-default/60",
-                  isActive ? "bg-accent/10 text-accent font-bold shadow-sm" : "text-foreground/40 hover:text-foreground"
-                )}
-              >
-                <Icon icon={item.icon} className="text-2xl" />
-              </button>
+          <Dropdown.Trigger>
+            <div
+              className={cn(
+                "flex items-center justify-center p-2.5 mx-auto my-1.5 rounded-xl transition-all duration-200 group select-none hover:bg-default/60 cursor-pointer outline-none",
+                isActive ? "bg-accent/10 text-accent font-bold shadow-sm" : "text-foreground/40 hover:text-foreground"
+              )}
+              role="button"
+              tabIndex={0}
+            >
+              <Icon icon={item.icon} className="text-2xl transition-transform group-hover:scale-110" />
             </div>
           </Dropdown.Trigger>
           <Dropdown.Popover className="min-w-[190px] bg-surface/95 backdrop-blur-xl border border-border shadow-2xl p-1 rounded-2xl ml-2 overflow-hidden">
-            <Dropdown.Menu onSelectionChange={(keys) => {}} selectionMode="none">
+            <Dropdown.Menu onSelectionChange={(keys) => { }} selectionMode="none">
               <Dropdown.Section>
                 <div className="px-3.5 py-3 mb-1 bg-default/5 border-b border-border/40">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent leading-none">{item.label}</p>
@@ -128,13 +128,13 @@ function NavItemRow({
   return (
     <Tooltip isDisabled={!collapsed || depth > 0}>
       <Tooltip.Trigger>
-        <div className={cn("w-full flex justify-center py-1.5")}>
+        <div className="w-full">
           <Link
             href={item.href!}
             onClick={onLinkClick}
             className={cn(
-              "flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200 group",
-              collapsed ? "p-2.5 justify-center" : "px-3 py-2.5",
+              "flex items-center gap-3 rounded-xl text-sm font-medium transition-all duration-200 group mx-auto my-1.5 outline-none",
+              collapsed ? "p-2.5 justify-center w-fit" : "px-3 py-2.5 w-full",
               isActive
                 ? "bg-accent/10 text-accent font-bold"
                 : "text-foreground/60 hover:text-foreground hover:bg-default/60"
@@ -214,18 +214,21 @@ export function Sidebar() {
       <div className="p-2.5 pb-0">
         <Tooltip isDisabled={!sidebarCollapsed}>
           <Tooltip.Trigger>
-            <button
+            <div
               onClick={() => useUIStore.getState().openModal("product", "add")}
+              onKeyDown={(e) => e.key === "Enter" && useUIStore.getState().openModal("product", "add")}
+              role="button"
+              tabIndex={0}
               className={cn(
-                "flex items-center gap-3 w-full transition-all duration-300 group cursor-pointer",
-                sidebarCollapsed 
-                  ? "justify-center h-10 w-10 mx-auto rounded-xl bg-accent text-white shadow-lg shadow-accent/20 hover:scale-105 active:scale-95" 
+                "flex items-center gap-3 w-full transition-all duration-300 group cursor-pointer outline-none",
+                sidebarCollapsed
+                  ? "justify-center h-10 w-10 mx-auto rounded-xl bg-accent text-white shadow-lg shadow-accent/20 hover:scale-105 active:scale-95"
                   : "px-4 py-2.5 bg-accent/5 hover:bg-accent/10 border border-accent/20 rounded-2xl text-accent"
               )}
             >
               <Icon icon="solar:add-circle-bold-duotone" className={cn("flex-shrink-0", sidebarCollapsed ? "text-2xl" : "text-xl")} />
               {!sidebarCollapsed && <span className="font-bold text-sm">Quick Add</span>}
-            </button>
+            </div>
           </Tooltip.Trigger>
           <Tooltip.Content placement="right" offset={12} className="font-semibold px-3 py-1.5">
             Quick Add Product
@@ -254,7 +257,7 @@ export function Sidebar() {
               A
             </div>
             <div className="overflow-hidden flex-1 group-hover:translate-x-0.5 transition-transform">
-              <p className="text-sm font-bold truncate">Aryan Sharma</p>
+              <p className="text-sm font-bold truncate">Aryan Bajpai</p>
               <p className="text-[10px] text-muted truncate uppercase tracking-widest font-black opacity-60">Administrator</p>
             </div>
             <Icon
@@ -315,7 +318,7 @@ export function MobileSidebar() {
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-default/40">
             <div className="w-7 h-7 rounded-lg bg-accent/20 text-accent flex items-center justify-center font-bold text-xs">A</div>
             <div>
-              <p className="text-sm font-semibold">Aryan Sharma</p>
+              <p className="text-sm font-semibold">Aryan Bajpai</p>
               <p className="text-xs text-muted">Admin</p>
             </div>
           </div>

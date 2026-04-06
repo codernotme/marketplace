@@ -136,15 +136,15 @@ export function BrandModal({ isOpen, onClose, mode, data }: BrandModalProps) {
                 <div>
                   <label className="block text-[10px] font-black text-muted mb-2 uppercase tracking-[0.2em] opacity-80">Brand Status</label>
                   <Dropdown>
-                    <Dropdown.Trigger className="w-fit">
-                      <div className="px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 border-border hover:border-accent/40 bg-default/20 flex items-center gap-2 cursor-pointer transition-all">
+                    <Dropdown.Trigger>
+                      <button className="px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 border-border hover:border-accent/40 bg-default/20 flex items-center gap-2 cursor-pointer transition-all outline-none">
                         <div className={`w-2 h-2 rounded-full ${form.isActive ? "bg-success" : "bg-muted"}`} />
                         {form.isActive ? "Active" : "Inactive"}
                         <Icon icon="solar:alt-arrow-down-bold-duotone" className="ml-1 text-muted" />
-                      </div>
+                      </button>
                     </Dropdown.Trigger>
                     <Dropdown.Popover className="min-w-[160px]">
-                      <Dropdown.Menu onSelectionChange={(keys) => setForm({ ...form, isActive: Array.from(keys)[0] === "active" })} selectionMode="single" selectedKeys={new Set([form.isActive ? "active" : "hidden"])}>
+                      <Dropdown.Menu onSelectionChange={(keys: any) => setForm({ ...form, isActive: Array.from(keys)[0] === "active" })} selectionMode="single" selectedKeys={new Set([form.isActive ? "active" : "hidden"])}>
                         <Dropdown.Item id="active" textValue="Active">
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-success" />

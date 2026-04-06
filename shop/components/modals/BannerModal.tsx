@@ -108,11 +108,11 @@ export function BannerModal({ isOpen, onClose, mode, data }: BannerModalProps) {
                   <div>
                     <label className={labelCls}>Placement Area</label>
                     <Dropdown>
-                      <Dropdown.Trigger className="w-full">
-                        <div className={cn(inputCls, "flex items-center justify-between cursor-pointer font-bold")}>
+                      <Dropdown.Trigger>
+                        <button className={cn(inputCls, "flex items-center justify-between cursor-pointer font-bold outline-none")}>
                           <span>{form.placement}</span>
                           <Icon icon="solar:alt-arrow-down-bold-duotone" className="text-muted" />
-                        </div>
+                        </button>
                       </Dropdown.Trigger>
                       <Dropdown.Popover className="min-w-[180px]">
                         <Dropdown.Menu onSelectionChange={(keys) => setForm({ ...form, placement: Array.from(keys)[0] as string })} selectionMode="single" selectedKeys={new Set([form.placement])}>

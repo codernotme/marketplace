@@ -28,7 +28,7 @@ export const siteConfig = {
 // ──────────────────────────────────────────────────
 export const adminUser = {
   id: "usr_admin",
-  name: "Aryan Sharma",
+  name: "Aryan Bajpai",
   email: "aryan@themrktplace.com",
   role: "admin" as const,
   avatar: "https://api.dicebear.com/8.x/avataaars/svg?seed=Aryan",
@@ -301,92 +301,92 @@ export interface Order {
 }
 
 export const orders: Order[] = [
-  { 
-    id: "ord_1", 
-    orderNumber: "ORD-2026-4521", 
-    customer: { id: "cust_1", name: "Priya Mehta", email: "priya@example.com", phone: "9876543210" }, 
-    items: [{ productId: "p7", title: "DR CRZ Varsity Jacket", variant: "M", qty: 1, price: 34900 }], 
-    subtotal: 34900, shippingCost: 0, tax: 6282, discount: 1500, total: 39682, 
-    paymentStatus: "paid", paymentMethod: "razorpay", 
-    fulfillmentStatus: "shipped", 
+  {
+    id: "ord_1",
+    orderNumber: "ORD-2026-4521",
+    customer: { id: "cust_1", name: "Priya Mehta", email: "priya@example.com", phone: "9876543210" },
+    items: [{ productId: "p7", title: "DR CRZ Varsity Jacket", variant: "M", qty: 1, price: 34900 }],
+    subtotal: 34900, shippingCost: 0, tax: 6282, discount: 1500, total: 39682,
+    paymentStatus: "paid", paymentMethod: "razorpay",
+    fulfillmentStatus: "shipped",
     currentStage: 3,
-    shippingAddress: { line1: "12, MG Road", city: "Bengaluru", state: "Karnataka", pincode: "560001" }, 
+    shippingAddress: { line1: "12, MG Road", city: "Bengaluru", state: "Karnataka", pincode: "560001" },
     deliveryAgents: [
       { id: "da_1", name: "Ramesh Kumar", courier: "Delhivery", trackingUrl: "https://delhivery.com/track/DEL123456789", assignedAt: "2026-04-06T10:00:00Z" }
     ],
-    trackingNumber: "DEL123456789", courier: "Delhivery", 
-    createdAt: "2026-04-06T08:30:00Z", updatedAt: "2026-04-06T10:00:00Z", source: "web" 
+    trackingNumber: "DEL123456789", courier: "Delhivery",
+    createdAt: "2026-04-06T08:30:00Z", updatedAt: "2026-04-06T10:00:00Z", source: "web"
   },
-  { 
-    id: "ord_2", 
-    orderNumber: "ORD-2026-4520", 
-    customer: { id: "cust_2", name: "Rahul Gupta", email: "rahul@example.com", phone: "9765432109" }, 
-    items: [{ productId: "p2", title: "Noise Cancelling Earbuds Pro", variant: "Midnight Black", qty: 1, price: 15900 }, { productId: "p8", title: "Nike Tech Hera Runners", variant: "Triple White", qty: 1, price: 16900 }], 
-    subtotal: 32800, shippingCost: 99, tax: 5904, discount: 0, total: 38803, 
-    paymentStatus: "paid", paymentMethod: "upi", 
-    fulfillmentStatus: "processing", 
+  {
+    id: "ord_2",
+    orderNumber: "ORD-2026-4520",
+    customer: { id: "cust_2", name: "Rahul Gupta", email: "rahul@example.com", phone: "9765432109" },
+    items: [{ productId: "p2", title: "Noise Cancelling Earbuds Pro", variant: "Midnight Black", qty: 1, price: 15900 }, { productId: "p8", title: "Nike Tech Hera Runners", variant: "Triple White", qty: 1, price: 16900 }],
+    subtotal: 32800, shippingCost: 99, tax: 5904, discount: 0, total: 38803,
+    paymentStatus: "paid", paymentMethod: "upi",
+    fulfillmentStatus: "processing",
     currentStage: 1,
-    shippingAddress: { line1: "5, Sector 18", city: "Noida", state: "Uttar Pradesh", pincode: "201301" }, 
+    shippingAddress: { line1: "5, Sector 18", city: "Noida", state: "Uttar Pradesh", pincode: "201301" },
     deliveryAgents: [],
-    createdAt: "2026-04-06T07:15:00Z", updatedAt: "2026-04-06T09:00:00Z", source: "mobile" 
+    createdAt: "2026-04-06T07:15:00Z", updatedAt: "2026-04-06T09:00:00Z", source: "mobile"
   },
-  { 
-    id: "ord_3", 
-    orderNumber: "ORD-2026-4519", 
-    customer: { id: "cust_3", name: "Ananya Singh", email: "ananya@example.com", phone: "9654321098" }, 
-    items: [{ productId: "p1", title: "Minimalist Leather Watch", variant: "Brown / Gold", qty: 1, price: 20900 }], 
-    subtotal: 20900, shippingCost: 0, tax: 3762, discount: 0, total: 24662, 
-    paymentStatus: "paid", paymentMethod: "netbanking", 
-    fulfillmentStatus: "pending", 
+  {
+    id: "ord_3",
+    orderNumber: "ORD-2026-4519",
+    customer: { id: "cust_3", name: "Ananya Singh", email: "ananya@example.com", phone: "9654321098" },
+    items: [{ productId: "p1", title: "Minimalist Leather Watch", variant: "Brown / Gold", qty: 1, price: 20900 }],
+    subtotal: 20900, shippingCost: 0, tax: 3762, discount: 0, total: 24662,
+    paymentStatus: "paid", paymentMethod: "netbanking",
+    fulfillmentStatus: "pending",
     currentStage: 0,
-    shippingAddress: { line1: "8, Anna Salai", city: "Chennai", state: "Tamil Nadu", pincode: "600002" }, 
+    shippingAddress: { line1: "8, Anna Salai", city: "Chennai", state: "Tamil Nadu", pincode: "600002" },
     deliveryAgents: [],
-    createdAt: "2026-04-06T06:00:00Z", updatedAt: "2026-04-06T06:00:00Z", source: "web" 
+    createdAt: "2026-04-06T06:00:00Z", updatedAt: "2026-04-06T06:00:00Z", source: "web"
   },
-  { 
-    id: "ord_4", 
-    orderNumber: "ORD-2026-4518", 
-    customer: { id: "cust_4", name: "Vikram Patel", email: "vikram@example.com", phone: "9543210987" }, 
-    items: [{ productId: "p10", title: "High-Rise Sculpt Yoga Pants", variant: "M / Black", qty: 2, price: 6900 }], 
-    subtotal: 13800, shippingCost: 49, tax: 2484, discount: 500, total: 15833, 
-    paymentStatus: "paid", paymentMethod: "cod", 
-    fulfillmentStatus: "delivered", 
+  {
+    id: "ord_4",
+    orderNumber: "ORD-2026-4518",
+    customer: { id: "cust_4", name: "Vikram Patel", email: "vikram@example.com", phone: "9543210987" },
+    items: [{ productId: "p10", title: "High-Rise Sculpt Yoga Pants", variant: "M / Black", qty: 2, price: 6900 }],
+    subtotal: 13800, shippingCost: 49, tax: 2484, discount: 500, total: 15833,
+    paymentStatus: "paid", paymentMethod: "cod",
+    fulfillmentStatus: "delivered",
     currentStage: 4,
-    shippingAddress: { line1: "23, FC Road", city: "Pune", state: "Maharashtra", pincode: "411005" }, 
+    shippingAddress: { line1: "23, FC Road", city: "Pune", state: "Maharashtra", pincode: "411005" },
     deliveryAgents: [
       { id: "da_2", name: "Suresh Patil", courier: "Shiprocket", trackingUrl: "https://shiprocket.co/track/SHR987654321", assignedAt: "2026-04-06T11:00:00Z" }
     ],
-    trackingNumber: "SHR987654321", courier: "Shiprocket", 
-    createdAt: "2026-04-04T14:00:00Z", updatedAt: "2026-04-06T11:00:00Z", source: "web" 
+    trackingNumber: "SHR987654321", courier: "Shiprocket",
+    createdAt: "2026-04-04T14:00:00Z", updatedAt: "2026-04-06T11:00:00Z", source: "web"
   },
-  { 
-    id: "ord_5", 
-    orderNumber: "ORD-2026-4517", 
-    customer: { id: "cust_5", name: "Deepika Joshi", email: "deepika@example.com", phone: "9432109876" }, 
-    items: [{ productId: "p6", title: "65% Mechanical Keyboard", variant: "Linear (Red)", qty: 1, price: 12900 }], 
-    subtotal: 12900, shippingCost: 0, tax: 2322, discount: 0, total: 15222, 
-    paymentStatus: "failed", paymentMethod: "razorpay", 
-    fulfillmentStatus: "cancelled", 
+  {
+    id: "ord_5",
+    orderNumber: "ORD-2026-4517",
+    customer: { id: "cust_5", name: "Deepika Joshi", email: "deepika@example.com", phone: "9432109876" },
+    items: [{ productId: "p6", title: "65% Mechanical Keyboard", variant: "Linear (Red)", qty: 1, price: 12900 }],
+    subtotal: 12900, shippingCost: 0, tax: 2322, discount: 0, total: 15222,
+    paymentStatus: "failed", paymentMethod: "razorpay",
+    fulfillmentStatus: "cancelled",
     currentStage: 0,
-    shippingAddress: { line1: "17, Banjara Hills", city: "Hyderabad", state: "Telangana", pincode: "500034" }, 
+    shippingAddress: { line1: "17, Banjara Hills", city: "Hyderabad", state: "Telangana", pincode: "500034" },
     deliveryAgents: [],
-    createdAt: "2026-04-05T16:00:00Z", updatedAt: "2026-04-05T17:00:00Z", source: "mobile" 
+    createdAt: "2026-04-05T16:00:00Z", updatedAt: "2026-04-05T17:00:00Z", source: "mobile"
   },
-  { 
-    id: "ord_6", 
-    orderNumber: "ORD-2026-4516", 
-    customer: { id: "cust_6", name: "Arjun Kapoor", email: "arjun@example.com", phone: "9321098765" }, 
-    items: [{ productId: "p3", title: "Retro Canvas Sneakers", variant: "US 9", qty: 1, price: 7900 }], 
-    subtotal: 7900, shippingCost: 49, tax: 1422, discount: 0, total: 9371, 
-    paymentStatus: "paid", paymentMethod: "upi", 
-    fulfillmentStatus: "delivered", 
+  {
+    id: "ord_6",
+    orderNumber: "ORD-2026-4516",
+    customer: { id: "cust_6", name: "Arjun Kapoor", email: "arjun@example.com", phone: "9321098765" },
+    items: [{ productId: "p3", title: "Retro Canvas Sneakers", variant: "US 9", qty: 1, price: 7900 }],
+    subtotal: 7900, shippingCost: 49, tax: 1422, discount: 0, total: 9371,
+    paymentStatus: "paid", paymentMethod: "upi",
+    fulfillmentStatus: "delivered",
     currentStage: 4,
-    shippingAddress: { line1: "45, Linking Road", city: "Mumbai", state: "Maharashtra", pincode: "400050" }, 
+    shippingAddress: { line1: "45, Linking Road", city: "Mumbai", state: "Maharashtra", pincode: "400050" },
     deliveryAgents: [
       { id: "da_3", name: "Amit Shah", courier: "Delhivery", trackingUrl: "https://delhivery.com/track/DEL098765432", assignedAt: "2026-04-05T14:00:00Z" }
     ],
-    trackingNumber: "DEL098765432", courier: "Delhivery", 
-    createdAt: "2026-04-03T10:00:00Z", updatedAt: "2026-04-05T14:00:00Z", source: "web" 
+    trackingNumber: "DEL098765432", courier: "Delhivery",
+    createdAt: "2026-04-03T10:00:00Z", updatedAt: "2026-04-05T14:00:00Z", source: "web"
   },
 ];
 
@@ -508,7 +508,7 @@ export const recentActivity = [
 // Team Members
 // ──────────────────────────────────────────────────
 export const teamMembers = [
-  { id: "team_1", name: "Aryan Sharma", email: "aryan@themrktplace.com", role: "admin", avatar: "https://i.pravatar.cc/100?img=68", isActive: true },
+  { id: "team_1", name: "Aryan Bajpai", email: "aryan@themrktplace.com", role: "admin", avatar: "https://i.pravatar.cc/100?img=68", isActive: true },
   { id: "team_2", name: "Neha Verma", email: "neha@themrktplace.com", role: "manager", avatar: "https://i.pravatar.cc/100?img=47", isActive: true },
   { id: "team_3", name: "Rohan Das", email: "rohan@themrktplace.com", role: "support", avatar: "https://i.pravatar.cc/100?img=52", isActive: true },
   { id: "team_4", name: "Meera Iyer", email: "meera@themrktplace.com", role: "viewer", avatar: "https://i.pravatar.cc/100?img=42", isActive: false },
@@ -609,6 +609,13 @@ export const navItems: NavItem[] = [
     ],
   },
   {
+    key: "content-group", label: "Content", icon: "solar:document-bold-duotone",
+    children: [
+      { key: "blog", label: "Blog Posts", icon: "solar:pen-new-square-bold-duotone", href: "/dashboard/blog" },
+      { key: "pages", label: "Static Pages", icon: "solar:notebook-bold-duotone", href: "/dashboard/pages" },
+    ],
+  },
+  {
     key: "customers-group", label: "Customers", icon: "solar:users-group-two-rounded-bold-duotone",
     children: [
       { key: "all-customers", label: "All Customers", icon: "solar:user-bold-duotone", href: "/dashboard/customers" },
@@ -652,5 +659,62 @@ export const navItems: NavItem[] = [
   {
     key: "settings", label: "Settings", icon: "solar:settings-minimalistic-bold-duotone",
     href: "/dashboard/settings",
+  },
+];
+
+// ──────────────────────────────────────────────────
+// Blog Content
+// ──────────────────────────────────────────────────
+export type BlogPost = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  author: string;
+  avatar: string;
+  publishedAt: string;
+  readTime: string;
+  image: string;
+  featured: boolean;
+  content: string[];
+  tags: string[];
+};
+
+export const blogPosts: BlogPost[] = [
+  {
+    id: "blog-1",
+    slug: "top-tech-picks",
+    title: "Top 10 Tech Picks This Season",
+    excerpt: "From wireless earbuds to mechanical keyboards, these are the gadgets everyone is talking about right now.",
+    category: "Electronics",
+    author: "James Hurst",
+    avatar: "https://i.pravatar.cc/48?img=15",
+    publishedAt: "2026-03-20",
+    readTime: "5 min read",
+    image: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?auto=format&fit=crop&w=1200&q=80",
+    featured: true,
+    tags: ["electronics", "gadgets", "buying-guide"],
+    content: [
+      "Tech trends shift quickly, but a few categories continue to dominate buyer attention: compact audio, ergonomic peripherals, and practical smart-home gear.",
+      "When comparing devices, focus first on durability and ecosystem compatibility.",
+    ],
+  },
+  {
+    id: "blog-2",
+    slug: "spring-fashion-trends",
+    title: "Spring Fashion Trends You Need to Know",
+    excerpt: "From earthy tones to bold patterns, this spring fashion is all about personal expression and comfort.",
+    category: "Fashion",
+    author: "Sofia Reyes",
+    avatar: "https://i.pravatar.cc/48?img=5",
+    publishedAt: "2026-03-18",
+    readTime: "4 min read",
+    image: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1200&q=80",
+    featured: false,
+    tags: ["fashion", "spring", "style-guide"],
+    content: [
+      "Designers are balancing expressive silhouettes with functional layering.",
+    ],
   },
 ];

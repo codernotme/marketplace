@@ -7,6 +7,7 @@ import { CouponModal } from "./CouponModal";
 import { BannerModal } from "./BannerModal";
 import { CategoryModal } from "./CategoryModal";
 import { OrderDetailsModal } from "./OrderDetailsModal";
+import { BlogModal } from "./BlogModal";
 
 export function GlobalModalProvider() {
   const { activeModal, closeModal, modalMode, modalData } = useUIStore();
@@ -59,6 +60,14 @@ export function GlobalModalProvider() {
         <OrderDetailsModal
           isOpen={true}
           onClose={closeModal}
+          data={modalData}
+        />
+      )}
+      {activeModal === "blog" && (
+        <BlogModal
+          isOpen={true}
+          onClose={closeModal}
+          mode={modalMode}
           data={modalData}
         />
       )}

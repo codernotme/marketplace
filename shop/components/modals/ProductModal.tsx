@@ -172,14 +172,14 @@ export function ProductModal({ isOpen, onClose, mode, data }: ProductModalProps)
                     <div>
                       <label className={labelCls}>Product Category</label>
                       <Dropdown>
-                        <Dropdown.Trigger className="w-full">
-                          <div className={cn(inputCls, "flex items-center justify-between cursor-pointer")}>
+                        <Dropdown.Trigger>
+                          <button className={cn(inputCls, "flex items-center justify-between cursor-pointer")}>
                             <span>{categories.find(c => c.id === form.category_id)?.name || "Select Category"}</span>
                             <Icon icon="solar:alt-arrow-down-bold-duotone" className="text-muted" />
-                          </div>
+                          </button>
                         </Dropdown.Trigger>
                         <Dropdown.Popover className="min-w-[200px]">
-                          <Dropdown.Menu onSelectionChange={(keys) => setField("category_id", Array.from(keys)[0])} selectionMode="single" selectedKeys={new Set([form.category_id])}>
+                          <Dropdown.Menu onSelectionChange={(keys: any) => setField("category_id", Array.from(keys)[0])} selectionMode="single" selectedKeys={new Set([form.category_id])}>
                             {categories.map((c) => (
                               <Dropdown.Item key={c.id} id={c.id} textValue={c.name}>
                                 <div className="flex items-center gap-2">
@@ -325,7 +325,7 @@ export function ProductModal({ isOpen, onClose, mode, data }: ProductModalProps)
 
                   <div className="p-8 rounded-[2rem] bg-gradient-to-br from-accent/5 to-violet-500/5 border border-accent/10">
                     <p className="text-[10px] font-black text-muted uppercase mb-4 tracking-[0.2em]">Customer Price Preview</p>
-                    <div className="flex items-end gap-3">
+                    <div className="flex items-end gap-3" suppressHydrationWarning>
                       <span className="text-5xl font-black tracking-tighter">₹{Number(form.price).toLocaleString("en-IN")}</span>
                       {form.comparePrice && form.comparePrice > form.price && (
                         <>
@@ -446,15 +446,15 @@ export function ProductModal({ isOpen, onClose, mode, data }: ProductModalProps)
                   <div className="space-y-4">
                     <label className={labelCls}>Product Status</label>
                     <Dropdown>
-                      <Dropdown.Trigger className="w-fit">
-                        <div className="px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 border-border hover:border-accent/40 bg-background flex items-center gap-2 cursor-pointer transition-all">
+                      <Dropdown.Trigger>
+                        <button className="px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest border-2 border-border hover:border-accent/40 bg-background flex items-center gap-2 cursor-pointer transition-all outline-none">
                           <div className={`w-2 h-2 rounded-full ${form.status === "active" ? "bg-success" : form.status === "draft" ? "bg-warning" : "bg-muted"}`} />
                           {form.status}
                           <Icon icon="solar:alt-arrow-down-bold-duotone" className="ml-1 text-muted" />
-                        </div>
+                        </button>
                       </Dropdown.Trigger>
                       <Dropdown.Popover className="min-w-[160px]">
-                        <Dropdown.Menu onSelectionChange={(keys) => setField("status", Array.from(keys)[0])} selectionMode="single" selectedKeys={new Set([form.status])}>
+                        <Dropdown.Menu onSelectionChange={(keys: any) => setField("status", Array.from(keys)[0])} selectionMode="single" selectedKeys={new Set([form.status])}>
                           {(["active", "draft", "archived"] as const).map((s) => (
                             <Dropdown.Item key={s} id={s} textValue={s}>
                               <div className="flex items-center gap-2">

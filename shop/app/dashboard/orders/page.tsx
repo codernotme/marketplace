@@ -88,21 +88,19 @@ export default function OrdersPage() {
 
       {/* Search */}
       <div className="max-w-sm">
-        <InputGroup className="bg-default/40 border border-border rounded-xl">
-          <InputGroup.Prefix className="pl-3 text-muted">
-            <Icon icon="solar:magnifer-bold-duotone" className="text-lg" />
-          </InputGroup.Prefix>
-          <Input
+        <div className="flex items-center gap-2 bg-default/40 border border-border rounded-2xl px-4 py-2.5 text-sm hover:border-accent/40 transition-all">
+          <Icon icon="solar:magnifer-bold-duotone" className="text-lg text-muted" />
+          <input
             placeholder="Search by order #, customer…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2"
+            className="flex-1 bg-transparent border-none outline-none focus:ring-0 text-sm"
           />
-        </InputGroup>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="bg-surface rounded-2xl border border-border overflow-hidden">
+      <div className="bg-surface rounded-2xl border border-border overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -135,13 +133,15 @@ export default function OrdersPage() {
                     <p className="text-xs text-muted mt-1 font-medium">{order.paymentMethod}</p>
                   </td>
                   <td className="px-5 py-3.5 text-right font-bold text-sm tracking-tight">{formatCurrency(order.total)}</td>
-                  <td className="px-5 py-3.5 text-muted text-xs hidden lg:table-cell opacity-80">
-                    {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "2-digit" })}
+                  <td className="px-5 py-3.5 text-muted text-xs hidden lg:table-cell opacity-80" suppressHydrationWarning>
+                    {new Date(order.createdAt).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "2-digit" })}
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     <Dropdown>
-                      <Dropdown.Trigger className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-all outline-none cursor-pointer">
-                        <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
+                      <Dropdown.Trigger>
+                        <button className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-all outline-none cursor-pointer">
+                          <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
+                        </button>
                       </Dropdown.Trigger>
                       <Dropdown.Popover className="min-w-[180px]">
                         <Dropdown.Menu onAction={(key) => {

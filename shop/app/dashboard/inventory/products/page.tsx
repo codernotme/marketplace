@@ -165,8 +165,10 @@ export default function ProductsPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       <Dropdown>
-                        <Dropdown.Trigger className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-colors outline-none cursor-pointer">
-                          <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
+                        <Dropdown.Trigger>
+                          <button className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-colors outline-none cursor-pointer">
+                            <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
+                          </button>
                         </Dropdown.Trigger>
                         <Dropdown.Popover className="min-w-[180px]">
                           <Dropdown.Menu onAction={(key) => {

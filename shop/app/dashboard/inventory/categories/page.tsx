@@ -45,8 +45,10 @@ export default function CategoriesPage() {
             <div className="p-4 relative">
               <div className="absolute top-4 right-4 z-10">
                 <Dropdown>
-                  <Dropdown.Trigger className="p-1 rounded-lg hover:bg-default/40 text-muted hover:text-foreground transition-colors outline-none cursor-pointer">
-                    <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
+                  <Dropdown.Trigger>
+                    <button className="p-1 rounded-lg hover:bg-default/40 text-muted hover:text-foreground transition-colors outline-none cursor-pointer">
+                      <Icon icon="solar:menu-dots-bold-duotone" className="text-xl" />
+                    </button>
                   </Dropdown.Trigger>
                   <Dropdown.Popover className="min-w-[160px]">
                     <Dropdown.Menu onAction={(key) => {

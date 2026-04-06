@@ -122,11 +122,11 @@ export function CouponModal({ isOpen, onClose, mode, data }: CouponModalProps) {
                 <div>
                   <label className={labelCls}>Discount Type</label>
                   <Dropdown>
-                    <Dropdown.Trigger className="w-full">
-                      <div className={cn(inputCls, "flex items-center justify-between cursor-pointer font-bold")}>
+                    <Dropdown.Trigger>
+                      <button className={cn(inputCls, "flex items-center justify-between cursor-pointer font-bold outline-none")}>
                         <span>{form.type.split("_").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ")}</span>
                         <Icon icon="solar:alt-arrow-down-bold-duotone" className="text-muted" />
-                      </div>
+                      </button>
                     </Dropdown.Trigger>
                     <Dropdown.Popover className="min-w-[200px]">
                       <Dropdown.Menu onSelectionChange={(keys) => setForm({ ...form, type: Array.from(keys)[0] as any })} selectionMode="single" selectedKeys={new Set([form.type])}>

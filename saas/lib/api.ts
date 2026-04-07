@@ -16,7 +16,56 @@ class APIClient {
     };
   }
 
+  private async parseResponseBody(response: Response): Promise<unknown> {
+    const rawBody = await response.text();
+    if (!rawBody) {
+      return null;
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      return JSON.parse(rawBody);
+    }
+
+    try {
+      return JSON.parse(rawBody);
+    } catch {
+      return {
+        message: `Expected JSON response but received ${contentType || "unknown content type"}`,
+        raw: rawBody.slice(0, 180),
+      };
+    }
+  }
+
+  private extractErrorMessage(payload: unknown, fallback: string): string {
+    if (!payload || typeof payload !== "object") {
+      return fallback;
+    }
+
+    const data = payload as Record<string, unknown>;
+    const direct = data.message;
+    if (typeof direct === "string" && direct.trim()) {
+      return direct;
+    }
+
+    const detail = data.detail;
+    if (typeof detail === "string" && detail.trim()) {
+      return detail;
+    }
+
+    if (detail && typeof detail === "object") {
+      const detailMessage = (detail as Record<string, unknown>).message;
+      if (typeof detailMessage === "string" && detailMessage.trim()) {
+        return detailMessage;
+      }
+    }
+
+    return fallback;
+  }
+
   private async handleResponse<T>(response: Response): Promise<T> {
+    const payload = await this.parseResponseBody(response);
+
     if (!response.ok) {
       if (response.status === 401) {
         // Token expired, try refresh
@@ -29,11 +78,10 @@ class APIClient {
         }
       }
 
-      const errorData = await response.json().catch(() => ({ message: response.statusText }));
-      throw new Error(errorData.message || `HTTP ${response.status}`);
+      throw new Error(this.extractErrorMessage(payload, `HTTP ${response.status}`));
     }
 
-    return response.json() as Promise<T>;
+    return (payload as T) ?? ({} as T);
   }
 
   async get<T>(endpoint: string, options?: RequestInit): Promise<T> {

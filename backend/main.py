@@ -12,6 +12,7 @@ from core.tenant import load_active_tenant, resolve_tenant_identifier
 from routers.saas.router import router as saas_router
 from routers.shop.router import router as shop_router
 from routers.shop.webhooks import router as webhook_router
+from services.demo_data import ensure_demo_data
 from utils.serialize import to_jsonable
 
 settings = get_settings()
@@ -21,6 +22,8 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     db_manager = DatabaseManager()
     await db_manager.startup()
+    await ensure_demo_data(db_manager.master_db, db_manager.shared_db)
+    await db_manager.ensure_active_tenant_databases_ready()
     app.state.db_manager = db_manager
     try:
         yield

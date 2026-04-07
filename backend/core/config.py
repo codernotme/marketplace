@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     mongo_shared_db: str = Field(default="mrkt_shared", alias="MONGO_SHARED_DB")
     mongo_max_pool_size: int = Field(default=200, alias="MONGO_MAX_POOL_SIZE")
     mongo_min_pool_size: int = Field(default=5, alias="MONGO_MIN_POOL_SIZE")
+    mongo_force_ipv4: bool = Field(default=False, alias="MONGO_FORCE_IPV4")
 
     jwt_secret_key: str = Field(alias="JWT_SECRET_KEY")
     jwt_refresh_secret_key: str = Field(alias="JWT_REFRESH_SECRET_KEY")

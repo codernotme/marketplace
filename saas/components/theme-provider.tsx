@@ -43,6 +43,10 @@ function ThemeHotkey() {
         return
       }
 
+      if (typeof event.key !== "string") {
+        return
+      }
+
       if (event.metaKey || event.ctrlKey || event.altKey) {
         return
       }

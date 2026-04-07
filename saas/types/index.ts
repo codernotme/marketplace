@@ -3,7 +3,7 @@ export interface SaasUser {
   id: string;
   email: string;
   name: string;
-  role: "superadmin" | "support";
+  role: "saas_admin" | "superadmin" | "support";
   avatar?: string;
 }
 
@@ -15,6 +15,13 @@ export interface LoginRequest {
 export interface LoginResponse {
   user: SaasUser;
   token: string;
+  refresh_token: string;
+}
+
+export interface SignupRequest {
+  name: string;
+  email: string;
+  password: string;
 }
 
 // Tenant Types

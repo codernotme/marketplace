@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 
 from core.dependencies import get_tenant, get_tenant_db, pagination_params, require_roles
 from schemas.shop import ProductCreate, ProductUpdate
-from utils.object_id import to_object_id
+from utils.object_id import to_object_id, try_object_id
 from utils.serialize import to_jsonable
 from utils.time import utcnow
 
@@ -24,7 +24,8 @@ async def list_products(
     skip, limit = pg
     query = {"tenant_id": tenant["_id"]}
     if category:
-        query["category_id"] = to_object_id(category)
+        category_oid = try_object_id(category)
+        query["category_id"] = category_oid if category_oid is not None else category
     if status:
         query["status"] = status
     if search:

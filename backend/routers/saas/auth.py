@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 
 from core.dependencies import get_master_db, saas_admin_required
-from core.exceptions import UnauthorizedError
+from core.exceptions import ConflictError, UnauthorizedError
 from core.security import (
     create_access_token,
     create_refresh_token,
@@ -11,11 +11,39 @@ from core.security import (
     hash_password,
     verify_password,
 )
-from schemas.auth import LoginRequest, RefreshRequest
+from schemas.auth import LoginRequest, RefreshRequest, RegisterRequest
 from utils.serialize import to_jsonable
 from utils.time import utcnow
 
 router = APIRouter(prefix="/auth", tags=["saas-auth"])
+
+
+@router.post("/signup")
+async def signup(payload: RegisterRequest, master_db=Depends(get_master_db)):
+    email = payload.email.lower()
+    existing = await master_db["saas_admins"].find_one({"email": email, "is_active": True})
+    if existing:
+        raise ConflictError("Admin with this email already exists")
+
+    doc = {
+        "name": payload.name,
+        "email": email,
+        "password_hash": hash_password(payload.password),
+        "role": "saas_admin",
+        "is_active": True,
+        "created_at": utcnow(),
+        "last_login": None,
+    }
+    result = await master_db["saas_admins"].insert_one(dict(doc))
+
+    created = await master_db["saas_admins"].find_one({"_id": result.inserted_id})
+    token_payload = {"sub": str(result.inserted_id), "role": "saas_admin", "tenant_id": None}
+    token = create_access_token(token_payload)
+    refresh_token = create_refresh_token(token_payload)
+
+    admin_out = to_jsonable(created)
+    admin_out.pop("password_hash", None)
+    return {"token": token, "refresh_token": refresh_token, "user": admin_out}
 
 
 @router.post("/login")

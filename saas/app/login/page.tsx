@@ -126,6 +126,13 @@ export default function LoginPage() {
               </Button>
             </form>
 
+            <div className="text-center text-sm text-muted-foreground">
+              No admin account yet?{" "}
+              <Link href="/signup" className="text-orange-500 hover:text-orange-400 transition">
+                Create one
+              </Link>
+            </div>
+
             {/* Demo Credentials */}
             <div className="border-t border-border pt-4">
               <p className="text-xs text-muted-foreground mb-2">Demo Credentials:</p>

@@ -5,7 +5,9 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from services.telegram_service import send_telegram
 
 
-async def run_low_stock_check(tenant_db: AsyncIOMotorDatabase, tenant_id, bot_token: str, chat_id: str) -> int:
+async def run_low_stock_check(
+    tenant_db: AsyncIOMotorDatabase, tenant_id, bot_token: str, chat_id: str
+) -> int:
     cursor = tenant_db["products"].find(
         {
             "tenant_id": tenant_id,
@@ -19,6 +21,8 @@ async def run_low_stock_check(tenant_db: AsyncIOMotorDatabase, tenant_id, bot_to
     if not items:
         return 0
 
-    lines = ["Low stock alert:"] + [f"- {item.get('title')} ({item.get('stock')})" for item in items]
+    lines = ["Low stock alert:"] + [
+        f"- {item.get('title')} ({item.get('stock')})" for item in items
+    ]
     await send_telegram(bot_token, chat_id, "\n".join(lines))
     return len(items)

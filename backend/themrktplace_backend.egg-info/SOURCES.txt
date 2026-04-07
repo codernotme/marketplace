@@ -25,6 +25,7 @@ schemas/common.py
 schemas/saas.py
 schemas/shop.py
 services/__init__.py
+services/demo_data.py
 services/email_service.py
 services/order_service.py
 services/otp_service.py

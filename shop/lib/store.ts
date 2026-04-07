@@ -83,30 +83,25 @@ interface ProductsStore {
   toggleFlag: (id: string, flag: "is_new" | "is_featured" | "is_trending") => void;
 }
 
-export const useProductsStore = create<ProductsStore>()(
-  persist(
-    (set) => ({
-      products: initialProducts,
-      addProduct: (product) => set((s) => ({ products: [product, ...s.products] })),
-      updateProduct: (id, updates) =>
-        set((s) => ({ products: s.products.map((p) => (p.id === id ? { ...p, ...updates } : p)) })),
-      deleteProduct: (id) => set((s) => ({ products: s.products.filter((p) => p.id !== id) })),
-      toggleProductStatus: (id) =>
-        set((s) => ({
-          products: s.products.map((p) => {
-            if (p.id !== id) return p;
-            const next = p.status === "active" ? "draft" : p.status === "draft" ? "archived" : "active";
-            return { ...p, status: next };
-          }),
-        })),
-      toggleFlag: (id, flag) =>
-        set((s) => ({
-          products: s.products.map((p) => (p.id === id ? { ...p, [flag]: !p[flag] } : p)),
-        })),
-    }),
-    { name: "tm-products-store" }
-  )
-);
+export const useProductsStore = create<ProductsStore>()((set) => ({
+  products: initialProducts,
+  addProduct: (product) => set((s) => ({ products: [product, ...s.products] })),
+  updateProduct: (id, updates) =>
+    set((s) => ({ products: s.products.map((p) => (p.id === id ? { ...p, ...updates } : p)) })),
+  deleteProduct: (id) => set((s) => ({ products: s.products.filter((p) => p.id !== id) })),
+  toggleProductStatus: (id) =>
+    set((s) => ({
+      products: s.products.map((p) => {
+        if (p.id !== id) return p;
+        const next = p.status === "active" ? "draft" : p.status === "draft" ? "archived" : "active";
+        return { ...p, status: next };
+      }),
+    })),
+  toggleFlag: (id, flag) =>
+    set((s) => ({
+      products: s.products.map((p) => (p.id === id ? { ...p, [flag]: !p[flag] } : p)),
+    })),
+}));
 
 // ──────────────────────────────────────────────────
 // Orders Store
@@ -120,44 +115,39 @@ interface OrdersStore {
   addDeliveryAgent: (id: string, agent: DeliveryAgent) => void;
 }
 
-export const useOrdersStore = create<OrdersStore>()(
-  persist(
-    (set) => ({
-      orders: initialOrders,
-      updateOrderStatus: (id, status) =>
-        set((s) => ({
-          orders: s.orders.map((o) =>
-            o.id === id ? { ...o, fulfillmentStatus: status, updatedAt: new Date().toISOString() } : o
-          ),
-        })),
-      updatePaymentStatus: (id, status) =>
-        set((s) => ({
-          orders: s.orders.map((o) =>
-            o.id === id ? { ...o, paymentStatus: status, updatedAt: new Date().toISOString() } : o
-          ),
-        })),
-      updateTracking: (id, trackingNumber, courier) =>
-        set((s) => ({
-          orders: s.orders.map((o) =>
-            o.id === id ? { ...o, trackingNumber, courier, updatedAt: new Date().toISOString() } : o
-          ),
-        })),
-      updateOrderStage: (id, stage) =>
-        set((s) => ({
-          orders: s.orders.map((o) =>
-            o.id === id ? { ...o, currentStage: stage, updatedAt: new Date().toISOString() } : o
-          ),
-        })),
-      addDeliveryAgent: (id, agent) =>
-        set((s) => ({
-          orders: s.orders.map((o) =>
-            o.id === id ? { ...o, deliveryAgents: [...o.deliveryAgents, agent], updatedAt: new Date().toISOString() } : o
-          ),
-        })),
-    }),
-    { name: "tm-orders-store" }
-  )
-);
+export const useOrdersStore = create<OrdersStore>()((set) => ({
+  orders: initialOrders,
+  updateOrderStatus: (id, status) =>
+    set((s) => ({
+      orders: s.orders.map((o) =>
+        o.id === id ? { ...o, fulfillmentStatus: status, updatedAt: new Date().toISOString() } : o
+      ),
+    })),
+  updatePaymentStatus: (id, status) =>
+    set((s) => ({
+      orders: s.orders.map((o) =>
+        o.id === id ? { ...o, paymentStatus: status, updatedAt: new Date().toISOString() } : o
+      ),
+    })),
+  updateTracking: (id, trackingNumber, courier) =>
+    set((s) => ({
+      orders: s.orders.map((o) =>
+        o.id === id ? { ...o, trackingNumber, courier, updatedAt: new Date().toISOString() } : o
+      ),
+    })),
+  updateOrderStage: (id, stage) =>
+    set((s) => ({
+      orders: s.orders.map((o) =>
+        o.id === id ? { ...o, currentStage: stage, updatedAt: new Date().toISOString() } : o
+      ),
+    })),
+  addDeliveryAgent: (id, agent) =>
+    set((s) => ({
+      orders: s.orders.map((o) =>
+        o.id === id ? { ...o, deliveryAgents: [...o.deliveryAgents, agent], updatedAt: new Date().toISOString() } : o
+      ),
+    })),
+}));
 
 // ──────────────────────────────────────────────────
 // Blog Store
@@ -170,22 +160,17 @@ interface BlogStore {
   toggleFeatured: (id: string) => void;
 }
 
-export const useBlogStore = create<BlogStore>()(
-  persist(
-    (set) => ({
-      posts: initialBlogPosts,
-      addPost: (post) => set((s) => ({ posts: [post, ...s.posts] })),
-      updatePost: (id, updates) =>
-        set((s) => ({ posts: s.posts.map((p) => (p.id === id ? { ...p, ...updates } : p)) })),
-      deletePost: (id) => set((s) => ({ posts: s.posts.filter((p) => p.id !== id) })),
-      toggleFeatured: (id) =>
-        set((s) => ({
-          posts: s.posts.map((p) => (p.id === id ? { ...p, featured: !p.featured } : p)),
-        })),
-    }),
-    { name: "tm-blog-store" }
-  )
-);
+export const useBlogStore = create<BlogStore>()((set) => ({
+  posts: initialBlogPosts,
+  addPost: (post) => set((s) => ({ posts: [post, ...s.posts] })),
+  updatePost: (id, updates) =>
+    set((s) => ({ posts: s.posts.map((p) => (p.id === id ? { ...p, ...updates } : p)) })),
+  deletePost: (id) => set((s) => ({ posts: s.posts.filter((p) => p.id !== id) })),
+  toggleFeatured: (id) =>
+    set((s) => ({
+      posts: s.posts.map((p) => (p.id === id ? { ...p, featured: !p.featured } : p)),
+    })),
+}));
 
 // ──────────────────────────────────────────────────
 // Customers Store
@@ -198,32 +183,27 @@ interface CustomersStore {
   toggleActive: (id: string) => void;
 }
 
-export const useCustomersStore = create<CustomersStore>()(
-  persist(
-    (set) => ({
-      customers: initialCustomers,
-      updateCustomer: (id, updates) =>
-        set((s) => ({ customers: s.customers.map((c) => (c.id === id ? { ...c, ...updates } : c)) })),
-      addTag: (id, tag) =>
-        set((s) => ({
-          customers: s.customers.map((c) =>
-            c.id === id && !c.tags.includes(tag) ? { ...c, tags: [...c.tags, tag] } : c
-          ),
-        })),
-      removeTag: (id, tag) =>
-        set((s) => ({
-          customers: s.customers.map((c) =>
-            c.id === id ? { ...c, tags: c.tags.filter((t) => t !== tag) } : c
-          ),
-        })),
-      toggleActive: (id) =>
-        set((s) => ({
-          customers: s.customers.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)),
-        })),
-    }),
-    { name: "tm-customers-store" }
-  )
-);
+export const useCustomersStore = create<CustomersStore>()((set) => ({
+  customers: initialCustomers,
+  updateCustomer: (id, updates) =>
+    set((s) => ({ customers: s.customers.map((c) => (c.id === id ? { ...c, ...updates } : c)) })),
+  addTag: (id, tag) =>
+    set((s) => ({
+      customers: s.customers.map((c) =>
+        c.id === id && !c.tags.includes(tag) ? { ...c, tags: [...c.tags, tag] } : c
+      ),
+    })),
+  removeTag: (id, tag) =>
+    set((s) => ({
+      customers: s.customers.map((c) =>
+        c.id === id ? { ...c, tags: c.tags.filter((t) => t !== tag) } : c
+      ),
+    })),
+  toggleActive: (id) =>
+    set((s) => ({
+      customers: s.customers.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)),
+    })),
+}));
 
 // ──────────────────────────────────────────────────
 // Coupons Store
@@ -236,22 +216,17 @@ interface CouponsStore {
   toggleCoupon: (id: string) => void;
 }
 
-export const useCouponsStore = create<CouponsStore>()(
-  persist(
-    (set) => ({
-      coupons: initialCoupons,
-      addCoupon: (coupon) => set((s) => ({ coupons: [coupon, ...s.coupons] })),
-      updateCoupon: (id, updates) =>
-        set((s) => ({ coupons: s.coupons.map((c) => (c.id === id ? { ...c, ...updates } : c)) })),
-      deleteCoupon: (id) => set((s) => ({ coupons: s.coupons.filter((c) => c.id !== id) })),
-      toggleCoupon: (id) =>
-        set((s) => ({
-          coupons: s.coupons.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)),
-        })),
-    }),
-    { name: "tm-coupons-store" }
-  )
-);
+export const useCouponsStore = create<CouponsStore>()((set) => ({
+  coupons: initialCoupons,
+  addCoupon: (coupon) => set((s) => ({ coupons: [coupon, ...s.coupons] })),
+  updateCoupon: (id, updates) =>
+    set((s) => ({ coupons: s.coupons.map((c) => (c.id === id ? { ...c, ...updates } : c)) })),
+  deleteCoupon: (id) => set((s) => ({ coupons: s.coupons.filter((c) => c.id !== id) })),
+  toggleCoupon: (id) =>
+    set((s) => ({
+      coupons: s.coupons.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)),
+    })),
+}));
 
 // ──────────────────────────────────────────────────
 // Tickets Store
@@ -263,29 +238,24 @@ interface TicketsStore {
   deleteTicket: (id: string) => void;
 }
 
-export const useTicketsStore = create<TicketsStore>()(
-  persist(
-    (set) => ({
-      tickets: initialTickets,
-      updateTicketStatus: (id, status) =>
-        set((s) => ({
-          tickets: s.tickets.map((t) =>
-            t.id === id ? { ...t, status, updatedAt: new Date().toISOString() } : t
-          ),
-        })),
-      addMessage: (id, text, from) =>
-        set((s) => ({
-          tickets: s.tickets.map((t) =>
-            t.id === id
-              ? { ...t, messages: [...t.messages, { from, text, at: new Date().toISOString() }], updatedAt: new Date().toISOString() }
-              : t
-          ),
-        })),
-      deleteTicket: (id) => set((s) => ({ tickets: s.tickets.filter((t) => t.id !== id) })),
-    }),
-    { name: "tm-tickets-store" }
-  )
-);
+export const useTicketsStore = create<TicketsStore>()((set) => ({
+  tickets: initialTickets,
+  updateTicketStatus: (id, status) =>
+    set((s) => ({
+      tickets: s.tickets.map((t) =>
+        t.id === id ? { ...t, status, updatedAt: new Date().toISOString() } : t
+      ),
+    })),
+  addMessage: (id, text, from) =>
+    set((s) => ({
+      tickets: s.tickets.map((t) =>
+        t.id === id
+          ? { ...t, messages: [...t.messages, { from, text, at: new Date().toISOString() }], updatedAt: new Date().toISOString() }
+          : t
+      ),
+    })),
+  deleteTicket: (id) => set((s) => ({ tickets: s.tickets.filter((t) => t.id !== id) })),
+}));
 
 // ──────────────────────────────────────────────────
 // Categories Store
@@ -300,22 +270,17 @@ interface CategoriesStore {
   toggleCategory: (id: string) => void;
 }
 
-export const useCategoriesStore = create<CategoriesStore>()(
-  persist(
-    (set) => ({
-      categories: initialCategories,
-      addCategory: (cat) => set((s) => ({ categories: [...s.categories, cat] })),
-      updateCategory: (id, updates) =>
-        set((s) => ({ categories: s.categories.map((c) => (c.id === id ? { ...c, ...updates } : c)) })),
-      deleteCategory: (id) => set((s) => ({ categories: s.categories.filter((c) => c.id !== id) })),
-      toggleCategory: (id) =>
-        set((s) => ({
-          categories: s.categories.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)),
-        })),
-    }),
-    { name: "tm-categories-store" }
-  )
-);
+export const useCategoriesStore = create<CategoriesStore>()((set) => ({
+  categories: initialCategories,
+  addCategory: (cat) => set((s) => ({ categories: [...s.categories, cat] })),
+  updateCategory: (id, updates) =>
+    set((s) => ({ categories: s.categories.map((c) => (c.id === id ? { ...c, ...updates } : c)) })),
+  deleteCategory: (id) => set((s) => ({ categories: s.categories.filter((c) => c.id !== id) })),
+  toggleCategory: (id) =>
+    set((s) => ({
+      categories: s.categories.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)),
+    })),
+}));
 
 // ──────────────────────────────────────────────────
 // Brands Store
@@ -330,22 +295,17 @@ interface BrandsStore {
   toggleBrand: (id: string) => void;
 }
 
-export const useBrandsStore = create<BrandsStore>()(
-  persist(
-    (set) => ({
-      brands: initialBrands,
-      addBrand: (brand) => set((s) => ({ brands: [...s.brands, brand] })),
-      updateBrand: (id, updates) =>
-        set((s) => ({ brands: s.brands.map((b) => (b.id === id ? { ...b, ...updates } : b)) })),
-      deleteBrand: (id) => set((s) => ({ brands: s.brands.filter((b) => b.id !== id) })),
-      toggleBrand: (id) =>
-        set((s) => ({
-          brands: s.brands.map((b) => (b.id === id ? { ...b, isActive: !b.isActive } : b)),
-        })),
-    }),
-    { name: "tm-brands-store" }
-  )
-);
+export const useBrandsStore = create<BrandsStore>()((set) => ({
+  brands: initialBrands,
+  addBrand: (brand) => set((s) => ({ brands: [...s.brands, brand] })),
+  updateBrand: (id, updates) =>
+    set((s) => ({ brands: s.brands.map((b) => (b.id === id ? { ...b, ...updates } : b)) })),
+  deleteBrand: (id) => set((s) => ({ brands: s.brands.filter((b) => b.id !== id) })),
+  toggleBrand: (id) =>
+    set((s) => ({
+      brands: s.brands.map((b) => (b.id === id ? { ...b, isActive: !b.isActive } : b)),
+    })),
+}));
 
 // ──────────────────────────────────────────────────
 // Banners Store
@@ -360,20 +320,15 @@ interface BannersStore {
   toggleBanner: (id: string) => void;
 }
 
-export const useBannersStore = create<BannersStore>()(
-  persist(
-    (set) => ({
-      banners: initialBanners,
-      addBanner: (b) => set((s) => ({ banners: [b, ...s.banners] })),
-      updateBanner: (id, updates) =>
-        set((s) => ({ banners: s.banners.map((b) => (b.id === id ? { ...b, ...updates } : b)) })),
-      deleteBanner: (id) => set((s) => ({ banners: s.banners.filter((b) => b.id !== id) })),
-      toggleBanner: (id) =>
-        set((s) => ({ banners: s.banners.map((b) => (b.id === id ? { ...b, isActive: !b.isActive } : b)) })),
-    }),
-    { name: "tm-banners-store" }
-  )
-);
+export const useBannersStore = create<BannersStore>()((set) => ({
+  banners: initialBanners,
+  addBanner: (b) => set((s) => ({ banners: [b, ...s.banners] })),
+  updateBanner: (id, updates) =>
+    set((s) => ({ banners: s.banners.map((b) => (b.id === id ? { ...b, ...updates } : b)) })),
+  deleteBanner: (id) => set((s) => ({ banners: s.banners.filter((b) => b.id !== id) })),
+  toggleBanner: (id) =>
+    set((s) => ({ banners: s.banners.map((b) => (b.id === id ? { ...b, isActive: !b.isActive } : b)) })),
+}));
 
 // ──────────────────────────────────────────────────
 // Pages Store
@@ -386,19 +341,14 @@ interface PagesStore {
   togglePageStatus: (id: string) => void;
 }
 
-export const usePagesStore = create<PagesStore>()(
-  persist(
-    (set) => ({
-      pages: initialStaticPages,
-      addPage: (page) => set((s) => ({ pages: [page, ...s.pages] })),
-      updatePage: (id, updates) =>
-        set((s) => ({ pages: s.pages.map((p) => (p.id === id ? { ...p, ...updates } : p)) })),
-      deletePage: (id) => set((s) => ({ pages: s.pages.filter((p) => p.id !== id) })),
-      togglePageStatus: (id) =>
-        set((s) => ({
-          pages: s.pages.map((p) => (p.id === id ? { ...p, status: p.status === "active" ? "draft" : "active" } : p)),
-        })),
-    }),
-    { name: "tm-pages-store" }
-  )
-);
+export const usePagesStore = create<PagesStore>()((set) => ({
+  pages: initialStaticPages,
+  addPage: (page) => set((s) => ({ pages: [page, ...s.pages] })),
+  updatePage: (id, updates) =>
+    set((s) => ({ pages: s.pages.map((p) => (p.id === id ? { ...p, ...updates } : p)) })),
+  deletePage: (id) => set((s) => ({ pages: s.pages.filter((p) => p.id !== id) })),
+  togglePageStatus: (id) =>
+    set((s) => ({
+      pages: s.pages.map((p) => (p.id === id ? { ...p, status: p.status === "active" ? "draft" : "active" } : p)),
+    })),
+}));

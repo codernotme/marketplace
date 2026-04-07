@@ -28,7 +28,9 @@ async def create_otp(db: AsyncIOMotorDatabase, tenant_id, email: str, purpose: s
     return otp
 
 
-async def verify_otp(db: AsyncIOMotorDatabase, tenant_id, email: str, purpose: str, otp: str) -> bool:
+async def verify_otp(
+    db: AsyncIOMotorDatabase, tenant_id, email: str, purpose: str, otp: str
+) -> bool:
     doc = await db["otps"].find_one(
         {
             "tenant_id": tenant_id,

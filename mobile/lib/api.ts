@@ -148,4 +148,7 @@ export const fetchTrackOrder = async (orderNumber: string, email: string) => {
   return orders.find((item: any) => item.orderNumber === orderNumber && item.email.toLowerCase() === email.toLowerCase());
 };
 
-export const fetchStorefrontContent = async () => localStorefrontContent;
+export const fetchStorefrontContent = async () => {
+  const response = await apiGet<any>('/shop/data/storefront-content');
+  return response ?? localStorefrontContent;
+};

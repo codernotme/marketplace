@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import ORJSONResponse
+from fastapi.responses import JSONResponse
 
 from core.config import get_settings
 from core.database import DatabaseManager
@@ -13,7 +13,6 @@ from routers.saas.router import router as saas_router
 from routers.shop.router import router as shop_router
 from routers.shop.webhooks import router as webhook_router
 from services.demo_data import ensure_demo_data
-from utils.serialize import to_jsonable
 
 settings = get_settings()
 
@@ -34,7 +33,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     debug=settings.app_debug,
-    default_response_class=ORJSONResponse,
+    default_response_class=JSONResponse,
     lifespan=lifespan,
 )
 
@@ -80,9 +79,13 @@ app.include_router(webhook_router)
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(_: Request, exc: Exception):
-    return ORJSONResponse(status_code=500, content={"error": {"code": "INTERNAL_ERROR", "message": str(exc)}})
+    return JSONResponse(
+        status_code=500, content={"error": {"code": "INTERNAL_ERROR", "message": str(exc)}}
+    )
 
 
 @app.exception_handler(ValueError)
 async def value_error_handler(_: Request, exc: ValueError):
-    return ORJSONResponse(status_code=400, content={"error": {"code": "VALUE_ERROR", "message": str(exc)}})
+    return JSONResponse(
+        status_code=400, content={"error": {"code": "VALUE_ERROR", "message": str(exc)}}
+    )

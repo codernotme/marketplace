@@ -12,9 +12,14 @@ router = APIRouter(prefix="/announcements", tags=["saas-announcements"])
 
 
 @router.get("")
-async def list_announcements(_: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)):
+async def list_announcements(
+    _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)
+):
     query = {"is_active": {"$ne": False}}
-    data = [to_jsonable(item) async for item in master_db["announcements"].find(query).sort("created_at", -1)]
+    data = [
+        to_jsonable(item)
+        async for item in master_db["announcements"].find(query).sort("created_at", -1)
+    ]
     return {"data": data}
 
 

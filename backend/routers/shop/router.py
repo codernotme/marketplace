@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from routers.shop import data
-from routers.shop import auth, onboarding, products
+from routers.shop import auth, data, onboarding, products
 
 router = APIRouter(prefix="/api/shop")
 

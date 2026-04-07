@@ -21,5 +21,9 @@ async def send_email(api_key: str, to: str, subject: str, html: str) -> None:
     }
 
     async with httpx.AsyncClient(timeout=12.0) as client:
-        response = await client.post(f"{settings.resend_api_base}/emails", headers=headers, json=payload)
+        response = await client.post(
+            f"{settings.resend_api_base}/emails",
+            headers=headers,
+            json=payload,
+        )
         response.raise_for_status()

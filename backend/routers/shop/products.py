@@ -38,13 +38,7 @@ async def list_products(
     direction = -1 if sort.startswith("-") else 1
     field = sort[1:] if sort.startswith("-") else sort
 
-    cursor = (
-        tenant_db["products"]
-        .find(query)
-        .sort(field, direction)
-        .skip(skip)
-        .limit(limit)
-    )
+    cursor = tenant_db["products"].find(query).sort(field, direction).skip(skip).limit(limit)
     data = [to_jsonable(item) async for item in cursor]
     total = await tenant_db["products"].count_documents(query)
     return {"data": data, "total": total}
@@ -52,25 +46,32 @@ async def list_products(
 
 @router.get("/featured")
 async def featured_products(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
-    cursor = tenant_db["products"].find(
-        {"tenant_id": tenant["_id"], "flags.is_featured": True, "status": "active"}
-    ).limit(12)
+    cursor = (
+        tenant_db["products"]
+        .find({"tenant_id": tenant["_id"], "flags.is_featured": True, "status": "active"})
+        .limit(12)
+    )
     return {"data": [to_jsonable(item) async for item in cursor]}
 
 
 @router.get("/new-arrivals")
 async def new_arrivals(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
-    cursor = tenant_db["products"].find({"tenant_id": tenant["_id"], "status": "active"}).sort(
-        "created_at", -1
-    ).limit(20)
+    cursor = (
+        tenant_db["products"]
+        .find({"tenant_id": tenant["_id"], "status": "active"})
+        .sort("created_at", -1)
+        .limit(20)
+    )
     return {"data": [to_jsonable(item) async for item in cursor]}
 
 
 @router.get("/trending")
 async def trending_products(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
-    cursor = tenant_db["products"].find(
-        {"tenant_id": tenant["_id"], "flags.is_trending": True, "status": "active"}
-    ).limit(12)
+    cursor = (
+        tenant_db["products"]
+        .find({"tenant_id": tenant["_id"], "flags.is_trending": True, "status": "active"})
+        .limit(12)
+    )
     return {"data": [to_jsonable(item) async for item in cursor]}
 
 

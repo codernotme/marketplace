@@ -4,11 +4,11 @@ import asyncio
 import socket
 from collections.abc import AsyncIterator
 
+import certifi
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection, AsyncIOMotorDatabase
 from pymongo.errors import ServerSelectionTimeoutError
 
 from core.config import get_settings
-
 
 _ORIGINAL_GETADDRINFO = socket.getaddrinfo
 _IPV4_PATCH_APPLIED = False
@@ -32,11 +32,24 @@ class DatabaseManager:
         self._apply_ipv4_dns_patch_if_enabled()
         self._master_client = self._new_client(self.settings.mongo_master_uri)
         self._shared_client = self._new_client(self.settings.mongo_shared_uri)
+
+        # Connection check with retry
+        max_retries = 3
+        for attempt in range(1, max_retries + 1):
+            try:
+                await self.ping()
+                break
+            except ServerSelectionTimeoutError as exc:
+                if attempt < max_retries:
+                    print(f"Database connection attempt {attempt} failed, retrying...")
+                    await asyncio.sleep(1)
+                else:
+                    raise RuntimeError(self._format_connection_error(exc)) from exc
+
         try:
-            await self.ping()
-        except ServerSelectionTimeoutError as exc:
-            raise RuntimeError(self._format_connection_error(exc)) from exc
-        await self.ensure_indexes()
+            await self.ensure_indexes()
+        except Exception as exc:
+            print(f"Warning: Failed to ensure indexes: {exc}")
 
     async def shutdown(self) -> None:
         if self._master_client is not None:
@@ -56,6 +69,7 @@ class DatabaseManager:
             serverSelectionTimeoutMS=5000,
             retryWrites=True,
             retryReads=True,
+            tlsCAFile=certifi.where(),
         )
 
     def _apply_ipv4_dns_patch_if_enabled(self) -> None:

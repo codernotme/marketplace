@@ -59,14 +59,18 @@ async def get_current_user(
         raise UnauthorizedError("Invalid user id in token")
 
     if role == "saas_admin":
-        user = await db_manager.master_db["saas_admins"].find_one({"_id": user_oid, "is_active": True})
+        user = await db_manager.master_db["saas_admins"].find_one(
+            {"_id": user_oid, "is_active": True}
+        )
     else:
         tenant_db = getattr(request.state, "tenant_db", None)
         if tenant_db is None:
             raise UnauthorizedError("Tenant context required")
         tenant = getattr(request.state, "tenant", None)
         tenant_id = tenant.get("_id") if tenant else None
-        user = await tenant_db["users"].find_one({"_id": user_oid, "tenant_id": tenant_id, "is_active": True})
+        user = await tenant_db["users"].find_one(
+            {"_id": user_oid, "tenant_id": tenant_id, "is_active": True}
+        )
 
     if user is None:
         raise UnauthorizedError("User not found")

@@ -40,7 +40,11 @@ async def list_tenants(
 
 
 @router.post("")
-async def create_tenant(payload: TenantCreate, user: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)):
+async def create_tenant(
+    payload: TenantCreate,
+    user: dict = Depends(saas_admin_required),
+    master_db=Depends(get_master_db),
+):
     now = utcnow()
     doc = {
         "name": payload.name,
@@ -69,7 +73,9 @@ async def create_tenant(payload: TenantCreate, user: dict = Depends(saas_admin_r
 
 
 @router.get("/{tenant_id}")
-async def get_tenant(tenant_id: str, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)):
+async def get_tenant(
+    tenant_id: str, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)
+):
     query_id = try_object_id(tenant_id)
     query = {"_id": query_id} if query_id else {"slug": tenant_id}
     tenant = await master_db["tenants"].find_one(query)
@@ -103,7 +109,9 @@ async def update_tenant(
 
 
 @router.post("/{tenant_id}/suspend")
-async def suspend_tenant(tenant_id: str, user: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)):
+async def suspend_tenant(
+    tenant_id: str, user: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)
+):
     await master_db["tenants"].update_one(
         {"_id": to_object_id(tenant_id)},
         {"$set": {"status": "suspended", "updated_at": utcnow()}},
@@ -120,7 +128,9 @@ async def suspend_tenant(tenant_id: str, user: dict = Depends(saas_admin_require
 
 
 @router.post("/{tenant_id}/activate")
-async def activate_tenant(tenant_id: str, user: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)):
+async def activate_tenant(
+    tenant_id: str, user: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)
+):
     await master_db["tenants"].update_one(
         {"_id": to_object_id(tenant_id)},
         {"$set": {"status": "active", "updated_at": utcnow()}},
@@ -137,7 +147,9 @@ async def activate_tenant(tenant_id: str, user: dict = Depends(saas_admin_requir
 
 
 @router.get("/{tenant_id}/config")
-async def get_config(tenant_id: str, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)):
+async def get_config(
+    tenant_id: str, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)
+):
     config = await get_tenant_config(master_db, tenant_id)
     return {"data": to_jsonable(config)}
 

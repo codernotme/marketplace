@@ -6,14 +6,12 @@ import secrets
 from datetime import timedelta
 from typing import Any
 
+import bcrypt
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from core.config import get_settings
 from utils.time import utcnow
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class TokenError(Exception):
@@ -21,11 +19,12 @@ class TokenError(Exception):
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
 
 def verify_password(password: str, password_hash: str) -> bool:
-    return pwd_context.verify(password, password_hash)
+    return bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
 
 
 def _create_token(payload: dict[str, Any], secret: str, expires_delta: timedelta) -> str:
@@ -65,7 +64,9 @@ def decode_access_token(token: str) -> dict[str, Any]:
 def decode_refresh_token(token: str) -> dict[str, Any]:
     settings = get_settings()
     try:
-        return jwt.decode(token, settings.jwt_refresh_secret_key, algorithms=[settings.jwt_algorithm])
+        return jwt.decode(
+            token, settings.jwt_refresh_secret_key, algorithms=[settings.jwt_algorithm]
+        )
     except JWTError as exc:
         raise TokenError("Invalid refresh token") from exc
 
@@ -75,11 +76,12 @@ def generate_otp() -> str:
 
 
 def hash_otp(otp: str) -> str:
-    return pwd_context.hash(otp)
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(otp.encode('utf-8'), salt).decode('utf-8')
 
 
 def verify_otp_hash(otp: str, otp_hash: str) -> bool:
-    return pwd_context.verify(otp, otp_hash)
+    return bcrypt.checkpw(otp.encode('utf-8'), otp_hash.encode('utf-8'))
 
 
 def _get_encryption_key() -> bytes:

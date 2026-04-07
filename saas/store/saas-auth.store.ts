@@ -180,23 +180,21 @@ export const useSaasAuthStore = create<SaasAuthStore>()(
     }),
     {
       name: "saas-auth",
-      version: 2,
+      version: 3,
       migrate: (persistedState, version) => {
-        const state = (persistedState ?? {}) as Partial<SaasAuthStore>;
-        if (version < 2) {
+        const state = (persistedState ?? {}) as any;
+        if (version < 3) {
           return {
             ...state,
             refreshTokenValue: null,
             error: null,
             isLoading: false,
+            isAuthenticated: state.isAuthenticated ?? false,
+            user: state.user ?? null,
+            token: state.token ?? null,
           };
         }
-        return {
-          ...state,
-          refreshTokenValue: state.refreshTokenValue ?? null,
-          error: null,
-          isLoading: false,
-        };
+        return state;
       },
       partialize: (state) => ({
         user: state.user,

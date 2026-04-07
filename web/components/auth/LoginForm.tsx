@@ -28,14 +28,13 @@ export const LoginForm = () => {
   });
 
   const onSubmit = async (data: LoginSchema) => {
-    // API mock
-    await new Promise(resolve => setTimeout(resolve, 800));
-    login({ accessToken: 'mock-token', refreshToken: 'mock-refresh' }, {
-      id: 'u1',
-      name: 'John Doe',
-      email: data.email
-    });
-    router.push('/');
+    try {
+      await login(data.email, data.password);
+      router.push('/');
+    } catch (err: any) {
+      console.error(err);
+      // Let the store handle the error state rendering or set it here
+    }
   };
 
   const inputClassNames = {

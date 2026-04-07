@@ -18,7 +18,9 @@ async def razorpay_healthcheck(key_id: str, key_secret: str) -> None:
         response.raise_for_status()
 
 
-def verify_razorpay_signature(order_id: str, payment_id: str, signature: str, key_secret: str) -> bool:
-    message = f"{order_id}|{payment_id}".encode("utf-8")
+def verify_razorpay_signature(
+    order_id: str, payment_id: str, signature: str, key_secret: str
+) -> bool:
+    message = f"{order_id}|{payment_id}".encode()
     digest = hmac.new(key_secret.encode("utf-8"), message, sha256).hexdigest()
     return hmac.compare_digest(digest, signature)

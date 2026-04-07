@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Request
 
-from core.dependencies import get_tenant, get_tenant_db, get_current_user
+from core.dependencies import get_current_user, get_tenant, get_tenant_db
 from core.exceptions import UnauthorizedError
 from core.security import (
     create_access_token,
@@ -19,9 +19,9 @@ from schemas.auth import (
     ResetPasswordRequest,
     VerifyOtpRequest,
 )
+from services.email_service import send_email
 from services.otp_service import create_otp, verify_otp
 from services.tenant_config_service import get_tenant_config
-from services.email_service import send_email
 from utils.serialize import to_jsonable
 from utils.time import utcnow
 
@@ -118,7 +118,9 @@ async def verify_email(
 
 
 @router.post("/login")
-async def login(payload: LoginRequest, tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+async def login(
+    payload: LoginRequest, tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)
+):
     user = await tenant_db["users"].find_one(
         {"tenant_id": tenant["_id"], "email": payload.email.lower(), "is_active": True}
     )
@@ -178,7 +180,9 @@ async def login_otp(
 
 
 @router.post("/login/otp/verify")
-async def login_otp_verify(payload: VerifyOtpRequest, tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+async def login_otp_verify(
+    payload: VerifyOtpRequest, tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)
+):
     ok = await verify_otp(tenant_db, tenant["_id"], payload.email.lower(), "login", payload.otp)
     if not ok:
         raise UnauthorizedError("Invalid OTP")

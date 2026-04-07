@@ -48,7 +48,9 @@ async def signup(payload: RegisterRequest, master_db=Depends(get_master_db)):
 
 @router.post("/login")
 async def login(payload: LoginRequest, master_db=Depends(get_master_db)):
-    admin = await master_db["saas_admins"].find_one({"email": payload.email.lower(), "is_active": True})
+    admin = await master_db["saas_admins"].find_one(
+        {"email": payload.email.lower(), "is_active": True}
+    )
     if not admin or not verify_password(payload.password, admin["password_hash"]):
         raise UnauthorizedError("Invalid credentials")
 

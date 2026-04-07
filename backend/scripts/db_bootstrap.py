@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import sys
 
 from core.database import DatabaseManager
 from services.demo_data import DEMO_TENANT_ID, ensure_demo_data
@@ -16,9 +15,15 @@ async def bootstrap() -> int:
         await ensure_demo_data(manager.master_db, manager.shared_db)
         await manager.ensure_active_tenant_databases_ready()
 
-        users_count = await manager.shared_db["users"].count_documents({"tenant_id": DEMO_TENANT_ID})
-        products_count = await manager.shared_db["products"].count_documents({"tenant_id": DEMO_TENANT_ID})
-        orders_count = await manager.shared_db["orders"].count_documents({"tenant_id": DEMO_TENANT_ID})
+        users_count = await manager.shared_db["users"].count_documents(
+            {"tenant_id": DEMO_TENANT_ID}
+        )
+        products_count = await manager.shared_db["products"].count_documents(
+            {"tenant_id": DEMO_TENANT_ID}
+        )
+        orders_count = await manager.shared_db["orders"].count_documents(
+            {"tenant_id": DEMO_TENANT_ID}
+        )
 
         print("DB bootstrap completed")
         print(f"Demo tenant users: {users_count}")

@@ -20,7 +20,7 @@ Production-oriented FastAPI backend for theMrktPlace suite, designed for:
 2. Install dependencies:
    - `pip install -e .`
 3. Start app:
-   - `uvicorn main:app --reload --host 0.0.0.0 --port 8000`
+   - `python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000`
 
 ## API Prefixes
 

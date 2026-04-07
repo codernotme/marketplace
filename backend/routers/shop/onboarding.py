@@ -73,7 +73,9 @@ async def step_2(
         upsert=False,
     )
     if payload.resend_api_key:
-        await patch_tenant_config(master_db, str(tenant["_id"]), {"resend_api_key": payload.resend_api_key})
+        await patch_tenant_config(
+            master_db, str(tenant["_id"]), {"resend_api_key": payload.resend_api_key}
+        )
 
     await master_db["tenants"].update_one(
         {"_id": tenant["_id"]}, {"$set": {"onboarding_step": 3, "updated_at": utcnow()}}
@@ -123,7 +125,9 @@ async def step_4_verify(
     result = {"razorpay": "failed", "telegram": "failed", "resend": "failed"}
 
     try:
-        await razorpay_healthcheck(config.get("razorpay_key_id", ""), config.get("razorpay_key_secret", ""))
+        await razorpay_healthcheck(
+            config.get("razorpay_key_id", ""), config.get("razorpay_key_secret", "")
+        )
         result["razorpay"] = "ok"
     except Exception:
         pass

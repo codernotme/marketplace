@@ -59,7 +59,13 @@ async def list_orders(
     pg: tuple[int, int] = Depends(pagination_params),
 ):
     skip, limit = pg
-    cursor = tenant_db["orders"].find({"tenant_id": tenant["_id"]}).sort("created_at", -1).skip(skip).limit(limit)
+    cursor = (
+        tenant_db["orders"]
+        .find({"tenant_id": tenant["_id"]})
+        .sort("created_at", -1)
+        .skip(skip)
+        .limit(limit)
+    )
     data = [to_jsonable(item) async for item in cursor]
     total = await tenant_db["orders"].count_documents({"tenant_id": tenant["_id"]})
     return {"data": data, "total": total}
@@ -67,7 +73,10 @@ async def list_orders(
 
 @router.get("/orders/{order_id}")
 async def get_order(order_id: str, tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
-    query = {"tenant_id": tenant["_id"], "$or": [{"id": order_id}, {"orderNumber": order_id}, {"order_number": order_id}]}
+    query = {
+        "tenant_id": tenant["_id"],
+        "$or": [{"id": order_id}, {"orderNumber": order_id}, {"order_number": order_id}],
+    }
     order = await tenant_db["orders"].find_one(query)
     return {"data": to_jsonable(order) if order else None}
 
@@ -82,3 +91,91 @@ async def list_addresses(tenant=Depends(get_tenant), tenant_db=Depends(get_tenan
 async def list_notifications(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
     cursor = tenant_db["notifications"].find({"tenant_id": tenant["_id"]}).sort("createdAt", -1)
     return {"data": _json_list([item async for item in cursor])}
+
+
+@router.get("/customers")
+async def list_customers(_: dict = Depends(get_tenant)):
+    bs = shop_dashboard_bootstrap()
+    return {"data": bs.get("customers", [])}
+
+
+@router.get("/coupons")
+async def list_coupons(_: dict = Depends(get_tenant)):
+    bs = shop_dashboard_bootstrap()
+    return {"data": bs.get("coupons", [])}
+
+
+@router.get("/tickets")
+async def list_tickets(_: dict = Depends(get_tenant)):
+    bs = shop_dashboard_bootstrap()
+    return {"data": bs.get("tickets", [])}
+
+
+@router.get("/banners")
+async def list_banners(_: dict = Depends(get_tenant)):
+    bs = shop_dashboard_bootstrap()
+    return {"data": bs.get("banners", [])}
+
+
+@router.get("/pages")
+async def list_pages(_: dict = Depends(get_tenant)):
+    bs = shop_dashboard_bootstrap()
+    return {"data": bs.get("pages", [])}
+
+
+@router.get("/email-templates")
+async def list_email_templates(_: dict = Depends(get_tenant)):
+    bs = shop_dashboard_bootstrap()
+    return {"data": bs.get("emailTemplates", [])}
+
+
+@router.get("/team")
+async def list_team(_: dict = Depends(get_tenant)):
+    bs = shop_dashboard_bootstrap()
+    return {"data": bs.get("teamMembers", [])}
+
+
+@router.get("/analytics")
+async def get_analytics(_: dict = Depends(get_tenant)):
+    bs = shop_dashboard_bootstrap()
+    return {"data": bs.get("analyticsData", {})}
+
+
+@router.get("/kpi")
+async def get_kpi(_: dict = Depends(get_tenant)):
+    bs = shop_dashboard_bootstrap()
+    return {"data": bs.get("kpiData", {})}
+
+
+@router.patch("/orders/{order_id}/status")
+async def update_order_status(
+    order_id: str, payload: dict, tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)
+):
+    query = {
+        "tenant_id": tenant["_id"],
+        "$or": [{"id": order_id}, {"orderNumber": order_id}, {"order_number": order_id}],
+    }
+    if "status" in payload:
+        await tenant_db["orders"].update_one(
+            query, {"$set": {"fulfillmentStatus": payload["status"]}}
+        )
+    return {"message": "Success"}
+
+
+@router.patch("/orders/{order_id}/tracking")
+async def update_order_tracking(
+    order_id: str, payload: dict, tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)
+):
+    query = {
+        "tenant_id": tenant["_id"],
+        "$or": [{"id": order_id}, {"orderNumber": order_id}, {"order_number": order_id}],
+    }
+    updates = {}
+    if "trackingNumber" in payload:
+        updates["trackingNumber"] = payload["trackingNumber"]
+        updates["tracking_number"] = payload["trackingNumber"]
+    if "courier" in payload:
+        updates["courier"] = payload["courier"]
+    if updates:
+        await tenant_db["orders"].update_one(query, {"$set": updates})
+    return {"message": "Success"}

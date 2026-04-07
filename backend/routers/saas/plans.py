@@ -13,12 +13,16 @@ router = APIRouter(prefix="/plans", tags=["saas-plans"])
 
 @router.get("")
 async def list_plans(_: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)):
-    data = [to_jsonable(item) async for item in master_db["plans"].find({}).sort("monthly_price", 1)]
+    data = [
+        to_jsonable(item) async for item in master_db["plans"].find({}).sort("monthly_price", 1)
+    ]
     return {"data": data}
 
 
 @router.post("")
-async def create_plan(payload: PlanCreate, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)):
+async def create_plan(
+    payload: PlanCreate, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)
+):
     doc = payload.model_dump()
     doc.update({"is_active": True, "created_at": utcnow(), "updated_at": utcnow()})
     result = await master_db["plans"].insert_one(doc)
@@ -39,7 +43,9 @@ async def update_plan(
 
 
 @router.delete("/{plan_id}")
-async def deactivate_plan(plan_id: str, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)):
+async def deactivate_plan(
+    plan_id: str, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)
+):
     await master_db["plans"].update_one(
         {"_id": to_object_id(plan_id)},
         {"$set": {"is_active": False, "updated_at": utcnow()}},

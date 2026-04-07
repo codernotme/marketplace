@@ -52,7 +52,9 @@ async def next_order_number(db: AsyncIOMotorDatabase, tenant_id) -> str:
     return f"MKT-{year}-{seq:05d}"
 
 
-def compute_order_pricing(items: list[dict[str, Any]], shipping_fee: float = 0.0, coupon_discount: float = 0.0) -> dict[str, float]:
+def compute_order_pricing(
+    items: list[dict[str, Any]], shipping_fee: float = 0.0, coupon_discount: float = 0.0
+) -> dict[str, float]:
     subtotal = sum(float(item.get("subtotal", 0)) for item in items)
     tax_total = sum(float(item.get("tax_amount", 0)) for item in items)
     discount_total = sum(float(item.get("discount_amount", 0)) for item in items)

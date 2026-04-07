@@ -43,7 +43,9 @@ async def create_admin(
 
 
 @router.delete("/{admin_id}")
-async def delete_admin(admin_id: str, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)):
+async def delete_admin(
+    admin_id: str, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)
+):
     await master_db["saas_admins"].update_one(
         {"_id": to_object_id(admin_id)},
         {"$set": {"is_active": False, "updated_at": utcnow()}},

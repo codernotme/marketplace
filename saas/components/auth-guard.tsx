@@ -12,17 +12,19 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children, requiredRole }: AuthGuardProps) {
   const router = useRouter();
-  const { isAuthenticated, user, isLoading } = useSaasAuthStore();
+  const { isAuthenticated, user, isLoading, isHydrated } = useSaasAuthStore();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isHydrated || isLoading) return;
+
+    if (!isAuthenticated) {
       router.push("/login");
     } else if (requiredRole && user?.role !== requiredRole) {
       router.push("/dashboard");
     }
-  }, [isAuthenticated, isLoading, requiredRole, user, router]);
+  }, [isAuthenticated, isLoading, isHydrated, requiredRole, user, router]);
 
-  if (isLoading) {
+  if (!isHydrated || isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Spinner />

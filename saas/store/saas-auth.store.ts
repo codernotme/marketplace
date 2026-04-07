@@ -49,6 +49,7 @@ interface SaasAuthStore {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  isHydrated: boolean;
 
   // Actions
   login: (email: string, password: string) => Promise<void>;
@@ -70,6 +71,7 @@ export const useSaasAuthStore = create<SaasAuthStore>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      isHydrated: false,
 
       setUser: (user) => set({ user, isAuthenticated: !!user }),
       setToken: (token) => set({ token }),
@@ -202,6 +204,11 @@ export const useSaasAuthStore = create<SaasAuthStore>()(
         refreshTokenValue: state.refreshTokenValue,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.isHydrated = true;
+        }
+      },
     }
   )
 );

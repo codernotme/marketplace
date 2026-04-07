@@ -213,9 +213,9 @@ export default function TenantsPage() {
                           {tenant.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-foreground">{tenant.order_count}</TableCell>
+                      <TableCell className="text-foreground">{tenant.order_count ?? 0}</TableCell>
                       <TableCell className="text-foreground font-medium">
-                        ${tenant.revenue.toLocaleString()}
+                        ${(tenant.revenue ?? 0).toLocaleString()}
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>

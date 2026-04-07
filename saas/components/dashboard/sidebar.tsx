@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@heroui/react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: "BarChart3" },
@@ -30,9 +30,8 @@ export function Sidebar() {
       </button>
 
       <aside
-        className={`fixed left-0 top-0 h-full w-64 bg-gray-900 text-foreground transition-transform duration-200 z-40 ${
-          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`fixed left-0 top-0 h-full w-64 bg-gray-900 text-foreground transition-transform duration-200 z-40 ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
       >
         <div className="p-6 border-b border-gray-800">
           <h1 className="text-2xl font-bold">SaaS Admin</h1>
@@ -47,11 +46,10 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 rounded-lg transition-colors ${
-                  isActive
+                className={`block px-4 py-3 rounded-lg transition-colors ${isActive
                     ? "bg-blue-600 text-foreground"
                     : "text-gray-400 hover:bg-gray-800 hover:text-foreground"
-                }`}
+                  }`}
               >
                 <span className="text-sm font-medium">{item.label}</span>
               </Link>
@@ -63,7 +61,7 @@ export function Sidebar() {
           <div className="px-4 py-3 bg-gray-800 rounded-lg text-xs">
             <p className="text-gray-400">Logged in as</p>
             <p className="text-foreground font-medium">Alice Johnson</p>
-            <p className="text-gray-500">superadmin</p>
+            <p className="text-gray-500">saas_admin</p>
           </div>
           <Button variant="outline" className="w-full justify-start text-gray-400 hover:text-foreground">
             <LogOut className="w-4 h-4 mr-2" />

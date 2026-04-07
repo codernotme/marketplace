@@ -1,14 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { getApiBaseUrl } from "@/lib/api-url";
+import { SaasUser } from "@/types";
 
-export interface SaasUser {
-  id: string;
-  email: string;
-  name: string;
-  role: "saas_admin" | "superadmin" | "support";
-  avatar?: string;
-}
 
 async function parseBody(response: Response): Promise<Record<string, unknown> | null> {
   const rawBody = await response.text();

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
+import { Card } from "@heroui/react";
 import { auditLogs } from "@/lib/data/audit-logs";
 import { admins } from "@/lib/data/admins";
 import { tenants } from "@/lib/data/tenants";

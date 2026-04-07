@@ -2,7 +2,7 @@ export interface SaaSAdmin {
   id: string;
   name: string;
   email: string;
-  role: "superadmin" | "support";
+  role: "saas_admin" | "support";
   created_at: string;
   last_login: string;
 }
@@ -12,7 +12,7 @@ export const admins: SaaSAdmin[] = [
     id: "admin_001",
     name: "Alice Johnson",
     email: "alice@saas.io",
-    role: "superadmin",
+    role: "saas_admin",
     created_at: "2024-01-15T10:30:00Z",
     last_login: "2024-04-06T14:22:00Z",
   },

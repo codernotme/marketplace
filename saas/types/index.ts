@@ -3,7 +3,8 @@ export interface SaasUser {
   id: string;
   email: string;
   name: string;
-  role: "saas_admin" | "superadmin" | "support";
+  role: "saas_admin" | "saas_admin" | "support";
+  is_verified: boolean;
   avatar?: string;
 }
 
@@ -27,23 +28,25 @@ export interface SignupRequest {
 // Tenant Types
 export interface Tenant {
   _id: string;
-  shop_name: string;
-  shop_slug: string;
+  name: string;
+  slug: string;
   owner_name: string;
   owner_email: string;
-  owner_phone: string;
+  owner_phone?: string;
   logo_url?: string;
   brand_color?: string;
   status: "pending" | "active" | "suspended" | "deleted";
   plan: "free" | "starter" | "pro" | "enterprise";
+  plan_code?: string;
   onboarding_step: number;
-  onboarding_complete: boolean;
+  onboarding_completed: boolean;
   created_at: string;
+  updated_at?: string;
   activated_at?: string;
   suspended_at?: string;
   suspension_reason?: string;
-  order_count: number;
-  revenue: number;
+  order_count?: number;
+  revenue?: number;
 }
 
 export interface TenantListResponse {
@@ -53,21 +56,20 @@ export interface TenantListResponse {
   limit: number;
 }
 
-export interface TenantDetailResponse extends Tenant {}
+export interface TenantDetailResponse extends Tenant { }
 
 // Plan Types
 export interface Plan {
   _id: string;
+  code: string;
   name: string;
-  slug: string;
   description: string;
-  price_monthly: number;
-  price_yearly?: number;
+  monthly_price: number;
+  yearly_price: number;
   currency: string;
   features: PlanFeature[];
   max_products: number;
-  max_orders_monthly: number;
-  max_users: number;
+  max_staff: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -79,23 +81,22 @@ export interface PlanFeature {
 }
 
 export interface CreatePlanRequest {
+  code: string;
   name: string;
-  slug: string;
   description: string;
-  price_monthly: number;
-  price_yearly?: number;
+  monthly_price: number;
+  yearly_price: number;
   currency: string;
   features: PlanFeature[];
   max_products: number;
-  max_orders_monthly: number;
-  max_users: number;
+  max_staff: number;
 }
 
 // Announcement Types
 export interface Announcement {
   _id: string;
   title: string;
-  content: string;
+  body: string;
   type: "info" | "warning" | "success";
   severity: "low" | "medium" | "high";
   target_roles: string[];
@@ -107,7 +108,7 @@ export interface Announcement {
 
 export interface CreateAnnouncementRequest {
   title: string;
-  content: string;
+  body: string;
   type: "info" | "warning" | "success";
   severity: "low" | "medium" | "high";
   target_roles: string[];
@@ -118,7 +119,8 @@ export interface SaasAdmin {
   _id: string;
   email: string;
   name: string;
-  role: "superadmin" | "support";
+  role: "saas_admin" | "support";
+  is_verified: boolean;
   last_login?: string;
   created_at: string;
 }
@@ -126,19 +128,16 @@ export interface SaasAdmin {
 export interface CreateAdminRequest {
   email: string;
   name: string;
-  role: "superadmin" | "support";
+  role: "saas_admin" | "support";
+  password: string;
 }
 
 // Dashboard Metrics
 export interface DashboardMetrics {
   total_tenants: number;
   active_tenants: number;
-  pending_activations: number;
   suspended_tenants: number;
-  monthly_revenue: number;
-  total_orders: number;
-  avg_plan_tier: string;
-  growth_rate: number;
+  mrr: number;
 }
 
 // Audit Log

@@ -1,7 +1,20 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const outfit = Outfit({ 
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "theMrktPlace | SaaS Admin",
@@ -17,8 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="bg-background text-foreground">
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${outfit.variable}`}>
+      <body className="bg-background text-foreground font-inter">
         <Providers>
           {children}
           <Toaster />

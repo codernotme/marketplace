@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
+import { Card } from "@heroui/react";
 import { tenants } from "@/lib/data/tenants";
 import { subscriptions } from "@/lib/data/subscriptions";
 import { TrendingUp, TrendingDown, Users, DollarSign } from "lucide-react";

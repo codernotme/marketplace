@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Card, Button, Chip, Dropdown, Spinner } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { PageHeader } from "@/components/ui/page-header";
+
 import { cn } from "@/lib/utils";
 import { subscriptions } from "@/lib/data/subscriptions";
 import { tenants } from "@/lib/data/tenants";
@@ -44,12 +44,15 @@ export default function SubscriptionsPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <PageHeader
-        title="Subscriptions"
-        subtitle="Real-time ledger of platform revenue and tenant billing cycles"
-        icon="solar:wad-of-money-bold-duotone"
-        actions={
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight flex items-center gap-3" style={{ fontFamily: "var(--font-outfit)" }}>
+             <Icon icon="solar:wad-of-money-bold-duotone" className="text-3xl text-primary" />
+             Subscriptions
+          </h1>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-1 ml-10">Real-time ledger of platform revenue and tenant billing cycles</p>
+        </div>
+        <div className="flex items-center gap-2">
             <Button variant="outline" className="font-bold gap-2">
               <Icon icon="solar:file-download-bold-duotone" className="text-lg" />
               Download Ledger
@@ -76,8 +79,7 @@ export default function SubscriptionsPage() {
               </Dropdown.Popover>
             </Dropdown>
           </div>
-        }
-      />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[

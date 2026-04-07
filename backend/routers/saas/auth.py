@@ -29,8 +29,9 @@ async def signup(payload: RegisterRequest, master_db=Depends(get_master_db)):
         "name": payload.name,
         "email": email,
         "password_hash": hash_password(payload.password),
-        "role": "saas_admin",
+        "role": "support",  # Default to support for self-signup
         "is_active": True,
+        "is_verified": False, # New accounts must be verified
         "created_at": utcnow(),
         "last_login": None,
     }
@@ -53,6 +54,9 @@ async def login(payload: LoginRequest, master_db=Depends(get_master_db)):
     )
     if not admin or not verify_password(payload.password, admin["password_hash"]):
         raise UnauthorizedError("Invalid credentials")
+    
+    if not admin.get("is_verified", False):
+        raise UnauthorizedError("Account pending verification. Please contact the platform owner.")
 
     token_payload = {"sub": str(admin["_id"]), "role": "saas_admin", "tenant_id": None}
     token = create_access_token(token_payload)
@@ -98,8 +102,9 @@ async def seed_admin(payload: LoginRequest, master_db=Depends(get_master_db)):
             "name": "Platform Admin",
             "email": payload.email.lower(),
             "password_hash": hash_password(payload.password),
-            "role": "saas_admin",
+            "role": "saas_admin", # Seeding a saas_admin
             "is_active": True,
+            "is_verified": True, # Seed admin is pre-verified
             "created_at": utcnow(),
             "last_login": None,
         }

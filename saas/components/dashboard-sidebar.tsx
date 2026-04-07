@@ -82,7 +82,7 @@ export function DashboardSidebar() {
       <div className="p-4 border-t border-border mt-auto">
         <Dropdown>
           <Dropdown.Trigger>
-            <button className="w-full flex items-center gap-3 p-2 rounded-xl transition-colors hover:bg-default-100 outline-none text-left select-none">
+            <div className="w-full flex items-center gap-3 p-2 rounded-xl transition-colors hover:bg-default-100 outline-none text-left select-none cursor-pointer">
               <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center font-bold text-sm flex-shrink-0">
                 {user?.name?.charAt(0) || "A"}
               </div>
@@ -91,7 +91,7 @@ export function DashboardSidebar() {
                 <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest font-black opacity-60">Super Admin</p>
               </div>
               <Icon icon="solar:alt-arrow-up-linear" className="text-muted-foreground text-xs" />
-            </button>
+            </div>
           </Dropdown.Trigger>
           <Dropdown.Popover className="min-w-[220px] bg-background border border-border shadow-xl rounded-2xl p-1">
             <Dropdown.Menu onAction={(key) => {

@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/api";
 import { AuditLog } from "@/types";
-import { Card, Button, Input, InputGroup, Chip, Modal, Spinner } from "@heroui/react";
+import { Card, Button, Input, Chip, Modal, Spinner } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { PageHeader } from "@/components/ui/page-header";
+
 import { cn } from "@/lib/utils";
 
 const actionConfig: Record<string, { color: "success" | "accent" | "danger" | "warning" | "default", icon: string }> = {
@@ -102,23 +102,25 @@ export default function AuditLogsPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <PageHeader
-        title="Audit Logs"
-        subtitle="Governance tracking and real-time platform activity"
-        icon="solar:shield-check-bold-duotone"
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" className="font-bold gap-2" onClick={handleExport}>
-              <Icon icon="solar:file-download-bold-duotone" className="text-lg" />
-              Export CSV
-            </Button>
-            <Button variant="primary" className="font-bold gap-2">
-              <Icon icon="solar:playback-speed-bold-duotone" className="text-lg" />
-              Live Stream
-            </Button>
-          </div>
-        }
-      />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight flex items-center gap-3" style={{ fontFamily: "var(--font-outfit)" }}>
+             <Icon icon="solar:shield-check-bold-duotone" className="text-3xl text-primary" />
+             Audit Logs
+          </h1>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-1 ml-10">Governance tracking and real-time platform activity</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="font-bold gap-2" onClick={handleExport}>
+            <Icon icon="solar:file-download-bold-duotone" className="text-lg" />
+            Export CSV
+          </Button>
+          <Button variant="primary" className="font-bold gap-2">
+            <Icon icon="solar:playback-speed-bold-duotone" className="text-lg" />
+            Live Stream
+          </Button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
@@ -142,17 +144,15 @@ export default function AuditLogsPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-4 justify-between">
-        <InputGroup className="max-w-md bg-default-100/50 border border-border/50 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-accent/20 transition-all">
-          <InputGroup.Prefix className="pl-3 text-muted-foreground">
-            <Icon icon="solar:magnifer-linear" className="text-default-400" width={18} />
-          </InputGroup.Prefix>
+        <div className="max-w-md w-full bg-default-100/50 border border-border/50 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-accent/20 transition-all flex items-center px-3">
+          <Icon icon="solar:magnifer-linear" className="text-default-400" width={18} />
           <Input
             placeholder="Filter by admin, resource ID or action..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2"
           />
-        </InputGroup>
+        </div>
       </div>
 
       <Card className="border border-border bg-surface overflow-hidden shadow-sm">
@@ -196,7 +196,7 @@ export default function AuditLogsPage() {
                     <td className="px-5 py-4">
                       <Chip 
                         variant="soft" 
-                        color={actionConfig[log.action]?.color || "default"}
+                        color={(actionConfig[log.action]?.color || "default") as any}
                         className="font-black text-[10px] uppercase tracking-wider h-6 flex items-center gap-1.5 px-3"
                       >
                          <Icon icon={actionConfig[log.action]?.icon || "solar:info-circle-bold-duotone"} className="text-xs" />

@@ -3,7 +3,6 @@
 import { Dropdown, Button, Input, Badge } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useSaasAuthStore } from "@/store/saas-auth.store";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export function DashboardHeader() {
   const { user } = useSaasAuthStore();
@@ -13,7 +12,6 @@ export function DashboardHeader() {
       <div className="px-4 py-3 flex items-center justify-between gap-4">
         {/* Mobile Sidebar Trigger & Search Bar */}
         <div className="flex flex-1 items-center gap-2">
-          <SidebarTrigger className="md:hidden mr-2" />
           <div className="relative w-full max-w-md hidden md:flex">
             <div className="relative w-full group">
               <Icon 

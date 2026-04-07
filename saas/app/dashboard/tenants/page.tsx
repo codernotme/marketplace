@@ -1,115 +1,100 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api";
 import { Tenant, TenantListResponse } from "@/types";
-import { Card, Button, Input, InputGroup, Chip, Dropdown, Spinner, Pagination } from "@heroui/react";
+import { Card, Button, Input, InputGroup, Chip, Modal, Spinner, Dropdown, Label } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { PageHeader } from "@/components/ui/page-header";
+
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const statusConfig: Record<string, { color: "warning" | "success" | "danger" | "default", icon: string }> = {
-  pending: { color: "warning", icon: "solar:clock-circle-bold-duotone" },
   active: { color: "success", icon: "solar:check-circle-bold-duotone" },
   suspended: { color: "danger", icon: "solar:shield-warning-bold-duotone" },
-  deleted: { color: "default", icon: "solar:trash-bin-trash-bold-duotone" },
-};
-
-const planConfig: Record<string, { color: "default" | "primary" | "secondary" }> = {
-  free: { color: "default" },
-  starter: { color: "default" },
-  pro: { color: "primary" },
-  enterprise: { color: "secondary" },
+  pending: { color: "warning", icon: "solar:clock-circle-bold-duotone" },
 };
 
 export default function TenantsPage() {
   const router = useRouter();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [page, setPage] = useState(1);
+  
+  const [formData, setFormData] = useState({
+    name: "",
+    slug: "",
+    owner_email: "",
+    plan_code: "starter",
+  });
+
+  const fetchTenants = async () => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        ...(search && { search }),
+        ...(statusFilter !== "all" && { status: statusFilter }),
+      });
+      const response = await apiClient.get<TenantListResponse>(`/api/saas/tenants?${params.toString()}`);
+      setTenants(response.data);
+    } catch (error) {
+      toast.error("Failed to fetch tenants from stream");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTenants = async () => {
-      try {
-        const params = new URLSearchParams({
-          page: page.toString(),
-          limit: "20",
-          ...(search && { search }),
-          ...(statusFilter !== "all" && { status: statusFilter }),
-        });
-        const data = await apiClient.get<TenantListResponse>(
-          `/api/saas/tenants?${params.toString()}`
-        );
-        setTenants(data.data);
-      } catch (error) {
-        console.error("Failed to fetch tenants:", error);
-        // Use mock data for demo
-        setTenants([
-          {
-            _id: "tenant_001",
-            shop_name: "TechHub Store",
-            shop_slug: "techhub-store",
-            owner_name: "John Doe",
-            owner_email: "john@techhub.com",
-            owner_phone: "+1-234-567-8900",
-            status: "active",
-            plan: "pro",
-            created_at: "2024-01-10T08:00:00Z",
-            order_count: 1240,
-            revenue: 45680,
-            onboarding_step: 5,
-            onboarding_complete: true
-          },
-          {
-            _id: "tenant_002",
-            shop_name: "Fashion Boutique",
-            shop_slug: "fashion-boutique",
-            owner_name: "Sarah Williams",
-            owner_email: "sarah@fashionboutique.com",
-            owner_phone: "+1-234-567-8901",
-            status: "active",
-            plan: "starter",
-            created_at: "2024-02-15T10:00:00Z",
-            order_count: 580,
-            revenue: 18920,
-            onboarding_step: 5,
-            onboarding_complete: true
-          },
-        ]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchTenants();
-  }, [search, statusFilter, page]);
+  }, [search, statusFilter]);
+
+  const handleCreateTenant = async () => {
+    if (!formData.name || !formData.slug || !formData.owner_email) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await apiClient.post("/api/saas/tenants", formData);
+      toast.success("Tenant provisioned successfully");
+      setIsModalOpen(false);
+      setFormData({ name: "", slug: "", owner_email: "", plan_code: "starter" });
+      fetchTenants();
+    } catch (error) {
+      toast.error("Provisioning failed: Check logs");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <PageHeader
-        title="Tenants"
-        subtitle="Manage marketplace shops and physical locations"
-        icon="solar:users-group-two-rounded-bold-duotone"
-        actions={
-          <Link href="/dashboard/tenants/create">
-            <Button 
-              variant="primary" 
-              className="font-bold flex items-center gap-2"
-            >
-              <Icon icon="solar:add-circle-bold-duotone" className="text-lg" />
-              Create Tenant
-            </Button>
-          </Link>
-        }
-      />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight flex items-center gap-3" style={{ fontFamily: "var(--font-outfit)" }}>
+             <Icon icon="solar:users-group-two-rounded-bold-duotone" className="text-3xl text-primary" />
+             Tenants
+          </h1>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-1 ml-10">Manage marketplace shops and physical locations</p>
+        </div>
+        <Button 
+          variant="primary" 
+          className="font-bold flex items-center gap-2 shadow-lg shadow-accent/20"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <Icon icon="solar:add-circle-bold-duotone" className="text-lg" />
+          Provision Tenant
+        </Button>
+      </div>
 
       <div className="flex flex-wrap items-center gap-4 justify-between">
         <div className="flex-1 min-w-[300px]">
-          <InputGroup className="max-w-md bg-default-100/50 border border-border/50 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+          <InputGroup className="max-w-md bg-default-100/50 border border-border/50 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-accent/20 transition-all">
             <InputGroup.Prefix className="pl-3 text-muted-foreground">
               <Icon icon="solar:magnifer-linear" className="text-default-400" width={18} />
             </InputGroup.Prefix>
@@ -122,15 +107,15 @@ export default function TenantsPage() {
           </InputGroup>
         </div>
         
-        <div className="flex items-center gap-2 p-1 bg-default-100 rounded-xl overflow-hidden">
+        <div className="flex items-center gap-2 p-1 bg-default-100/50 border border-border/50 rounded-xl overflow-hidden">
            {["all", "active", "pending", "suspended"].map((status) => (
              <button
                key={status}
                onClick={() => setStatusFilter(status)}
                className={cn(
-                 "px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
+                 "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
                  statusFilter === status 
-                   ? "bg-background text-primary shadow-sm" 
+                   ? "bg-background text-accent shadow-sm" 
                    : "text-muted-foreground hover:text-foreground"
                )}
              >
@@ -147,58 +132,59 @@ export default function TenantsPage() {
               <tr className="border-b border-border bg-background/50">
                 <th className="text-left px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Shop Info</th>
                 <th className="text-left px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Ownership</th>
-                <th className="text-left px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Plan</th>
+                <th className="text-left px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Tier</th>
                 <th className="text-left px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Status</th>
-                <th className="text-right px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Activity</th>
                 <th className="text-right px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {isLoading ? (
-                <tr>
-                   <td colSpan={6} className="py-20 text-center">
+                <tr key="loading">
+                   <td colSpan={5} className="py-20 text-center">
                       <Spinner color="accent" />
-                      <p className="mt-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">Fetching tenants...</p>
+                      <p className="mt-2 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Hydrating tenant stream...</p>
                    </td>
                 </tr>
               ) : tenants.length === 0 ? (
-                <tr>
-                   <td colSpan={6} className="py-20 text-center text-muted-foreground italic">
+                <tr key="empty">
+                   <td colSpan={5} className="py-20 text-center text-muted-foreground italic text-sm">
                       No tenants found matching your criteria.
                    </td>
                 </tr>
               ) : (
                 tenants.map((tenant) => (
-                  <tr key={tenant._id} className="hover:bg-default-50/50 transition-colors">
+                  <tr key={tenant._id} className="hover:bg-default-50/50 transition-colors group">
                     <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                         <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-black text-sm">
-                            {tenant.shop_name.charAt(0)}
+                      <div className="flex items-center gap-4">
+                         <div className="w-10 h-10 rounded-2xl bg-accent/10 border border-accent/20 text-accent flex items-center justify-center font-black text-xs">
+                            {tenant.name?.charAt(0).toUpperCase() || "T"}
                          </div>
                          <div>
-                            <p className="font-bold text-sm">{tenant.shop_name}</p>
-                            <p className="text-xs text-muted-foreground tracking-tight">{tenant.shop_slug}</p>
+                            <p className="font-bold text-sm tracking-tight">{tenant.name}</p>
+                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest mt-0.5 opacity-60">/{tenant.slug}</p>
                          </div>
                       </div>
                     </td>
                     <td className="px-5 py-4">
                       <div>
                         <p className="font-medium text-sm">{tenant.owner_name}</p>
-                        <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{tenant.owner_email}</p>
+                        <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest opacity-60">{tenant.owner_email}</p>
                       </div>
                     </td>
                     <td className="px-5 py-4">
                       <Chip 
                         variant="soft" 
-                        className="font-black text-[10px] uppercase tracking-wider h-6"
+                        color={tenant.plan === "enterprise" ? "accent" : "default"}
+                        className="font-black text-[10px] uppercase tracking-wider h-6 pr-2"
                       >
-                        {tenant.plan}
+                         <Icon icon="solar:crown-bold-duotone" className="mr-1 mt-[-1px]" />
+                        {tenant.plan || "Starter"}
                       </Chip>
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
                         <div className={cn(
-                          "w-2 h-2 rounded-full",
+                          "w-1.5 h-1.5 rounded-full",
                           tenant.status === "active" ? "bg-success shadow-[0_0_8px_rgba(34,197,94,0.4)]" : 
                           tenant.status === "suspended" ? "bg-danger shadow-[0_0_8px_rgba(239,68,68,0.4)]" : "bg-warning shadow-[0_0_8px_rgba(234,179,8,0.4)]"
                         )} />
@@ -208,17 +194,11 @@ export default function TenantsPage() {
                       </div>
                     </td>
                     <td className="px-5 py-4 text-right">
-                       <div>
-                          <p className="font-black text-sm">{tenant.order_count ?? 0}</p>
-                          <p className="text-[10px] text-success font-bold tracking-tight">${(tenant.revenue ?? 0).toLocaleString()}</p>
-                       </div>
-                    </td>
-                    <td className="px-5 py-4 text-right">
                       <Dropdown>
                         <Dropdown.Trigger>
-                           <Button isIconOnly variant="ghost" className="rounded-full">
-                              <Icon icon="solar:menu-dots-bold-duotone" className="text-lg opacity-60 hover:opacity-100" />
-                           </Button>
+                           <button className="flex items-center justify-center rounded-full h-8 w-8 opacity-60 hover:opacity-100 hover:bg-default-100 transition-all outline-none">
+                              <Icon icon="solar:menu-dots-bold-duotone" className="text-lg" />
+                           </button>
                         </Dropdown.Trigger>
                         <Dropdown.Popover className="min-w-[180px] bg-background border border-border shadow-xl rounded-2xl p-1">
                            <Dropdown.Menu onAction={(key) => {
@@ -228,11 +208,7 @@ export default function TenantsPage() {
                                <Icon icon="solar:eye-bold-duotone" className="text-lg opacity-60" />
                                <span className="text-xs font-bold">View Profile</span>
                              </Dropdown.Item>
-                             <Dropdown.Item id="edit" textValue="Edit" className="flex items-center gap-2 p-2 hover:bg-muted rounded-lg">
-                               <Icon icon="solar:pen-new-square-bold-duotone" className="text-lg opacity-60" />
-                               <span className="text-xs font-bold">Edit Details</span>
-                             </Dropdown.Item>
-                             <Dropdown.Item id="suspend" textValue="Suspend" className="flex items-center gap-2 p-2 hover:bg-danger/10 text-danger rounded-lg mt-1">
+                             <Dropdown.Item id="suspend" textValue="Suspend" className="flex items-center gap-2 p-2 hover:bg-danger/10 text-danger rounded-lg">
                                <Icon icon="solar:shield-warning-bold-duotone" className="text-lg" />
                                <span className="text-xs font-bold">Suspend Access</span>
                              </Dropdown.Item>
@@ -247,6 +223,95 @@ export default function TenantsPage() {
           </table>
         </div>
       </Card>
+
+      <Modal>
+        <Modal.Backdrop 
+          isOpen={isModalOpen} 
+          onOpenChange={() => setIsModalOpen(false)}
+          variant="blur"
+          className="bg-black/60"
+        >
+          <Modal.Container placement="center">
+            <Modal.Dialog className="bg-background border border-border shadow-2xl rounded-3xl overflow-hidden max-w-lg w-full flex flex-col">
+              <Modal.Header className="flex flex-col gap-1 p-6 bg-default-50/50 border-b border-border">
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
+                      <Icon icon="solar:shop-add-bold-duotone" className="text-2xl" />
+                   </div>
+                   <div>
+                      <h3 className="text-lg font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>Provision New Tenant</h3>
+                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Spin up a new marketplace instance</p>
+                   </div>
+                </div>
+              </Modal.Header>
+              <Modal.Body className="p-6 space-y-6">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Shop Name</Label>
+                      <Input
+                        placeholder="Nexus Store"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="bg-default-100/50 border border-border/50 rounded-xl h-11"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Shop Slug</Label>
+                      <Input
+                        placeholder="nexus-store"
+                        value={formData.slug}
+                        onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+                        className="bg-default-100/50 border border-border/50 rounded-xl h-11"
+                      />
+                    </div>
+                 </div>
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Owner Email</Label>
+                    <Input
+                      type="email"
+                      placeholder="owner@store.com"
+                      value={formData.owner_email}
+                      onChange={(e) => setFormData({ ...formData, owner_email: e.target.value })}
+                      className="bg-default-100/50 border border-border/50 rounded-xl h-11"
+                    />
+                 </div>
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Subscription Tier</Label>
+                    <div className="flex items-center gap-3 p-1 bg-default-100/50 border border-border/50 rounded-xl">
+                      {["starter", "pro", "enterprise"].map((plan) => (
+                        <button
+                          key={plan}
+                          onClick={() => setFormData({ ...formData, plan_code: plan })}
+                          className={cn(
+                            "flex-1 py-2 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                            formData.plan_code === plan 
+                              ? "bg-background text-accent shadow-sm" 
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          {plan}
+                        </button>
+                      ))}
+                    </div>
+                 </div>
+              </Modal.Body>
+              <Modal.Footer className="p-6 bg-default-50/50 border-t border-border flex gap-3">
+                <Button variant="outline" className="flex-1 font-bold rounded-xl h-11" onClick={() => setIsModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  variant="primary" 
+                  className="flex-1 font-bold rounded-xl h-11 shadow-lg shadow-accent/20" 
+                  onClick={handleCreateTenant}
+                  isPending={isSaving}
+                >
+                  Confirm Provisioning
+                </Button>
+              </Modal.Footer>
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal>
     </div>
   );
 }

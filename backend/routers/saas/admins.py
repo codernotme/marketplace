@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends
 
-from core.dependencies import get_master_db, saas_admin_required
+from core.dependencies import get_master_db, saas_admin_required, require_roles
 from core.security import hash_password
 from schemas.saas import SaasAdminCreate
 from utils.object_id import to_object_id
@@ -35,11 +35,25 @@ async def create_admin(
         "password_hash": hash_password(payload.password),
         "role": payload.role,
         "is_active": True,
+        "is_verified": True, # Manually created admins are verified
         "created_at": now,
         "last_login": None,
     }
     result = await master_db["saas_admins"].insert_one(doc)
     return {"id": str(result.inserted_id), "message": "Admin created"}
+
+@router.patch("/{admin_id}/verify")
+async def verify_admin(
+    admin_id: str,
+    role: str = "support",
+    _: dict = Depends(require_roles(["saas_admin"])),
+    master_db=Depends(get_master_db),
+):
+    await master_db["saas_admins"].update_one(
+        {"_id": to_object_id(admin_id)},
+        {"$set": {"is_verified": True, "role": role, "updated_at": utcnow()}},
+    )
+    return {"message": "Admin verified and role assigned"}
 
 
 @router.delete("/{admin_id}")

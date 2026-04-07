@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/api";
 import { DashboardMetrics } from "@/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
-import { TrendingUp, Users, DollarSign, ShoppingCart } from "lucide-react";
+import { Card, Spinner, Skeleton, Button } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { 
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
+} from "recharts";
+import { cn } from "@/lib/utils";
 
 const chartData = [
   { name: "Jan", revenue: 4000, orders: 240 },
@@ -21,30 +23,36 @@ interface KPICardProps {
   title: string;
   value: string | number;
   subtext?: string;
-  icon: React.ReactNode;
+  icon: string;
   trend?: number;
+  iconBg?: string;
+  iconColor?: string;
 }
 
-function KPICard({ title, value, subtext, icon, trend }: KPICardProps) {
+function KPICard({ title, value, subtext, icon, trend, iconBg = "bg-primary/10", iconColor = "text-primary" }: KPICardProps) {
   return (
-    <Card className="bg-card">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">{title}</p>
-            <p className="text-3xl font-bold text-foreground">{value}</p>
-            {subtext && <p className="text-xs text-muted-foreground mt-1">{subtext}</p>}
+    <Card className="p-5 border border-border shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between">
+        <div className="space-y-1">
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{title}</p>
+          <p className="text-3xl font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>{value}</p>
+          <div className="flex items-center gap-1.5 mt-1">
             {trend !== undefined && (
-              <p className={`text-xs mt-2 ${trend >= 0 ? "text-emerald-500" : "text-destructive"}`}>
-                {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}% from last month
-              </p>
+              <span className={cn(
+                "text-[10px] font-black px-1.5 py-0.5 rounded-lg flex items-center gap-0.5",
+                trend >= 0 ? "bg-success/10 text-success" : "bg-danger/10 text-danger"
+              )}>
+                <Icon icon={trend >= 0 ? "solar:arrow-right-up-bold-duotone" : "solar:arrow-right-down-bold-duotone"} className="text-xs" />
+                {Math.abs(trend)}%
+              </span>
             )}
-          </div>
-          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-            {icon}
+            {subtext && <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{subtext}</span>}
           </div>
         </div>
-      </CardContent>
+        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg", iconBg, iconColor)}>
+          <Icon icon={icon} className="text-2xl" />
+        </div>
+      </div>
     </Card>
   );
 }
@@ -81,18 +89,34 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Spinner />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+        {[1, 2, 3, 4].map(i => (
+          <Skeleton key={i} className="h-32 rounded-2xl" />
+        ))}
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Welcome to theMrktPlace SaaS Admin</p>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Page Header */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Icon icon="solar:chart-2-bold-duotone" className="text-xl text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>Dashboard Overview</h1>
+            <p className="text-sm text-muted-foreground">Welcome to theMrktPlace SaaS Administration</p>
+          </div>
+        </div>
+        <Button 
+          variant="outline" 
+          className="font-bold flex items-center gap-2"
+        >
+          <Icon icon="solar:file-download-bold-duotone" className="text-lg" />
+          Export Report
+        </Button>
       </div>
 
       {/* KPI Cards */}
@@ -100,120 +124,143 @@ export default function DashboardPage() {
         <KPICard
           title="Total Tenants"
           value={metrics?.total_tenants || 0}
-          subtext={`${metrics?.active_tenants} active`}
-          icon={<Users className="w-6 h-6 text-foreground" />}
+          subtext={`${metrics?.active_tenants} online`}
+          icon="solar:users-group-two-rounded-bold-duotone"
+          iconBg="bg-primary/20"
+          iconColor="text-primary"
           trend={8.2}
         />
         <KPICard
           title="Monthly Revenue"
           value={`$${(metrics?.monthly_revenue || 0).toLocaleString()}`}
           subtext="Current month"
-          icon={<DollarSign className="w-6 h-6 text-foreground" />}
+          icon="solar:dollar-minimalistic-bold-duotone"
+          iconBg="bg-success/20"
+          iconColor="text-success"
           trend={12.5}
         />
         <KPICard
           title="Total Orders"
           value={(metrics?.total_orders || 0).toLocaleString()}
-          subtext="All time"
-          icon={<ShoppingCart className="w-6 h-6 text-foreground" />}
+          subtext="Processed"
+          icon="solar:cart-large-bold-duotone"
+          iconBg="bg-warning/20"
+          iconColor="text-warning"
           trend={5.3}
         />
         <KPICard
           title="Growth Rate"
           value={`${metrics?.growth_rate || 0}%`}
-          subtext="Month over month"
-          icon={<TrendingUp className="w-6 h-6 text-foreground" />}
+          subtext="YTD Performance"
+          icon="solar:graph-up-bold-duotone"
+          iconBg="bg-secondary/20"
+          iconColor="text-secondary"
           trend={2.1}
         />
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Chart */}
-        <Card className="border-border bg-card">
-          <CardHeader>
-            <CardTitle className="text-foreground">Revenue Trend</CardTitle>
-            <CardDescription>Last 6 months revenue</CardDescription>
-          </CardHeader>
-          <CardContent>
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="p-6 border border-border bg-surface shadow-sm">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Revenue Trend</h3>
+                <p className="text-xs text-muted-foreground mt-1">Platform performance for past 6 months</p>
+              </div>
+              <div className="flex items-center gap-2">
+                 <div className="flex items-center gap-1 text-[10px] uppercase font-bold text-success bg-success/10 px-2 py-1 rounded-lg">
+                    <Icon icon="solar:arrow-right-up-bold-duotone" />
+                    +12% vs LY
+                 </div>
+              </div>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #475569" }}
-                  formatter={(value) => `$${value}`}
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="var(--muted-foreground)" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false} 
                 />
-                <Line type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={2} />
-              </LineChart>
+                <YAxis 
+                  stroke="var(--muted-foreground)" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false}
+                  tickFormatter={(v) => `$${v}`}
+                />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "var(--background)", border: "1px solid var(--border)", borderRadius: "12px", fontSize: 12 }}
+                  formatter={(value) => [`$${value}`, "Revenue"]}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="var(--primary)" 
+                  strokeWidth={3} 
+                  fillOpacity={1} 
+                  fill="url(#colorRevenue)" 
+                />
+              </AreaChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
 
-        {/* Orders Chart */}
-        <Card className="border-border bg-card">
-          <CardHeader>
-            <CardTitle className="text-foreground">Orders Volume</CardTitle>
-            <CardDescription>Last 6 months orders</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+        <div className="space-y-4">
+          <Card className="p-6 border border-border bg-surface shadow-sm h-full">
+            <div className="mb-6">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Order Volume</h3>
+              <p className="text-xs text-muted-foreground mt-1">Distribution across months</p>
+            </div>
+            <ResponsiveContainer width="100%" height={240}>
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" />
-                <Tooltip contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #475569" }} />
-                <Bar dataKey="orders" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={10} tickLine={false} axisLine={false} />
+                <Tooltip contentStyle={{ backgroundColor: "var(--background)", border: "1px solid var(--border)", borderRadius: "12px", fontSize: 11 }} />
+                <Bar dataKey="orders" fill="var(--primary)" radius={[6, 6, 0, 0]} barSize={20} />
               </BarChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-border bg-card">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Pending Activations</p>
-                <p className="text-2xl font-bold text-orange-400">{metrics?.pending_activations}</p>
-              </div>
-              <div className="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-orange-400" />
-              </div>
+            <div className="mt-8 space-y-4">
+               <div className="flex items-center justify-between p-3 bg-default-100 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-warning/20 text-warning flex items-center justify-center">
+                       <Icon icon="solar:clock-circle-bold-duotone" className="text-lg" />
+                    </div>
+                    <span className="text-xs font-bold">Pending Actions</span>
+                  </div>
+                  <span className="text-sm font-black">{metrics?.pending_activations}</span>
+               </div>
+               <div className="flex items-center justify-between p-3 bg-default-100 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-danger/20 text-danger flex items-center justify-center">
+                       <Icon icon="solar:shield-warning-bold-duotone" className="text-lg" />
+                    </div>
+                    <span className="text-xs font-bold">Suspended</span>
+                  </div>
+                  <span className="text-sm font-black">{metrics?.suspended_tenants}</span>
+               </div>
+               <div className="flex items-center justify-between p-3 bg-default-100 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-secondary/20 text-secondary flex items-center justify-center">
+                       <Icon icon="solar:stars-line-bold-duotone" className="text-lg" />
+                    </div>
+                    <span className="text-xs font-bold">Avg Plan</span>
+                  </div>
+                  <span className="text-sm font-black text-secondary">{metrics?.avg_plan_tier}</span>
+               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border bg-card">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Suspended Tenants</p>
-                <p className="text-2xl font-bold text-red-400">{metrics?.suspended_tenants}</p>
-              </div>
-              <div className="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center">
-                <Users className="w-6 h-6 text-red-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border bg-card">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Avg Plan Tier</p>
-                <p className="text-2xl font-bold text-purple-400">{metrics?.avg_plan_tier}</p>
-              </div>
-              <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <ShoppingCart className="w-6 h-6 text-purple-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSaasAuthStore } from "@/store/saas-auth.store";
-import { Spinner } from "@/components/ui/spinner";
+import { Spinner } from "@heroui/react";
 
 interface AuthGuardProps {
   children: React.ReactNode;

@@ -3,19 +3,10 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/api";
 import { Plan } from "@/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Spinner } from "@/components/ui/spinner";
-import { Plus, Check, X } from "lucide-react";
+import { Card, Button, Chip, Spinner } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { PageHeader } from "@/components/ui/page-header";
+import { cn } from "@/lib/utils";
 
 export default function PlansPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -34,13 +25,14 @@ export default function PlansPage() {
             _id: "plan_001",
             name: "Free",
             slug: "free",
-            description: "For beginners",
+            description: "Essential toolkit for small scale artisans.",
             price_monthly: 0,
             currency: "USD",
             features: [
-              { name: "5 Products", enabled: true },
+              { name: "5 Active Products", enabled: true },
               { name: "Basic Analytics", enabled: true },
-              { name: "Email Support", enabled: false },
+              { name: "Community Support", enabled: true },
+              { name: "SLA Guarantees", enabled: false },
             ],
             max_products: 5,
             max_orders_monthly: 50,
@@ -53,13 +45,14 @@ export default function PlansPage() {
             _id: "plan_002",
             name: "Pro",
             slug: "pro",
-            description: "For growing businesses",
+            description: "Scale your empire with advanced logistics.",
             price_monthly: 299,
             currency: "USD",
             features: [
               { name: "Unlimited Products", enabled: true },
-              { name: "Advanced Analytics", enabled: true },
+              { name: "Advanced Insights", enabled: true },
               { name: "Priority Support", enabled: true },
+              { name: "Custom Domain", enabled: true },
             ],
             max_products: 999,
             max_orders_monthly: 5000,
@@ -68,6 +61,26 @@ export default function PlansPage() {
             created_at: "2024-01-01T00:00:00Z",
             updated_at: "2024-01-01T00:00:00Z",
           },
+          {
+            _id: "plan_003",
+            name: "Enterprise",
+            slug: "enterprise",
+            description: "Bespoke solutions for global marketplaces.",
+            price_monthly: 999,
+            currency: "USD",
+            features: [
+              { name: "Infinite Scale", enabled: true },
+              { name: "Dedicated Manager", enabled: true },
+              { name: "Custom API Nodes", enabled: true },
+              { name: "Full White Label", enabled: true },
+            ],
+            max_products: 9999,
+            max_orders_monthly: 100000,
+            max_users: 100,
+            is_active: true,
+            created_at: "2024-01-01T00:00:00Z",
+            updated_at: "2024-01-01T00:00:00Z",
+          }
         ]);
       } finally {
         setIsLoading(false);
@@ -78,88 +91,96 @@ export default function PlansPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Plans & Billing</h1>
-          <p className="text-muted-foreground mt-1">Manage subscription plans and pricing</p>
-        </div>
-        <Button className="w-full sm:w-auto bg-linear-to-r from-foreground to-muted-foreground hover:from-foreground/90 hover:to-muted-foreground/90 text-background">
-          <Plus className="mr-2 w-4 h-4" />
-          Create Plan
-        </Button>
-      </div>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <PageHeader
+        title="Plans & Billing"
+        subtitle="Architect your platform's monetization and subscription tiers"
+        icon="solar:card-2-bold-duotone"
+        actions={
+          <Button variant="primary" className="font-bold gap-2">
+            <Icon icon="solar:add-circle-bold-duotone" className="text-lg" />
+            Create Plan
+          </Button>
+        }
+      />
 
-      {/* Plans Grid */}
       {isLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <Spinner color="accent" size="lg" />
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Synchronizing pricing tiers...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {plans.map((plan) => (
-            <Card key={plan._id} className="border-border bg-card hover:border-orange-500/50 transition">
-              <CardHeader>
-                <div className="flex items-start justify-between">
+            <Card 
+              key={plan._id} 
+              className={cn(
+                "border hover:border-accent/40 transition-all duration-300 shadow-sm relative overflow-hidden flex flex-col h-full",
+                plan.slug === "pro" ? "border-accent/30 bg-accent/[0.02]" : "border-border bg-surface"
+              )}
+            >
+              {plan.slug === "pro" && (
+                <div className="absolute top-0 right-0 p-1">
+                   <div className="bg-accent text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-xl shadow-lg">
+                      Recommended
+                   </div>
+                </div>
+              )}
+
+              <div className="p-6 flex-1">
+                <div className="flex items-start justify-between mb-4">
                   <div>
-                    <CardTitle className="text-foreground">{plan.name}</CardTitle>
-                    <CardDescription>{plan.description}</CardDescription>
+                    <h3 className="text-xl font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>{plan.name}</h3>
+                    <p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed opacity-80">{plan.description}</p>
                   </div>
                   {!plan.is_active && (
-                    <Badge variant="destructive">Inactive</Badge>
+                    <Chip variant="soft" color="danger" size="sm" className="font-black text-[9px] uppercase tracking-wider">Inactive</Chip>
                   )}
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Price */}
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-foreground">${plan.price_monthly}</span>
-                  <span className="text-muted-foreground">/month</span>
+
+                <div className="flex items-baseline gap-1 mb-8">
+                  <span className="text-4xl font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>${plan.price_monthly}</span>
+                  <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">/ Month</span>
                 </div>
 
-                {/* Limits */}
-                <div className="space-y-2 border-t border-border pt-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Max Products</span>
-                    <span className="text-foreground font-medium">{plan.max_products === 999 ? "Unlimited" : plan.max_products}</span>
+                <div className="space-y-3 mb-8">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Products Limit</span>
+                    <span className="text-xs font-bold">{plan.max_products === 999 ? "∞ Unlimited" : plan.max_products}</span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Max Orders/Mo</span>
-                    <span className="text-foreground font-medium">{plan.max_orders_monthly.toLocaleString()}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Monthly Orders</span>
+                    <span className="text-xs font-bold">{plan.max_orders_monthly.toLocaleString()}</span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Users Allowed</span>
-                    <span className="text-foreground font-medium">{plan.max_users}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">User Seats</span>
+                    <span className="text-xs font-bold">{plan.max_users}</span>
                   </div>
                 </div>
 
-                {/* Features */}
-                <div className="space-y-2 border-t border-border pt-4">
+                <div className="space-y-3 border-t border-border/40 pt-6">
                   {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm">
-                      {feature.enabled ? (
-                        <Check className="w-4 h-4 text-green-400" />
-                      ) : (
-                        <X className="w-4 h-4 text-muted-foreground" />
-                      )}
-                      <span className={feature.enabled ? "text-foreground" : "text-muted-foreground"}>
+                    <div key={idx} className="flex items-center gap-3">
+                      <div className={cn("w-5 h-5 rounded-lg flex items-center justify-center border", feature.enabled ? "bg-accent/10 border-accent/20 text-accent" : "bg-default-100 border-border text-muted-foreground opacity-50")}>
+                        <Icon icon={feature.enabled ? "solar:check-read-bold-duotone" : "solar:close-circle-bold-duotone"} className="text-xs" />
+                      </div>
+                      <span className={cn("text-xs font-medium", feature.enabled ? "text-foreground" : "text-muted-foreground opacity-40")}>
                         {feature.name}
                       </span>
                     </div>
                   ))}
                 </div>
+              </div>
 
-                {/* Actions */}
-                <div className="flex gap-2 pt-4">
-                  <Button variant="outline" size="sm" className="flex-1 border-border text-foreground hover:bg-muted">
+              <div className="p-6 bg-default-50/50 border-t border-border/50 flex gap-3 mt-auto">
+                 <Button variant="outline" className="flex-1 font-bold rounded-xl h-10 border-border text-foreground hover:bg-default-100/50 group">
+                    <Icon icon="solar:pen-bold-duotone" className="text-muted group-hover:text-foreground transition-colors" />
                     Edit
-                  </Button>
-                  <Button variant="ghost" size="sm" className="flex-1 text-muted-foreground hover:text-foreground">
-                    Delete
-                  </Button>
-                </div>
-              </CardContent>
+                 </Button>
+                 <Button variant="ghost" isIconOnly className="h-10 w-10 rounded-xl text-muted-foreground hover:text-danger hover:bg-danger/10">
+                    <Icon icon="solar:trash-bin-trash-bold-duotone" />
+                 </Button>
+              </div>
             </Card>
           ))}
         </div>

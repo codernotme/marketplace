@@ -1,25 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, Button, Chip, Dropdown, Spinner } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { PageHeader } from "@/components/ui/page-header";
+import { cn } from "@/lib/utils";
 import { subscriptions } from "@/lib/data/subscriptions";
 import { tenants } from "@/lib/data/tenants";
 import { plans } from "@/lib/data/plans";
-import { AlertCircle } from "lucide-react";
 
-const statusColors = {
-  active: "bg-green-100 text-green-800",
-  past_due: "bg-red-100 text-red-800",
-  cancelled: "bg-gray-100 text-gray-800",
-  trialing: "bg-blue-100 text-blue-800",
+const statusConfig: Record<string, { color: "success" | "danger" | "default" | "accent", icon: string }> = {
+  active: { color: "success", icon: "solar:check-circle-bold-duotone" },
+  past_due: { color: "danger", icon: "solar:shield-warning-bold-duotone" },
+  cancelled: { color: "default", icon: "solar:close-circle-bold-duotone" },
+  trialing: { color: "accent", icon: "solar:play-bold-duotone" },
 };
 
 export default function SubscriptionsPage() {
@@ -49,118 +43,152 @@ export default function SubscriptionsPage() {
   }, 0);
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900">Subscriptions</h1>
-        <p className="text-gray-600 mt-2">View and manage all tenant subscriptions</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Total Active</p>
-          <p className="text-3xl font-bold">
-            {subscriptions.filter((s) => s.status === "active").length}
-          </p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Past Due</p>
-          <p className="text-3xl font-bold text-red-600">
-            {subscriptions.filter((s) => s.status === "past_due").length}
-          </p>
-        </Card>
-        <Card className="p-4">
-          <p className="text-sm text-gray-600">Monthly Revenue</p>
-          <p className="text-3xl font-bold">${totalMRR}</p>
-        </Card>
-      </div>
-
-      <Card className="p-6 mb-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">All Subscriptions</h3>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <PageHeader
+        title="Subscriptions"
+        subtitle="Real-time ledger of platform revenue and tenant billing cycles"
+        icon="solar:wad-of-money-bold-duotone"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="font-bold gap-2">
+              <Icon icon="solar:file-download-bold-duotone" className="text-lg" />
+              Download Ledger
+            </Button>
+            <Dropdown>
+              <Dropdown.Trigger>
+                <Button variant="primary" className="font-bold gap-2">
+                  <Icon icon="solar:filter-bold-duotone" className="text-lg" />
+                  Filter Stream
+                </Button>
+              </Dropdown.Trigger>
+              <Dropdown.Popover className="min-w-[180px]">
+                <Dropdown.Menu 
+                  selectionMode="single" 
+                  selectedKeys={new Set([statusFilter])}
+                  onSelectionChange={(keys: any) => setStatusFilter(Array.from(keys)[0] as string)}
+                >
+                  <Dropdown.Item key="all" id="all" textValue="All Status">All Status</Dropdown.Item>
+                  <Dropdown.Item key="active" id="active" textValue="Active">Active</Dropdown.Item>
+                  <Dropdown.Item key="past_due" id="past_due" textValue="Past Due" className="text-danger">Past Due</Dropdown.Item>
+                  <Dropdown.Item key="cancelled" id="cancelled" textValue="Cancelled">Cancelled</Dropdown.Item>
+                  <Dropdown.Item key="trialing" id="trialing" textValue="Trialing" className="text-primary">Trialing</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown.Popover>
+            </Dropdown>
           </div>
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? "all")}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="past_due">Past Due</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-              <SelectItem value="trialing">Trialing</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </Card>
+        }
+      />
 
-      <Card className="overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          { label: "Active Nodes", value: subscriptions.filter((s) => s.status === "active").length, icon: "solar:check-circle-bold-duotone", color: "text-success", bg: "bg-success/10" },
+          { label: "Critical Arrears", value: subscriptions.filter((s) => s.status === "past_due").length, icon: "solar:shield-warning-bold-duotone", color: "text-danger", bg: "bg-danger/10" },
+          { label: "Estimated MRR", value: `$${totalMRR.toLocaleString()}`, icon: "solar:banknote-bold-duotone", color: "text-accent", bg: "bg-accent/10" },
+        ].map((stat) => (
+          <Card key={stat.label} className="p-4 border border-border bg-surface shadow-sm group hover:border-accent/30 transition-colors">
+            <div className="flex items-center gap-4">
+              <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", stat.bg, stat.color)}>
+                <Icon icon={stat.icon} className="text-2xl" />
+              </div>
+              <div>
+                <p className="text-2xl font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>{stat.value}</p>
+                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{stat.label}</p>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="border border-border bg-surface overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Tenant</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Plan</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Billing</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Current Period</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">MRR</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-background/50">
+                <th className="text-left px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Tenant Entity</th>
+                <th className="text-left px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Deployment Plan</th>
+                <th className="text-left px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Status</th>
+                <th className="text-left px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Billing Cycle</th>
+                <th className="text-left px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Current Period</th>
+                <th className="text-right px-5 py-4 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
-              {filtered.map((sub) => (
-                <tr key={sub.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <p className="font-medium text-gray-900">{getTenantName(sub.tenant_id)}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm text-gray-900">{getPlanName(sub.plan_id)}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                        statusColors[sub.status as keyof typeof statusColors]
-                      }`}
-                    >
-                      {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm capitalize">{sub.billing_cycle}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="text-sm text-gray-600">
-                      {new Date(sub.current_period_start).toLocaleDateString()} -{" "}
-                      {new Date(sub.current_period_end).toLocaleDateString()}
-                    </p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="font-medium">${getPlanPrice(sub.plan_id)}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Button variant="ghost" size="sm">
-                      Edit
-                    </Button>
-                  </td>
+            <tbody className="divide-y divide-border">
+              {filtered.length === 0 ? (
+                <tr>
+                   <td colSpan={6} className="py-20 text-center text-muted-foreground italic text-sm">
+                      No matching subscription records found.
+                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((sub) => (
+                  <tr key={sub.id} className="hover:bg-default-50/50 transition-colors group">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center font-bold text-[10px] border border-accent/20">
+                            {getTenantName(sub.tenant_id).substring(0, 2).toUpperCase()}
+                         </div>
+                         <span className="font-bold text-xs">{getTenantName(sub.tenant_id)}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-xs font-medium opacity-80">
+                      {getPlanName(sub.plan_id)}
+                    </td>
+                    <td className="px-5 py-4">
+                      <Chip 
+                        variant="soft" 
+                        color={statusConfig[sub.status]?.color || "default"}
+                        className="font-black text-[10px] uppercase tracking-wider h-6 pr-2"
+                      >
+                         <div className="flex items-center gap-1">
+                            <Icon icon={statusConfig[sub.status]?.icon || "solar:info-circle-bold-duotone"} />
+                            {sub.status}
+                         </div>
+                      </Chip>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-1.5 opacity-60">
+                        <Icon icon="solar:calendar-bold-duotone" className="text-xs" />
+                        <span className="text-[10px] uppercase font-black tracking-widest">{sub.billing_cycle}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4">
+                       <div className="flex flex-col">
+                          <span className="text-xs font-bold text-foreground/80">
+                            {new Date(sub.current_period_end).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground font-medium opacity-60">Renews at midnight</span>
+                       </div>
+                    </td>
+                    <td className="px-5 py-4 text-right">
+                       <Button 
+                        variant="ghost" 
+                        isIconOnly 
+                        className="rounded-full opacity-60 hover:opacity-100 transition-all h-8 w-8"
+                       >
+                          <Icon icon="solar:pen-new-square-bold-duotone" className="text-lg opacity-60" />
+                       </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </Card>
 
       {subscriptions.some((s) => s.status === "past_due") && (
-        <Card className="mt-6 p-4 bg-red-50 border-red-200">
-          <div className="flex gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+        <Card className="border border-danger/30 bg-danger/[0.03] p-4 shadow-sm animate-in slide-in-from-bottom duration-500">
+          <div className="flex gap-4">
+            <div className="w-10 h-10 rounded-xl bg-danger/10 text-danger flex items-center justify-center shrink-0">
+               <Icon icon="solar:shield-warning-bold-duotone" className="text-xl" />
+            </div>
             <div>
-              <p className="font-medium text-red-900">
-                {subscriptions.filter((s) => s.status === "past_due").length} subscription
-                {subscriptions.filter((s) => s.status === "past_due").length !== 1 ? "s" : ""} are past due
+              <p className="text-sm font-black text-danger tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>
+                CRITICAL: {subscriptions.filter((s) => s.status === "past_due").length} Overdue Accounts Detected
               </p>
-              <p className="text-sm text-red-800 mt-1">
-                Please follow up with these tenants regarding payment issues.
+              <p className="text-xs text-danger/70 mt-0.5 font-medium leading-relaxed">
+                Platform governance requires immediate resolution of these arrears to maintain service continuity. 
+                Auto-suspension protocols will trigger in 48 hours for unresolved accounts.
               </p>
             </div>
           </div>

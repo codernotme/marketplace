@@ -3,29 +3,21 @@
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/api";
 import { Announcement } from "@/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Spinner } from "@/components/ui/spinner";
-import { Plus, AlertCircle, AlertTriangle, CheckCircle, Info } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
+import { Card, Button, Chip, Dropdown, Spinner } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { PageHeader } from "@/components/ui/page-header";
+import { cn } from "@/lib/utils";
 
-const typeIcons: Record<string, React.ReactNode> = {
-  info: <Info className="w-5 h-5 text-blue-400" />,
-  warning: <AlertTriangle className="w-5 h-5 text-yellow-400" />,
-  success: <CheckCircle className="w-5 h-5 text-green-400" />,
+const typeConfig: Record<string, { color: "primary" | "warning" | "success" | "danger" | "default", icon: string, bg: string }> = {
+  info: { color: "primary", icon: "solar:info-circle-bold-duotone", bg: "bg-primary/10" },
+  warning: { color: "warning", icon: "solar:danger-triangle-bold-duotone", bg: "bg-warning/10" },
+  success: { color: "success", icon: "solar:check-circle-bold-duotone", bg: "bg-success/10" },
 };
 
-const severityColors: Record<string, string> = {
-  low: "bg-blue-500/20 text-blue-400",
-  medium: "bg-yellow-500/20 text-yellow-400",
-  high: "bg-red-500/20 text-red-400",
+const severityConfig: Record<string, { color: "default" | "warning" | "danger" }> = {
+  low: { color: "default" },
+  medium: { color: "warning" },
+  high: { color: "danger" },
 };
 
 export default function AnnouncementsPage() {
@@ -44,7 +36,7 @@ export default function AnnouncementsPage() {
           {
             _id: "ann_001",
             title: "Maintenance Window",
-            content: "Scheduled maintenance on Friday 2:00 AM UTC",
+            content: "Scheduled maintenance on Friday 2:00 AM UTC. We expect approximately 15 minutes of downtime.",
             type: "warning",
             severity: "high",
             target_roles: ["superadmin", "support"],
@@ -56,7 +48,7 @@ export default function AnnouncementsPage() {
           {
             _id: "ann_002",
             title: "New Features Released",
-            content: "Check out our new advanced analytics dashboard",
+            content: "Check out our new advanced analytics dashboard with real-time reporting.",
             type: "success",
             severity: "low",
             target_roles: ["superadmin"],
@@ -75,91 +67,114 @@ export default function AnnouncementsPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Announcements</h1>
-          <p className="text-muted-foreground mt-1">Send platform-wide notifications to admins</p>
-        </div>
-        <Button className="w-full sm:w-auto bg-linear-to-r from-foreground to-muted-foreground hover:from-foreground/90 hover:to-muted-foreground/90 text-background">
-          <Plus className="mr-2 w-4 h-4" />
-          Create Announcement
-        </Button>
-      </div>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <PageHeader
+        title="Announcements"
+        subtitle="Broadcast platform-wide notifications and system alerts"
+        icon="solar:megaphone-bold-duotone"
+        actions={
+          <Button variant="primary" className="font-bold gap-2">
+            <Icon icon="solar:add-circle-bold-duotone" className="text-lg" />
+            Create Announcement
+          </Button>
+        }
+      />
 
-      {/* Announcements List */}
       {isLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <Spinner color="accent" size="lg" />
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Streaming notifications...</p>
         </div>
       ) : announcements.length === 0 ? (
-        <Card className="border-border bg-card">
-          <CardContent className="p-8 text-center">
-            <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-foreground">No announcements yet</p>
-          </CardContent>
+        <Card className="border border-border bg-surface p-12 text-center shadow-sm">
+          <div className="w-16 h-16 rounded-3xl bg-default-100 flex items-center justify-center mx-auto mb-4 opacity-50">
+             <Icon icon="solar:letter-opened-bold-duotone" className="text-3xl text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>Silence is Golden</h3>
+          <p className="text-sm text-muted-foreground mt-1 font-medium italic">No active announcements at the moment.</p>
         </Card>
       ) : (
-        <div className="space-y-4">
-          {announcements.map((announcement) => (
-            <Card key={announcement._id} className="border-border bg-card hover:border-border transition">
-              <CardContent className="p-6">
+        <div className="grid grid-cols-1 gap-4">
+          {announcements.map((ann) => (
+            <Card key={ann._id} className="border border-border bg-surface hover:border-accent/40 transition-all duration-300 shadow-sm group">
+              <div className="p-6">
                 <div className="flex items-start gap-4">
-                  {/* Icon */}
-                  <div className="shrink-0 mt-1">
-                    {typeIcons[announcement.type]}
+                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border border-border/50", typeConfig[ann.type]?.bg)}>
+                    <Icon icon={typeConfig[ann.type]?.icon} className={cn("text-2xl", `text-${typeConfig[ann.type]?.color}`)} />
                   </div>
 
-                  {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4 mb-2">
-                      <h3 className="text-lg font-semibold text-foreground">{announcement.title}</h3>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Badge className={`capitalize ${severityColors[announcement.severity]}`}>
-                          {announcement.severity}
-                        </Badge>
-                        {!announcement.is_active && (
-                          <Badge variant="outline" className="border-border text-muted-foreground">
-                            Draft
-                          </Badge>
-                        )}
+                      <div>
+                         <h3 className="text-lg font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>{ann.title}</h3>
+                         <div className="flex items-center gap-2 mt-1">
+                            <Chip 
+                              variant="soft" 
+                              size="sm" 
+                              color={severityConfig[ann.severity]?.color as any}
+                              className="font-black text-[9px] uppercase tracking-wider h-5"
+                            >
+                              {ann.severity} Priority
+                            </Chip>
+                            {!ann.is_active && (
+                              <Chip variant="soft" size="sm" className="font-black text-[9px] uppercase tracking-wider h-5">Draft</Chip>
+                            )}
+                         </div>
                       </div>
+
+                      <Dropdown>
+                        <Dropdown.Trigger>
+                           <Button isIconOnly variant="ghost" className="rounded-full h-9 w-9 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Icon icon="solar:menu-dots-bold-duotone" className="text-lg opacity-60" />
+                           </Button>
+                        </Dropdown.Trigger>
+                        <Dropdown.Popover className="min-w-[160px]">
+                          <Dropdown.Menu>
+                            <Dropdown.Item key="edit" id="edit" textValue="Edit">
+                               <div className="flex items-center gap-2">
+                                  <Icon icon="solar:pen-new-square-bold-duotone" className="text-muted" />
+                                  <span className="font-bold">Edit</span>
+                               </div>
+                            </Dropdown.Item>
+                            <Dropdown.Item 
+                              key="status" 
+                              id="status" 
+                              textValue={ann.is_active ? "Unpublish" : "Publish"}
+                              className={ann.is_active ? "text-warning" : "text-success"}
+                            >
+                               <div className="flex items-center gap-2">
+                                  <Icon icon={ann.is_active ? "solar:shield-warning-bold-duotone" : "solar:check-circle-bold-duotone"} />
+                                  <span className="font-bold">{ann.is_active ? "Unpublish" : "Publish"}</span>
+                               </div>
+                            </Dropdown.Item>
+                            <Dropdown.Item key="delete" id="delete" textValue="Delete" className="text-danger">
+                               <div className="flex items-center gap-2">
+                                  <Icon icon="solar:trash-bin-trash-bold-duotone" />
+                                  <span className="font-bold">Delete</span>
+                               </div>
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown.Popover>
+                      </Dropdown>
                     </div>
 
-                    <p className="text-muted-foreground mb-3">{announcement.content}</p>
+                    <p className="text-sm text-muted-foreground font-medium leading-relaxed mb-4">{ann.content}</p>
 
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                      <span>Target: {announcement.target_roles.join(", ")}</span>
-                      <span>•</span>
-                      <span>
-                        Published:
-                        {announcement.published_at
-                          ? new Date(announcement.published_at).toLocaleDateString()
-                          : "Not published"}
-                      </span>
+                    <div className="flex flex-wrap items-center gap-4 border-t border-border/50 pt-4 mt-2">
+                       <div className="flex items-center gap-1.5 min-w-[120px]">
+                          <Icon icon="solar:users-group-two-rounded-bold-duotone" className="text-xs text-muted-foreground" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60 truncate">Target: {ann.target_roles.join(", ")}</span>
+                       </div>
+                       <div className="flex items-center gap-1.5">
+                          <Icon icon="solar:clock-circle-bold-duotone" className="text-xs text-muted-foreground" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">
+                             {ann.published_at ? `Published ${new Date(ann.published_at).toLocaleDateString()}` : "Unpublished Draft"}
+                          </span>
+                       </div>
                     </div>
                   </div>
-
-                  {/* Actions */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground">
-                      <MoreVertical className="w-4 h-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-muted border-border">
-                      <DropdownMenuItem className="text-muted-foreground focus:bg-accent">
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-orange-400 focus:bg-accent">
-                        {announcement.is_active ? "Unpublish" : "Publish"}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-400 focus:bg-accent">
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
                 </div>
-              </CardContent>
+              </div>
             </Card>
           ))}
         </div>

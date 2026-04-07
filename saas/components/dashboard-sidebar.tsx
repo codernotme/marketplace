@@ -11,9 +11,11 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: "solar:chart-2-bold-duotone" },
   { href: "/dashboard/tenants", label: "Tenants", icon: "solar:users-group-two-rounded-bold-duotone" },
+  { href: "/dashboard/orders", label: "Platform Orders", icon: "solar:bill-list-bold-duotone" },
   { href: "/dashboard/plans", label: "Plans & Billing", icon: "solar:bill-list-bold-duotone" },
   { href: "/dashboard/announcements", label: "Announcements", icon: "solar:bell-bing-bold-duotone" },
   { href: "/dashboard/admins", label: "Access & Admins", icon: "solar:key-minimalistic-square-bold-duotone" },
+  { href: "/dashboard/users", label: "Global Users", icon: "solar:users-group-rounded-bold-duotone" },
   { href: "/dashboard/audit-logs", label: "Audit Logs", icon: "solar:document-text-bold-duotone" },
   { href: "/dashboard/settings", label: "Settings", icon: "solar:settings-bold-duotone" },
 ];

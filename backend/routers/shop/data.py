@@ -16,7 +16,7 @@ def _json_list(items):
 
 @router.get("/bootstrap")
 async def bootstrap(_: dict = Depends(get_tenant)):
-    return shop_dashboard_bootstrap()
+    return to_jsonable(shop_dashboard_bootstrap())
 
 
 @router.get("/storefront-content")
@@ -96,55 +96,55 @@ async def list_notifications(tenant=Depends(get_tenant), tenant_db=Depends(get_t
 @router.get("/customers")
 async def list_customers(_: dict = Depends(get_tenant)):
     bs = shop_dashboard_bootstrap()
-    return {"data": bs.get("customers", [])}
+    return {"data": to_jsonable(bs.get("customers", []))}
 
 
 @router.get("/coupons")
 async def list_coupons(_: dict = Depends(get_tenant)):
     bs = shop_dashboard_bootstrap()
-    return {"data": bs.get("coupons", [])}
+    return {"data": to_jsonable(bs.get("coupons", []))}
 
 
 @router.get("/tickets")
 async def list_tickets(_: dict = Depends(get_tenant)):
     bs = shop_dashboard_bootstrap()
-    return {"data": bs.get("tickets", [])}
+    return {"data": to_jsonable(bs.get("tickets", []))}
 
 
 @router.get("/banners")
 async def list_banners(_: dict = Depends(get_tenant)):
     bs = shop_dashboard_bootstrap()
-    return {"data": bs.get("banners", [])}
+    return {"data": to_jsonable(bs.get("banners", []))}
 
 
 @router.get("/pages")
 async def list_pages(_: dict = Depends(get_tenant)):
     bs = shop_dashboard_bootstrap()
-    return {"data": bs.get("pages", [])}
+    return {"data": to_jsonable(bs.get("pages", []))}
 
 
 @router.get("/email-templates")
 async def list_email_templates(_: dict = Depends(get_tenant)):
     bs = shop_dashboard_bootstrap()
-    return {"data": bs.get("emailTemplates", [])}
+    return {"data": to_jsonable(bs.get("emailTemplates", []))}
 
 
 @router.get("/team")
 async def list_team(_: dict = Depends(get_tenant)):
     bs = shop_dashboard_bootstrap()
-    return {"data": bs.get("teamMembers", [])}
+    return {"data": to_jsonable(bs.get("teamMembers", []))}
 
 
 @router.get("/analytics")
 async def get_analytics(_: dict = Depends(get_tenant)):
     bs = shop_dashboard_bootstrap()
-    return {"data": bs.get("analyticsData", {})}
+    return {"data": to_jsonable(bs.get("analyticsData", {}))}
 
 
 @router.get("/kpi")
 async def get_kpi(_: dict = Depends(get_tenant)):
     bs = shop_dashboard_bootstrap()
-    return {"data": bs.get("kpiData", {})}
+    return {"data": to_jsonable(bs.get("kpiData", {}))}
 
 
 @router.patch("/orders/{order_id}/status")

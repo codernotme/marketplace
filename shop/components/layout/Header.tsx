@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Dropdown, Button, Label, Description, Header as DropdownHeader, Separator } from "@heroui/react";
+import { Dropdown, Label, Description, Header as DropdownHeader, Separator } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
@@ -49,7 +48,7 @@ export function Header() {
               <Link href="/dashboard" className="text-muted hover:text-accent transition-colors">
                 <Icon icon="solar:home-2-bold-duotone" className="text-lg" />
               </Link>
-              {breadcrumbs.map((bc: any, i: number) => (
+              {breadcrumbs.map((bc: { label: string; href: string; isLast: boolean }) => (
                 <div key={bc.href} className="flex items-center gap-2 flex-shrink-0" suppressHydrationWarning>
                   <Icon icon="solar:alt-arrow-right-bold-duotone" className="text-[10px] text-muted/40" />
                   <Link 
@@ -135,7 +134,7 @@ export function Header() {
               <button
                 className="p-2 rounded-xl hover:bg-default text-muted hover:text-foreground transition-colors outline-none"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                title="Toggle theme"
               >
                 <Icon
                   icon={theme === "dark" ? "solar:sun-bold-duotone" : "solar:moon-stars-bold-duotone"}

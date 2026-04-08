@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Input, Card, Separator, Tooltip, Select } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { siteConfig } from "@/lib/mock-data";
+import api from "@/lib/api";
 
 const TABS = [
   { id: "general", label: "General", icon: "solar:settings-bold-duotone" },
@@ -17,6 +17,29 @@ const TABS = [
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
   const [isSaving, setIsSaving] = useState(false);
+  const [siteConfig, setSiteConfig] = useState({
+    name: "theMrktPlace",
+    contactEmail: "support@themrktplace.com",
+    address: "",
+  });
+
+  useEffect(() => {
+    const loadStorefront = async () => {
+      try {
+        const response = await api.get("/data/storefront-content");
+        const payload = response.data || {};
+        setSiteConfig((prev) => ({
+          ...prev,
+          name: payload?.brand?.siteName || prev.name,
+          contactEmail: payload?.footer?.contactEmail || prev.contactEmail,
+          address: payload?.brand?.address || prev.address,
+        }));
+      } catch {
+        // Keep default values if storefront content is unavailable.
+      }
+    };
+    loadStorefront();
+  }, []);
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-10">

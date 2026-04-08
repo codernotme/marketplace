@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { useBannersStore, useBrandsStore, useCategoriesStore, useCouponsStore, useCustomersStore, useOrdersStore, usePagesStore, useProductsStore, useTicketsStore } from "@/lib/store";
+import type { Product } from "@/lib/mock-data";
 
 const TENANT_SLUG = process.env.NEXT_PUBLIC_TENANT_SLUG ?? "demo";
 const BOOTSTRAP_ENDPOINT = "/api/backend/shop/data/bootstrap";
@@ -189,31 +190,31 @@ export function Providers({ children }: { children: React.ReactNode }) {
       }
 
       if (payload.products) {
-        useProductsStore.setState({ products: payload.products });
+        useProductsStore.setState({ products: payload.products as Product[] });
       }
       if (payload.orders) {
         useOrdersStore.setState({ orders: payload.orders.map(normalizeOrder) });
       }
       if (payload.customers) {
-        useCustomersStore.setState({ customers: payload.customers });
+        useCustomersStore.setState({ customers: payload.customers as any[] });
       }
       if (payload.coupons) {
-        useCouponsStore.setState({ coupons: payload.coupons });
+        useCouponsStore.setState({ coupons: payload.coupons as any[] });
       }
       if (payload.tickets) {
-        useTicketsStore.setState({ tickets: payload.tickets });
+        useTicketsStore.setState({ tickets: payload.tickets as any[] });
       }
       if (payload.categories) {
-        useCategoriesStore.setState({ categories: payload.categories.map(normalizeCategory) });
+        useCategoriesStore.setState({ categories: payload.categories.map(normalizeCategory) as any[] });
       }
       if (payload.brands) {
-        useBrandsStore.setState({ brands: payload.brands.map(normalizeBrand) });
+        useBrandsStore.setState({ brands: payload.brands.map(normalizeBrand) as any[] });
       }
       if (payload.banners) {
-        useBannersStore.setState({ banners: payload.banners });
+        useBannersStore.setState({ banners: payload.banners as any[] });
       }
       if (payload.pages) {
-        usePagesStore.setState({ pages: payload.pages });
+        usePagesStore.setState({ pages: payload.pages as any[] });
       }
     });
 

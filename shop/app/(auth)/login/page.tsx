@@ -4,21 +4,26 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button, Input, Checkbox, Label } from "@heroui/react";
+import { Button, Label } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { siteConfig } from "@/lib/mock-data";
+import { useShopAuthStore } from "@/lib/auth-store";
+
+const siteName = "theMrktPlace";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { login, isLoading, error } = useShopAuthStore();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    // Simulate auth
-    setTimeout(() => {
+    try {
+      await login(email, password);
       router.push("/dashboard");
-    }, 1500);
+    } catch {
+      // Error is already stored in auth store for rendering.
+    }
   };
 
   return (
@@ -32,7 +37,7 @@ export default function LoginPage() {
               <Image src="/logo.svg" alt="Logo" width={24} height={24} />
             </div>
             <span className="text-xl font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>
-              {siteConfig.name}
+              {siteName}
             </span>
           </div>
 
@@ -45,7 +50,7 @@ export default function LoginPage() {
               Manage your store with <span className="text-accent">unprecedented</span> clarity.
             </h1>
             <p className="text-muted text-lg mb-8 leading-relaxed">
-              Join thousands of brands who trust {siteConfig.name} for their daily operations and strategy.
+              Join thousands of brands who trust {siteName} for their daily operations and strategy.
             </p>
 
             <div className="flex items-center gap-4 p-4 rounded-2xl bg-surface border border-border shadow-2xl shadow-accent/5">
@@ -63,7 +68,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-sm text-muted">
-            &copy; {new Date().getFullYear()} {siteConfig.name} Core Systems.
+            &copy; {new Date().getFullYear()} {siteName} Core Systems.
           </p>
         </div>
 
@@ -95,6 +100,8 @@ export default function LoginPage() {
                   type="email"
                   placeholder="admin@example.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200"
                 />
               </div>
@@ -109,10 +116,14 @@ export default function LoginPage() {
                   type="password"
                   placeholder="••••••••"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200"
                 />
               </div>
             </div>
+
+            {error ? <p className="text-xs text-danger font-bold">{error}</p> : null}
 
             <div className="flex items-center gap-2 px-1">
               <input type="checkbox" id="remember" className="w-4 h-4 rounded border-border text-accent focus:ring-accent accent-accent" />
@@ -122,6 +133,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               variant="primary"
+              isPending={isLoading}
               className="w-full py-4 rounded-2xl shadow-xl shadow-accent/20 font-bold"
             >
               Sign In to Dashboard

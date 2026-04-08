@@ -2,13 +2,54 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
-import { useState } from 'react';
-import { storefrontContent } from '@/data/mock';
+import { useEffect, useState } from 'react';
+import { fetchStorefrontContent } from '@/lib/api';
+
+const defaultContent = {
+  brand: { siteName: 'theMrktPlace' },
+  auth: {
+    login: {
+      visualImage: '/images/auth/login.jpg',
+      testimonial: { quote: 'Fast checkout and effortless management.', avatar: '', name: 'Customer', role: 'Buyer' },
+      backHomeLabel: 'Back to Home',
+      title: 'Welcome Back',
+      subtitle: 'Sign in to continue',
+      googleLabel: 'Continue with Google',
+      dividerLabel: 'or continue with email',
+      emailLabel: 'Email',
+      emailPlaceholder: 'you@example.com',
+      passwordLabel: 'Password',
+      forgotPasswordLabel: 'Forgot password?',
+      passwordPlaceholder: 'Enter your password',
+      submitLabel: 'Sign In',
+      switchPrompt: "Don't have an account?",
+      switchActionLabel: 'Create one',
+    },
+  },
+};
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [storefrontContent, setStorefrontContent] = useState<any>(defaultContent);
   const content = storefrontContent.auth.login;
   const brand = storefrontContent.brand;
+
+  useEffect(() => {
+    const loadStorefront = async () => {
+      const response = await fetchStorefrontContent();
+      if (response && typeof response === 'object') {
+        setStorefrontContent({
+          ...defaultContent,
+          ...response,
+          auth: {
+            ...defaultContent.auth,
+            ...((response as any).auth ?? {}),
+          },
+        });
+      }
+    };
+    loadStorefront();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row font-body">

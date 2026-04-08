@@ -36,8 +36,10 @@ export interface Tenant {
   logo_url?: string;
   brand_color?: string;
   status: "pending" | "active" | "suspended" | "deleted";
-  plan: "free" | "starter" | "pro" | "enterprise";
+  plan: "free" | "starter" | "intermediate" | "growth" | "enterprise";
   plan_code?: string;
+  plan_name?: string;
+  module_access?: Array<"shop" | "web" | "app">;
   onboarding_step: number;
   onboarding_completed: boolean;
   created_at: string;
@@ -68,6 +70,8 @@ export interface Plan {
   yearly_price: number;
   currency: string;
   features: PlanFeature[];
+  allowed_modules: Array<"shop" | "web" | "app">;
+  requires_contact_sales: boolean;
   max_products: number;
   max_staff: number;
   is_active: boolean;
@@ -88,6 +92,8 @@ export interface CreatePlanRequest {
   yearly_price: number;
   currency: string;
   features: PlanFeature[];
+  allowed_modules: Array<"shop" | "web" | "app">;
+  requires_contact_sales: boolean;
   max_products: number;
   max_staff: number;
 }

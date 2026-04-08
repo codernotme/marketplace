@@ -84,8 +84,18 @@ class APIClient {
     return (payload as T) ?? ({} as T);
   }
 
+  private async safeFetch(input: string, init: RequestInit): Promise<Response> {
+    try {
+      return await fetch(input, init);
+    } catch {
+      throw new Error(
+        "Network request failed. Ensure SaaS frontend can reach backend (proxy route /api/backend and backend server on http://localhost:8000)."
+      );
+    }
+  }
+
   async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+    const response = await this.safeFetch(`${this.baseURL}${endpoint}`, {
       ...options,
       method: "GET",
       headers: this.getHeaders(),
@@ -94,7 +104,7 @@ class APIClient {
   }
 
   async post<T>(endpoint: string, body?: Record<string, unknown>, options?: RequestInit): Promise<T> {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+    const response = await this.safeFetch(`${this.baseURL}${endpoint}`, {
       ...options,
       method: "POST",
       headers: this.getHeaders(),
@@ -104,7 +114,7 @@ class APIClient {
   }
 
   async patch<T>(endpoint: string, body?: Record<string, unknown>, options?: RequestInit): Promise<T> {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+    const response = await this.safeFetch(`${this.baseURL}${endpoint}`, {
       ...options,
       method: "PATCH",
       headers: this.getHeaders(),
@@ -114,7 +124,7 @@ class APIClient {
   }
 
   async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+    const response = await this.safeFetch(`${this.baseURL}${endpoint}`, {
       ...options,
       method: "DELETE",
       headers: this.getHeaders(),

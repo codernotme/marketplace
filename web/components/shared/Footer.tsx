@@ -1,11 +1,48 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
-import { storefrontContent } from '@/data/mock';
+import { useEffect, useState } from 'react';
+import { fetchStorefrontContent } from '@/lib/api';
 
 export const Footer = () => {
   const currentYear = 2026; // Fixed year to avoid hydration mismatch with new Date()
-  const { brand, footer } = storefrontContent;
+  const [content, setContent] = useState<any>({
+    brand: { siteName: 'theMrktPlace' },
+    footer: {
+      description: 'Shop smarter with theMrktPlace.',
+      socialLinks: [],
+      headings: { shop: 'Shop', company: 'Company' },
+      shopLinks: [],
+      companyLinks: [],
+      newsletter: {
+        title: 'Stay in the loop',
+        subtitle: 'Get product drops and offers.',
+        placeholder: 'Email address',
+        ctaLabel: 'Subscribe',
+      },
+    },
+  });
+
+  useEffect(() => {
+    const loadStorefront = async () => {
+      const response = await fetchStorefrontContent();
+      if (response && typeof response === 'object') {
+        setContent((prev: any) => ({
+          ...prev,
+          ...response,
+          footer: {
+            ...prev.footer,
+            ...((response as any).footer ?? {}),
+          },
+        }));
+      }
+    };
+    loadStorefront();
+  }, []);
+
+  const { brand, footer } = content;
 
   return (
     <footer className="w-full bg-black text-white pt-16 pb-8 px-6 mt-auto">
@@ -26,7 +63,7 @@ export const Footer = () => {
           </p>
           {/* Social Icons */}
           <div className="flex gap-3">
-            {footer.socialLinks.map((s) => (
+            {footer.socialLinks.map((s: any) => (
               <a
                 key={s.icon}
                 href={s.href}
@@ -44,7 +81,7 @@ export const Footer = () => {
         <div>
           <h4 className="font-display text-base font-semibold mb-5">{footer.headings.shop}</h4>
           <ul className="flex flex-col gap-3 text-gray-400 font-body text-sm">
-            {footer.shopLinks.map(l => (
+            {footer.shopLinks.map((l: any) => (
               <li key={l.href}><Link href={l.href} className="hover:text-white transition-colors hover:translate-x-1 inline-block">{l.label}</Link></li>
             ))}
           </ul>
@@ -54,7 +91,7 @@ export const Footer = () => {
         <div>
           <h4 className="font-display text-base font-semibold mb-5">{footer.headings.company}</h4>
           <ul className="flex flex-col gap-3 text-gray-400 font-body text-sm">
-            {footer.companyLinks.map(l => (
+            {footer.companyLinks.map((l: any) => (
               <li key={l.href}><Link href={l.href} className="hover:text-white transition-colors hover:translate-x-1 inline-block">{l.label}</Link></li>
             ))}
           </ul>

@@ -3,6 +3,22 @@ import { persist } from "zustand/middleware";
 import { getApiBaseUrl } from "@/lib/api-url";
 import { SaasUser } from "@/types";
 
+const SESSION_ENDPOINT = "/api/session";
+
+async function createSession(token: string, refreshToken?: string | null): Promise<void> {
+  await fetch(SESSION_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, refreshToken }),
+  });
+}
+
+async function clearSession(): Promise<void> {
+  await fetch(SESSION_ENDPOINT, {
+    method: "DELETE",
+  });
+}
+
 
 async function parseBody(response: Response): Promise<Record<string, unknown> | null> {
   const rawBody = await response.text();
@@ -98,6 +114,7 @@ export const useSaasAuthStore = create<SaasAuthStore>()(
             isAuthenticated: true,
             isLoading: false,
           });
+          await createSession(data.token as string, (data.refresh_token as string) || null);
         } catch (error) {
           const message = normalizeAuthError(error, "Login failed");
           set({ error: message, isLoading: false });
@@ -131,6 +148,7 @@ export const useSaasAuthStore = create<SaasAuthStore>()(
             isAuthenticated: true,
             isLoading: false,
           });
+          await createSession(data.token as string, (data.refresh_token as string) || null);
         } catch (error) {
           const message = normalizeAuthError(error, "Signup failed");
           set({ error: message, isLoading: false });
@@ -139,6 +157,7 @@ export const useSaasAuthStore = create<SaasAuthStore>()(
       },
 
       logout: () => {
+        void clearSession();
         set({
           user: null,
           token: null,
@@ -168,7 +187,9 @@ export const useSaasAuthStore = create<SaasAuthStore>()(
           }
 
           set({ token: data.token as string });
+          await createSession(data.token as string, refreshTokenValue);
         } catch (error) {
+          await clearSession();
           set({ isAuthenticated: false, user: null, token: null, refreshTokenValue: null });
           throw error;
         }
@@ -201,6 +222,11 @@ export const useSaasAuthStore = create<SaasAuthStore>()(
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.isHydrated = true;
+          if (state.token) {
+            void createSession(state.token, state.refreshTokenValue);
+          } else {
+            void clearSession();
+          }
         }
       },
     }

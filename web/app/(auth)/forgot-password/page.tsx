@@ -2,13 +2,48 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
-import { useState } from 'react';
-import { storefrontContent } from '@/data/mock';
+import { useEffect, useState } from 'react';
+import { fetchStorefrontContent } from '@/lib/api';
+
+const defaultContent = {
+  brand: { siteName: 'theMrktPlace' },
+  auth: {
+    forgotPassword: {
+      title: 'Forgot your password?',
+      subtitle: 'Enter your email and we will send reset instructions.',
+      emailLabel: 'Email',
+      emailPlaceholder: 'you@example.com',
+      submitLabel: 'Send Reset Link',
+      successTitle: 'Check your inbox',
+      successDescription: 'A reset link has been sent to your email address.',
+      retryLabel: 'Try another email',
+      backToLoginLabel: 'Back to Login',
+    },
+  },
+};
 
 export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
+  const [storefrontContent, setStorefrontContent] = useState<any>(defaultContent);
   const content = storefrontContent.auth.forgotPassword;
   const brand = storefrontContent.brand;
+
+  useEffect(() => {
+    const loadStorefront = async () => {
+      const response = await fetchStorefrontContent();
+      if (response && typeof response === 'object') {
+        setStorefrontContent({
+          ...defaultContent,
+          ...response,
+          auth: {
+            ...defaultContent.auth,
+            ...((response as any).auth ?? {}),
+          },
+        });
+      }
+    };
+    loadStorefront();
+  }, []);
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F9F9F9] p-6 font-body">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-sm p-10">

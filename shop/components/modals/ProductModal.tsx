@@ -5,7 +5,34 @@ import { Modal, Button, Tooltip, Dropdown, Label } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { cn } from "@/lib/utils";
 import { useProductsStore, useCategoriesStore, useBrandsStore, useUIStore, type ModalMode } from "@/lib/store";
-import type { Product } from "@/lib/mock-data";
+
+type ProductVariant = {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+};
+
+type Product = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  price: number;
+  comparePrice: number | null;
+  category_id: string;
+  brand: string;
+  images: string[];
+  ratings_avg: number;
+  ratings_count: number;
+  is_new: boolean;
+  is_trending: boolean;
+  is_featured: boolean;
+  tags: string[];
+  variants: ProductVariant[];
+  status: "active" | "draft" | "archived";
+  sku: string;
+};
 
 interface ProductModalProps {
   isOpen: boolean;

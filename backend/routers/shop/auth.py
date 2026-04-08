@@ -21,6 +21,7 @@ from schemas.auth import (
 )
 from services.email_service import send_email
 from services.otp_service import create_otp, verify_otp
+from services.plan_catalog import get_plan_display_name, get_plan_modules, normalize_plan_code
 from services.tenant_config_service import get_tenant_config
 from utils.serialize import to_jsonable
 from utils.time import utcnow
@@ -30,6 +31,21 @@ router = APIRouter(prefix="/auth", tags=["shop-auth"])
 
 def _token_payload(user: dict, tenant: dict) -> dict:
     return {"sub": str(user["_id"]), "role": user["role"], "tenant_id": str(tenant["_id"])}
+
+
+def _build_session_user(user: dict, tenant: dict) -> dict:
+    payload = to_jsonable(user)
+    payload.pop("password_hash", None)
+    payload.pop("token_payload", None)
+
+    plan_code = normalize_plan_code(str(tenant.get("plan_code") or tenant.get("plan") or "free"))
+    module_access = tenant.get("module_access") or get_plan_modules(plan_code)
+
+    payload["plan_code"] = plan_code
+    payload["plan_name"] = tenant.get("plan_name") or get_plan_display_name(plan_code)
+    payload["module_access"] = module_access
+    payload["tenant_slug"] = tenant.get("slug")
+    return payload
 
 
 async def _send_otp_email(master_db, tenant: dict, email: str, otp: str, purpose: str):
@@ -113,7 +129,7 @@ async def verify_email(
     return {
         "token": create_access_token(token_payload),
         "refresh_token": create_refresh_token(token_payload),
-        "user": to_jsonable(user),
+        "user": _build_session_user(user, tenant),
     }
 
 
@@ -136,7 +152,7 @@ async def login(
     return {
         "token": create_access_token(token_payload),
         "refresh_token": create_refresh_token(token_payload),
-        "user": to_jsonable(user),
+        "user": _build_session_user(user, tenant),
     }
 
 
@@ -198,7 +214,7 @@ async def login_otp_verify(
     return {
         "token": create_access_token(token_payload),
         "refresh_token": create_refresh_token(token_payload),
-        "user": to_jsonable(user),
+        "user": _build_session_user(user, tenant),
     }
 
 
@@ -259,8 +275,5 @@ async def logout(_: dict = Depends(get_current_user)):
 
 
 @router.get("/me")
-async def me(user: dict = Depends(get_current_user)):
-    output = to_jsonable(user)
-    output.pop("password_hash", None)
-    output.pop("token_payload", None)
-    return {"data": output}
+async def me(user: dict = Depends(get_current_user), tenant=Depends(get_tenant)):
+    return {"data": _build_session_user(user, tenant)}

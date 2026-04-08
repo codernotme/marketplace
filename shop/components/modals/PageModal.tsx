@@ -4,7 +4,16 @@ import { useEffect, useState } from "react";
 import { Modal, Button, Separator, Label } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useUIStore, usePagesStore } from "@/lib/store";
-import { type StaticPage } from "@/lib/mock-data";
+
+type StaticPage = {
+  id: string;
+  title: string;
+  slug: string;
+  status: "active" | "draft";
+  content: string;
+  seoDescription: string;
+  updatedAt: string;
+};
 
 export function PageModal({
   isOpen,

@@ -1,18 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, Button, Input } from "@heroui/react";
 import { tenants } from "@/lib/data/tenants";
-import { plans } from "@/lib/data/plans";
 import Link from "next/link";
 import { Search, ChevronRight } from "lucide-react";
 
@@ -27,6 +17,8 @@ const planColors = {
   free: "text-gray-600",
   starter: "text-blue-600",
   pro: "text-purple-600",
+  intermediate: "text-purple-600",
+  growth: "text-emerald-600",
   enterprise: "text-amber-600",
 };
 
@@ -55,35 +47,33 @@ export function TenantList() {
           <Input
             placeholder="Search by name, email, or slug..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             className="pl-10"
           />
         </div>
-        
-        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value ?? "all")}>
-          <SelectTrigger className="w-full md:w-40">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="suspended">Suspended</SelectItem>
-          </SelectContent>
-        </Select>
 
-        <Select value={planFilter} onValueChange={(value) => setPlanFilter(value ?? "all")}>
-          <SelectTrigger className="w-full md:w-40">
-            <SelectValue placeholder="Filter by plan" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Plans</SelectItem>
-            <SelectItem value="free">Free</SelectItem>
-            <SelectItem value="starter">Starter</SelectItem>
-            <SelectItem value="pro">Pro</SelectItem>
-            <SelectItem value="enterprise">Enterprise</SelectItem>
-          </SelectContent>
-        </Select>
+        <select
+          value={statusFilter}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setStatusFilter(e.target.value)}
+          className="w-full md:w-40 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+        >
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+          <option value="suspended">Suspended</option>
+        </select>
+
+        <select
+          value={planFilter}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPlanFilter(e.target.value)}
+          className="w-full md:w-40 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+        >
+          <option value="all">All Plans</option>
+          <option value="free">Free</option>
+          <option value="starter">Starter</option>
+          <option value="pro">Pro</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
       </div>
 
       <Card className="overflow-hidden">

@@ -20,7 +20,8 @@ export function RevenueChart() {
   const planNames = {
     free: "Free",
     starter: "Starter",
-    pro: "Pro",
+    intermediate: "Intermediate",
+    growth: "Growth",
     enterprise: "Enterprise",
   };
 

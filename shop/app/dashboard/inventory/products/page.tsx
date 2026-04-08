@@ -7,7 +7,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useProductsStore, useUIStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
-import type { ProductStatus } from "@/lib/mock-data";
+
+type ProductStatus = "active" | "draft" | "archived";
 
 const STATUS_OPTS = [
   { key: "all", label: "All" },

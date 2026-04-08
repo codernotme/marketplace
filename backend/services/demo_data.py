@@ -4,6 +4,8 @@ from datetime import UTC, datetime
 
 from bson import ObjectId
 
+from services.plan_catalog import seed_plan_documents
+
 
 def oid(value: int) -> ObjectId:
     return ObjectId(f"{value:024x}")
@@ -1527,6 +1529,10 @@ async def ensure_demo_data(master_db, shared_db) -> None:
     tenants = master_db["tenants"]
     if await tenants.count_documents({"slug": "demo"}) == 0:
         await tenants.insert_one(tenant_document())
+
+    plans = master_db["plans"]
+    if await plans.count_documents({}) == 0:
+        await plans.insert_many(seed_plan_documents())
 
     tenant_configs = master_db["tenant_configs"]
     if await tenant_configs.count_documents({"tenant_id": DEMO_TENANT_ID}) == 0:

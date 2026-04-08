@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request, HTTPException, status
 
 from core.dependencies import get_master_db, saas_admin_required
 from repositories.audit import create_audit_log
 from schemas.saas import TenantConfigUpdate, TenantCreate, TenantUpdate
+from services.plan_catalog import get_plan_display_name, get_plan_modules, normalize_plan_code, requires_contact_sales
 from services.tenant_config_service import get_tenant_config, patch_tenant_config
 from utils.object_id import to_object_id, try_object_id
 from utils.serialize import to_jsonable
@@ -42,15 +43,26 @@ async def list_tenants(
 @router.post("")
 async def create_tenant(
     payload: TenantCreate,
+    request: Request,
     user: dict = Depends(saas_admin_required),
     master_db=Depends(get_master_db),
 ):
+    plan_code = normalize_plan_code(payload.plan_code)
+    if requires_contact_sales(plan_code):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Enterprise plans require sales contact before provisioning",
+        )
+
+    module_access = get_plan_modules(plan_code)
     now = utcnow()
     doc = {
         "name": payload.name,
         "slug": payload.slug.lower(),
         "owner_email": payload.owner_email.lower(),
-        "plan_code": payload.plan_code,
+        "plan_code": plan_code,
+        "plan_name": get_plan_display_name(plan_code),
+        "module_access": module_access,
         "status": "active",
         "onboarding_step": 1,
         "onboarding_completed": False,
@@ -61,6 +73,22 @@ async def create_tenant(
         "updated_at": now,
     }
     result = await master_db["tenants"].insert_one(doc)
+    shared_db = request.app.state.db_manager.shared_db
+    await shared_db["shop_settings"].update_one(
+        {"tenant_id": result.inserted_id},
+        {
+            "$set": {
+                "tenant_id": result.inserted_id,
+                "brand_name": payload.name,
+                "plan_code": plan_code,
+                "plan_name": get_plan_display_name(plan_code),
+                "allowed_modules": module_access,
+                "resend_enabled": True,
+                "updated_at": now,
+            }
+        },
+        upsert=True,
+    )
     await create_audit_log(
         master_db,
         action="tenant.create",

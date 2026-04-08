@@ -1,18 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Input, Card, Separator, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { adminUser } from "@/lib/mock-data";
+import { useShopAuthStore } from "@/lib/auth-store";
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const user = useShopAuthStore((state) => state.user);
+  const fallbackUser = {
+    name: "Admin",
+    email: "admin@themrktplace.com",
+    role: "admin",
+    avatar: "https://api.dicebear.com/8.x/avataaars/svg?seed=Admin",
+  };
+  const profile = {
+    name: user?.name ?? fallbackUser.name,
+    email: user?.email ?? fallbackUser.email,
+    role: user?.role ?? fallbackUser.role,
+    avatar: fallbackUser.avatar,
+  };
   const [formData, setFormData] = useState({
-    name: adminUser.name,
-    email: adminUser.email,
-    role: adminUser.role,
+    name: profile.name,
+    email: profile.email,
+    role: profile.role,
   });
+
+  useEffect(() => {
+    if (!isEditing) {
+      setFormData({ name: profile.name, email: profile.email, role: profile.role });
+    }
+  }, [profile.name, profile.email, profile.role, isEditing]);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-10">
@@ -40,7 +59,7 @@ export default function ProfilePage() {
             
             <div className="relative mb-6">
               <div className="w-32 h-32 rounded-[2rem] overflow-hidden border-4 border-surface shadow-2xl relative z-10">
-                <img src={adminUser.avatar} alt={adminUser.name} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
+                <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" />
               </div>
               <div className="absolute -inset-2 bg-accent/20 blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity" />
               {isEditing && (
@@ -50,8 +69,8 @@ export default function ProfilePage() {
               )}
             </div>
 
-            <h2 className="text-2xl font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>{adminUser.name}</h2>
-            <p className="text-accent font-bold text-sm uppercase tracking-widest mt-1">{adminUser.role}</p>
+            <h2 className="text-2xl font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>{profile.name}</h2>
+            <p className="text-accent font-bold text-sm uppercase tracking-widest mt-1">{profile.role}</p>
             <p className="text-muted text-xs mt-4">Member since June 2025</p>
 
             <Separator className="my-6 opacity-50" />
@@ -67,7 +86,7 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted font-medium">Last Login</span>
                 <span className="text-foreground font-bold" suppressHydrationWarning>
-                  {new Date(adminUser.lastLogin).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </span>
               </div>
             </div>

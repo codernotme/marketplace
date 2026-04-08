@@ -1,9 +1,10 @@
-import { categories as localCategories, products as localProducts, reviews as localReviews, storefrontContent as localStorefrontContent } from '@/data/mock';
-
 const localAddresses: CustomerAddress[] = [];
 const localBlogPosts: BlogPost[] = [];
 const localNotifications: NotificationRecord[] = [];
 const localOrders: OrderRecord[] = [];
+const localProducts: any[] = [];
+const localCategories: any[] = [];
+const localReviews: any[] = [];
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:8000/api';
 const TENANT_SLUG = process.env.NEXT_PUBLIC_TENANT_SLUG ?? 'demo';
@@ -20,6 +21,20 @@ const requestInit = {
 async function apiGet<T>(path: string): Promise<T | null> {
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, requestInit);
+    if (!response.ok) return null;
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function apiPost<T>(path: string, body: any): Promise<T | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      ...requestInit,
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
     if (!response.ok) return null;
     return (await response.json()) as T;
   } catch {
@@ -81,8 +96,8 @@ function unwrapItem<T>(response: ApiResponse<T> | null, fallback: T | undefined 
   return ((response as { data?: T }).data ?? response) as T;
 }
 
-export type ProductType = typeof localProducts[0];
-export type CategoryType = typeof localCategories[0];
+export type ProductType = Record<string, any>;
+export type CategoryType = Record<string, any>;
 
 export interface CustomerAddress {
   id: string;
@@ -258,5 +273,9 @@ export const fetchTrackOrder = async (orderNumber: string, email: string) => {
 
 export const fetchStorefrontContent = async () => {
   const response = await apiGet('/shop/data/storefront-content');
-  return response ?? localStorefrontContent;
+  return response ?? {};
+};
+export const createOrder = async (orderData: any) => {
+  const response = await apiPost<any>('/shop/orders/create', orderData);
+  return response;
 };

@@ -26,6 +26,8 @@ export default function PlansPage() {
       { name: "Support", enabled: true },
       { name: "API Access", enabled: false },
     ],
+    allowed_modules: ["shop"],
+    requires_contact_sales: false,
     max_products: 10,
     max_staff: 1,
   });
@@ -87,7 +89,7 @@ export default function PlansPage() {
         </div>
         <Button 
           variant="primary" 
-          className="font-bold flex items-center gap-2 shadow-lg shadow-accent/20"
+          className="font-bold flex items-center gap-2 shadow-lg shadow-accent-soft-hover"
           onClick={() => setIsModalOpen(true)}
         >
           <Icon icon="solar:add-circle-bold-duotone" className="text-lg" />
@@ -107,10 +109,10 @@ export default function PlansPage() {
               key={plan._id} 
               className={cn(
                 "border hover:border-accent/40 transition-all duration-300 shadow-sm relative overflow-hidden flex flex-col h-full",
-                plan.code === "pro" ? "border-accent/30 bg-accent/[0.02]" : "border-border bg-surface"
+                plan.code === "intermediate" ? "border-accent/30 bg-accent/2" : "border-border bg-surface"
               )}
             >
-              {plan.code === "pro" && (
+              {plan.code === "intermediate" && (
                 <div className="absolute top-0 right-0 p-1">
                    <div className="bg-accent text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-xl shadow-lg">
                       Recommended
@@ -137,18 +139,33 @@ export default function PlansPage() {
                 <div className="space-y-3 mb-8">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Products Limit</span>
-                    <span className="text-xs font-bold">{plan.max_products === 999 ? "∞ Unlimited" : plan.max_products}</span>
+                    <span className="text-xs font-bold">{plan.max_products < 0 ? "∞ Unlimited" : plan.max_products}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Staff Seats</span>
                     <span className="text-xs font-bold">{plan.max_staff}</span>
                   </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Modules</span>
+                    <div className="flex flex-wrap justify-end gap-1.5">
+                      {plan.allowed_modules?.map((module) => (
+                        <Chip key={module} size="sm" variant="soft" className="text-[9px] font-black uppercase tracking-wider h-5">
+                          {module}
+                        </Chip>
+                      ))}
+                    </div>
+                  </div>
+                  {plan.requires_contact_sales ? (
+                    <div className="rounded-2xl border border-warning/30 bg-warning/10 px-3 py-2 text-[10px] font-bold text-warning-foreground">
+                      Sales contact required before self-serve provisioning.
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="space-y-3 border-t border-border/40 pt-6">
                   {plan.features?.map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-3">
-                      <div className={cn("w-5 h-5 rounded-lg flex items-center justify-center border", feature.enabled ? "bg-accent/10 border-accent/20 text-accent" : "bg-default-100 border-border text-muted-foreground opacity-50")}>
+                      <div className={cn("w-5 h-5 rounded-lg flex items-center justify-center border", feature.enabled ? "bg-accent/10 border-accent-soft-hover text-accent" : "bg-default-100 border-border text-muted-foreground opacity-50")}>
                         <Icon icon={feature.enabled ? "solar:check-read-bold-duotone" : "solar:close-circle-bold-duotone"} className="text-xs" />
                       </div>
                       <span className={cn("text-xs font-medium", feature.enabled ? "text-foreground" : "text-muted-foreground opacity-40")}>
@@ -225,7 +242,7 @@ export default function PlansPage() {
                       placeholder="Detail the value proposition..."
                       value={formData.description}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
-                      className="bg-default-100/50 border border-border/50 rounded-xl min-h-[80px]"
+                      className="bg-default-100/50 border border-border/50 rounded-xl min-h-20"
                     />
                  </div>
                  <div className="grid grid-cols-2 gap-4">
@@ -277,7 +294,7 @@ export default function PlansPage() {
                 </Button>
                 <Button 
                   variant="primary" 
-                  className="flex-1 font-bold rounded-xl h-11 shadow-lg shadow-accent/20" 
+                  className="flex-1 font-bold rounded-xl h-11 shadow-lg shadow-accent-soft-hover" 
                   onClick={handleCreate}
                   isPending={isSaving}
                 >

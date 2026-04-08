@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
@@ -8,7 +9,7 @@ import { Button } from "@heroui/react";
 import { StatCard } from "@/components/ui/StatCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { kpiData, analyticsData, recentActivity } from "@/lib/mock-data";
+import { fetchShopAnalytics, fetchShopKpi, fetchShopOrders } from "@/lib/api";
 import { useProductsStore, useOrdersStore, useUIStore } from "@/lib/store";
 import { formatCurrency, percentChange } from "@/lib/utils";
 
@@ -17,12 +18,49 @@ export default function DashboardPage() {
   const { orders } = useOrdersStore();
   const { openModal } = useUIStore();
 
+  const [kpiData, setKpiData] = useState<any>({
+    todayRevenue: 0,
+    todayOrders: 0,
+    totalCustomers: 0,
+    pendingOrders: 0,
+    pendingQueries: 0,
+    revenueThisMonth: 0,
+    revenueLastMonth: 0,
+    monthlyRevenue: [],
+    weeklyDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    weeklyRevenue: [0, 0, 0, 0, 0, 0, 0],
+    telegramBotStatus: "inactive",
+  });
+  const [analyticsData, setAnalyticsData] = useState<any>({ topProducts: [] });
+  const [liveOrders, setLiveOrders] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      const [kpi, analytics, orderRows] = await Promise.all([
+        fetchShopKpi(),
+        fetchShopAnalytics(),
+        fetchShopOrders({ limit: 5 }),
+      ]);
+
+      if (kpi && typeof kpi === "object") {
+        setKpiData((prev: any) => ({ ...prev, ...kpi }));
+      }
+      if (analytics && typeof analytics === "object") {
+        setAnalyticsData((prev: any) => ({ ...prev, ...analytics }));
+      }
+      if (Array.isArray(orderRows)) {
+        setLiveOrders(orderRows);
+      }
+    };
+    loadDashboardData();
+  }, []);
+
   const monthChange = percentChange(kpiData.revenueThisMonth, kpiData.revenueLastMonth);
   const lowStockProducts = products.filter(
     (p) => p.variants.some((v) => v.stock > 0 && v.stock <= 5) && !p.variants.every(v => v.stock === 0)
   );
   const outOfStockProducts = products.filter((p) => p.variants.every((v) => v.stock === 0));
-  const recentOrders = orders.slice(0, 5);
+  const recentOrders = liveOrders.length ? liveOrders : orders.slice(0, 5);
 
   return (
     <div className="space-y-5">
@@ -101,13 +139,13 @@ export default function DashboardPage() {
           <div className="mb-4">
             <h3 className="font-semibold text-sm">This Week</h3>
             <p className="text-xl font-bold text-accent mt-1" style={{ fontFamily: "var(--font-outfit)" }}>
-              {formatCurrency(kpiData.weeklyRevenue.reduce((a, b) => a + b, 0))}
+              {formatCurrency(kpiData.weeklyRevenue.reduce((a: number, b: number) => a + b, 0))}
             </p>
             <p className="text-xs text-muted">Total revenue</p>
           </div>
           <ResponsiveContainer width="100%" height={110}>
             <BarChart
-              data={kpiData.weeklyDays.map((day, i) => ({ day, revenue: kpiData.weeklyRevenue[i] }))}
+              data={kpiData.weeklyDays.map((day: string, i: number) => ({ day, revenue: kpiData.weeklyRevenue[i] }))}
               margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
             >
               <XAxis dataKey="day" tick={{ fill: "var(--muted)", fontSize: 10 }} axisLine={false} tickLine={false} />
@@ -143,18 +181,18 @@ export default function DashboardPage() {
             <a href="/dashboard/orders" className="text-xs text-accent font-medium hover:underline">View All →</a>
           </div>
           <div className="divide-y divide-border">
-            {recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center gap-4 px-5 py-3.5 table-row-hover">
+            {recentOrders.map((order: any) => (
+              <div key={order.id || order._id || order.order_number || order.orderNumber} className="flex items-center gap-4 px-5 py-3.5 table-row-hover">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-bold text-accent">{order.orderNumber}</span>
-                    <StatusBadge status={order.fulfillmentStatus} />
+                    <span className="text-sm font-bold text-accent">{order.orderNumber || order.order_number || "-"}</span>
+                    <StatusBadge status={order.fulfillmentStatus || order.fulfillment_status || "pending"} />
                   </div>
-                  <p className="text-xs text-muted mt-0.5">{order.customer.name} · {order.items.length} item{order.items.length !== 1 ? "s" : ""}</p>
+                  <p className="text-xs text-muted mt-0.5">{order.customer?.name || order.customer_name || "Customer"} · {(order.items || []).length} item{(order.items || []).length !== 1 ? "s" : ""}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p className="text-sm font-bold">{formatCurrency(order.total)}</p>
-                  <p className="text-xs text-muted" suppressHydrationWarning>{new Date(order.createdAt).toLocaleDateString("en-US", { day: "2-digit", month: "short" })}</p>
+                  <p className="text-sm font-bold">{formatCurrency(Number(order.total || order.total_amount || order.pricing?.grand_total || order.pricing?.grandTotal || 0))}</p>
+                  <p className="text-xs text-muted" suppressHydrationWarning>{new Date(order.createdAt || order.created_at || Date.now()).toLocaleDateString("en-US", { day: "2-digit", month: "short" })}</p>
                 </div>
               </div>
             ))}
@@ -205,14 +243,14 @@ export default function DashboardPage() {
               <h3 className="font-semibold text-sm">Recent Activity</h3>
             </div>
             <div className="divide-y divide-border">
-              {recentActivity.slice(0, 4).map((a) => (
+              {recentOrders.slice(0, 4).map((a: any, idx: number) => (
                 <div key={a.id} className="flex items-start gap-3 px-4 py-3">
                   <div className="w-7 h-7 rounded-lg bg-accent/10 text-accent flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Icon icon={a.icon} className="text-sm" />
+                    <Icon icon="solar:cart-large-bold-duotone" className="text-sm" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs leading-snug text-foreground/80">{a.message}</p>
-                    <p className="text-xs text-muted mt-0.5">{a.time}</p>
+                    <p className="text-xs leading-snug text-foreground/80">New order {a.orderNumber || a.order_number || idx + 1} received</p>
+                    <p className="text-xs text-muted mt-0.5">{new Date(a.createdAt || a.created_at || Date.now()).toLocaleString()}</p>
                   </div>
                 </div>
               ))}
@@ -237,7 +275,7 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {analyticsData.topProducts.map((p, i) => (
+              {analyticsData.topProducts.map((p: any, i: number) => (
                 <tr key={i} className="table-row-hover">
                   <td className="px-5 py-3.5 text-muted font-mono text-xs">{i + 1}</td>
                   <td className="px-5 py-3.5 font-medium text-sm">{p.title}</td>

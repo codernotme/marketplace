@@ -1,15 +1,8 @@
 'use client';
 import { Icon } from '@iconify/react';
 import Link from 'next/link';
-import { useState } from 'react';
-
-const mockOrders = [
-  { id: '#TMP-8821', date: 'Mar 20, 2026', status: 'Delivered', total: 348, items: 3, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=80&q=80' },
-  { id: '#TMP-8734', date: 'Mar 15, 2026', status: 'Shipped', total: 159, items: 1, image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=80&q=80' },
-  { id: '#TMP-8651', date: 'Mar 10, 2026', status: 'Processing', total: 89, items: 2, image: 'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?auto=format&fit=crop&w=80&q=80' },
-  { id: '#TMP-8512', date: 'Feb 28, 2026', status: 'Delivered', total: 229, items: 2, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=80&q=80' },
-  { id: '#TMP-8401', date: 'Feb 20, 2026', status: 'Cancelled', total: 65, items: 1, image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=80&q=80' },
-];
+import { useEffect, useMemo, useState } from 'react';
+import { fetchCustomerOrders } from '@/lib/api';
 
 const statusConfig: Record<string, { color: string; icon: string }> = {
   Delivered: { color: 'bg-green-50 text-green-700', icon: 'mdi:check-circle' },
@@ -20,8 +13,40 @@ const statusConfig: Record<string, { color: string; icon: string }> = {
 
 export default function UserOrdersPage() {
   const [activeFilter, setActiveFilter] = useState('All');
+  const [orders, setOrders] = useState<any[]>([]);
   const filters = ['All', 'Delivered', 'Shipped', 'Processing', 'Cancelled'];
-  const filtered = activeFilter === 'All' ? mockOrders : mockOrders.filter(o => o.status === activeFilter);
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      const rows = await fetchCustomerOrders();
+      const normalized = (rows ?? []).map((order: any) => {
+        const rawStatus = String(order.fulfillmentStatus ?? order.status ?? 'processing');
+        const status =
+          rawStatus === 'delivered'
+            ? 'Delivered'
+            : rawStatus === 'shipped' || rawStatus === 'out_for_delivery'
+              ? 'Shipped'
+              : rawStatus === 'cancelled'
+                ? 'Cancelled'
+                : 'Processing';
+        return {
+          id: order.orderNumber ?? order.id,
+          date: order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '-',
+          status,
+          total: Number(order.pricing?.grandTotal ?? order.pricing?.grand_total ?? 0),
+          items: Array.isArray(order.items) ? order.items.length : 0,
+          image: order.items?.[0]?.imageUrl ?? order.items?.[0]?.image ?? 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=80&q=80',
+        };
+      });
+      setOrders(normalized);
+    };
+    loadOrders();
+  }, []);
+
+  const filtered = useMemo(
+    () => (activeFilter === 'All' ? orders : orders.filter((o) => o.status === activeFilter)),
+    [activeFilter, orders]
+  );
 
   return (
     <div className="animate-in fade-in duration-500">

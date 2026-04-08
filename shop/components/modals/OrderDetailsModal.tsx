@@ -5,7 +5,36 @@ import { Modal, Button, Dropdown, Label, Separator } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useOrdersStore, useUIStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
-import type { Order, DeliveryAgent, OrderStatus } from "@/lib/mock-data";
+
+type OrderStatus = "pending" | "processing" | "packed" | "shipped" | "delivered" | "cancelled" | "returned";
+type DeliveryAgent = {
+  id: string;
+  name: string;
+  trackingUrl: string;
+  courier: string;
+  assignedAt: string;
+};
+type Order = {
+  id: string;
+  orderNumber: string;
+  customer: { id: string; name: string; email: string; phone: string };
+  items: { productId: string; title: string; variant: string; qty: number; price: number }[];
+  subtotal: number;
+  shippingCost: number;
+  tax: number;
+  discount: number;
+  total: number;
+  paymentStatus: "paid" | "pending" | "failed" | "refunded";
+  paymentMethod: "razorpay" | "upi" | "cod" | "netbanking";
+  fulfillmentStatus: OrderStatus;
+  currentStage: number;
+  shippingAddress: { line1: string; city: string; state: string; pincode: string };
+  deliveryAgents: DeliveryAgent[];
+  trackingNumber?: string;
+  courier?: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 const STAGES = [
   { label: "Pending", icon: "solar:clock-circle-bold-duotone", status: "pending" as OrderStatus },

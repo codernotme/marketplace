@@ -3,7 +3,7 @@ export interface Announcement {
   title: string;
   body: string;
   type: "info" | "warning" | "maintenance" | "feature";
-  visible_to: "all" | "plan:pro" | "plan:enterprise";
+  visible_to: "all" | "plan:intermediate" | "plan:growth" | "plan:enterprise";
   published_at: string;
   expires_at: string | null;
   created_by: string;
@@ -13,7 +13,7 @@ export const announcements: Announcement[] = [
   {
     id: "ann_001",
     title: "New Analytics Dashboard",
-    body: "We've launched an improved analytics dashboard with real-time insights. All Pro and Enterprise customers now have access to advanced analytics.",
+    body: "We've launched an improved analytics dashboard with real-time insights. Intermediate, Growth, and Enterprise customers now have access to advanced analytics.",
     type: "feature",
     visible_to: "all",
     published_at: "2024-04-01T10:00:00Z",
@@ -53,9 +53,9 @@ export const announcements: Announcement[] = [
   {
     id: "ann_005",
     title: "Storage Upgrade Special",
-    body: "Pro plan users get 50% extra storage this month. Enjoy up to 150GB of storage at no extra cost.",
+    body: "Intermediate plan users get 50% extra storage this month. Enjoy up to 150GB of extra capacity at no extra cost.",
     type: "info",
-    visible_to: "plan:pro",
+    visible_to: "plan:intermediate",
     published_at: "2024-03-18T11:00:00Z",
     expires_at: "2024-04-18T23:59:59Z",
     created_by: "admin_002",

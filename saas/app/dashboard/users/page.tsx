@@ -6,7 +6,6 @@ import { Card, Button, Input, Chip, Modal, Dropdown, Spinner, Checkbox } from "@
 import { Icon } from "@iconify/react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { globalUsers as mockUsers } from "@/lib/data/users";
 
 interface GlobalUser {
   _id: string;
@@ -63,8 +62,12 @@ export default function UsersPage() {
 
   const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
     try {
-      // await apiClient.patch(`/api/saas/users/${userId}/status`, { is_active: !currentStatus });
-      setUsers(users.map(u => u._id === userId ? { ...u, is_active: !currentStatus } : u));
+      const target = users.find((u) => u._id === userId);
+      await apiClient.patch(`/api/saas/users/${userId}/status`, {
+        is_active: !currentStatus,
+        tenant_id: target?.tenant_id,
+      });
+      setUsers(users.map((u) => (u._id === userId ? { ...u, is_active: !currentStatus } : u)));
       toast.success(currentStatus ? "User suspended securely" : "User restored successfully");
     } catch (error) {
       toast.error("Failed to modify user state");

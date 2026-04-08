@@ -1,6 +1,6 @@
 export interface Plan {
   id: string;
-  name: "free" | "starter" | "pro" | "enterprise";
+  name: "free" | "starter" | "intermediate" | "growth" | "enterprise";
   display_name: string;
   price_monthly: number;
   price_yearly: number;
@@ -14,6 +14,8 @@ export interface Plan {
     analytics: "basic" | "advanced";
     ads_module: boolean;
   };
+  allowed_modules: Array<"shop" | "web" | "app">;
+  requires_contact_sales: boolean;
   is_active: boolean;
 }
 
@@ -34,6 +36,8 @@ export const plans: Plan[] = [
       analytics: "basic",
       ads_module: false,
     },
+    allowed_modules: ["shop"],
+    requires_contact_sales: false,
     is_active: true,
   },
   {
@@ -52,12 +56,14 @@ export const plans: Plan[] = [
       analytics: "basic",
       ads_module: false,
     },
+    allowed_modules: ["shop"],
+    requires_contact_sales: false,
     is_active: true,
   },
   {
     id: "plan_003",
-    name: "pro",
-    display_name: "Pro",
+    name: "intermediate",
+    display_name: "Intermediate",
     price_monthly: 99,
     price_yearly: 990,
     limits: {
@@ -70,6 +76,28 @@ export const plans: Plan[] = [
       analytics: "advanced",
       ads_module: true,
     },
+    allowed_modules: ["shop", "web"],
+    requires_contact_sales: false,
+    is_active: true,
+  },
+  {
+    id: "plan_004a",
+    name: "growth",
+    display_name: "Growth",
+    price_monthly: 249,
+    price_yearly: 2490,
+    limits: {
+      products: 10000,
+      orders_per_month: 50000,
+      storage_gb: 250,
+      team_members: 25,
+      custom_domain: true,
+      telegram_bot: true,
+      analytics: "advanced",
+      ads_module: true,
+    },
+    allowed_modules: ["shop", "web", "app"],
+    requires_contact_sales: false,
     is_active: true,
   },
   {
@@ -88,6 +116,8 @@ export const plans: Plan[] = [
       analytics: "advanced",
       ads_module: true,
     },
+    allowed_modules: ["shop", "web", "app"],
+    requires_contact_sales: true,
     is_active: true,
   },
 ];

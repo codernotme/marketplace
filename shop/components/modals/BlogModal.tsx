@@ -4,7 +4,22 @@ import { useState, useEffect } from "react";
 import { Modal, Button, Input, Checkbox, Label, Description, Separator } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useBlogStore, useUIStore } from "@/lib/store";
-import type { BlogPost } from "@/lib/mock-data";
+
+type BlogPost = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  author: string;
+  avatar: string;
+  publishedAt: string;
+  readTime: string;
+  image: string;
+  featured: boolean;
+  content: string[];
+  tags: string[];
+};
 
 const CATEGORIES = ["Fashion", "Electronics", "Lifestyle", "Home & Living"];
 

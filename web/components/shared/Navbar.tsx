@@ -6,12 +6,42 @@ import { Icon } from '@iconify/react';
 import { useCartStore } from '@/store/cart.store';
 import { useAuthStore } from '@/store/auth.store';
 import { useState, useEffect } from 'react';
-import { storefrontContent } from '@/data/mock';
+import { fetchStorefrontContent } from '@/lib/api';
 
-const categories = storefrontContent.navigation.shopCategories;
-const navLinks = storefrontContent.navigation.primaryLinks;
-const brand = storefrontContent.brand;
-const navContent = storefrontContent.navigation;
+const defaultStorefrontContent: any = {
+  brand: { siteName: 'theMrktPlace' },
+  navigation: {
+    desktopHomeLabel: 'Home',
+    desktopShopLabel: 'Shop',
+    primaryLinks: [
+      { href: '/', label: 'Home' },
+      { href: '/blog', label: 'Blog' },
+      { href: '/about', label: 'About' },
+      { href: '/contact', label: 'Contact' },
+    ],
+    shopCategories: [],
+    searchPlaceholder: 'Search products',
+    authLabels: {
+      accountShortName: 'Account',
+      accountFallbackName: 'Customer',
+      signIn: 'Sign In',
+      signOut: 'Sign Out',
+      register: 'Register',
+    },
+    accountMenuLinks: [
+      { href: '/user/profile', label: 'Profile', icon: 'mdi:account-outline' },
+      { href: '/user/orders', label: 'Orders', icon: 'mdi:package-variant-closed' },
+    ],
+    mobile: {
+      categoriesSectionLabel: 'Categories',
+      accountSectionLabel: 'Account',
+      footerLinks: [
+        { href: '/faq', label: 'FAQ' },
+        { href: '/contact', label: 'Contact' },
+      ],
+    },
+  },
+};
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -21,6 +51,29 @@ export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
+  const [storefrontContent, setStorefrontContent] = useState<any>(defaultStorefrontContent);
+
+  const categories = storefrontContent?.navigation?.shopCategories ?? [];
+  const navLinks = storefrontContent?.navigation?.primaryLinks ?? [];
+  const brand = storefrontContent?.brand ?? defaultStorefrontContent.brand;
+  const navContent = storefrontContent?.navigation ?? defaultStorefrontContent.navigation;
+
+  useEffect(() => {
+    const loadStorefront = async () => {
+      const response = await fetchStorefrontContent();
+      if (response && typeof response === 'object') {
+        setStorefrontContent({
+          ...defaultStorefrontContent,
+          ...response,
+          navigation: {
+            ...defaultStorefrontContent.navigation,
+            ...(response as any).navigation,
+          },
+        });
+      }
+    };
+    loadStorefront();
+  }, []);
 
   // Close mobile menu on route change
   useEffect(() => { setMobileOpen(false); }, [pathname]);
@@ -70,7 +123,7 @@ export const Navbar = () => {
               {catOpen && (
                 <div className="absolute top-full left-0 pt-2 z-50">
                   <div className="bg-white border border-gray-100 rounded-2xl shadow-xl p-2 w-64 flex flex-col gap-0.5">
-                    {categories.map(cat => (
+                    {categories.map((cat: any) => (
                       <Link key={cat.href} href={cat.href} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F5F5F5] transition-colors group">
                         <div className="w-8 h-8 bg-[#F5F5F5] rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-black group-hover:text-white transition-colors">
                           <Icon icon={cat.icon} className="text-base" />
@@ -83,7 +136,7 @@ export const Navbar = () => {
               )}
             </div>
 
-            {navLinks.slice(1).map(link => (
+            {navLinks.slice(1).map((link: any) => (
               <Link key={link.href} href={link.href} className={`px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${pathname === link.href ? 'text-black' : 'text-gray-500 hover:text-black hover:bg-[#F5F5F5]'}`}>
                 {link.label}
               </Link>
@@ -144,7 +197,7 @@ export const Navbar = () => {
               {/* Dropdown */}
               <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                 <div className="bg-white border border-gray-100 rounded-2xl shadow-xl p-2 w-48 flex flex-col gap-0.5">
-                  {navContent.accountMenuLinks.map(item => (
+                  {navContent.accountMenuLinks.map((item: any) => (
                     <Link key={item.href} href={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#F5F5F5] text-sm font-semibold text-black">
                       <Icon icon={item.icon} className="text-base text-gray-500" /> {item.label}
                     </Link>
@@ -222,7 +275,7 @@ export const Navbar = () => {
         <nav className="flex-1 overflow-y-auto px-4 pt-4">
           {/* Main links */}
           <div className="flex flex-col gap-0.5 mb-4">
-            {[{ label: 'Home', href: '/', icon: 'mdi:home-outline' }, ...navLinks.slice(1).map(l => ({ ...l, icon: l.label === 'Blog' ? 'mdi:newspaper-variant-outline' : l.label === 'About' ? 'mdi:information-outline' : 'mdi:phone-outline' }))].map(link => (
+            {[{ label: 'Home', href: '/', icon: 'mdi:home-outline' }, ...navLinks.slice(1).map((l: any) => ({ ...l, icon: l.label === 'Blog' ? 'mdi:newspaper-variant-outline' : l.label === 'About' ? 'mdi:information-outline' : 'mdi:phone-outline' }))].map((link: any) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -238,7 +291,7 @@ export const Navbar = () => {
           <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 mb-2">{navContent.mobile.categoriesSectionLabel}</div>
 
           <div className="flex flex-col gap-0.5 mb-6">
-            {categories.map(cat => (
+            {categories.map((cat: any) => (
               <Link
                 key={cat.href}
                 href={cat.href}
@@ -255,7 +308,7 @@ export const Navbar = () => {
             <>
               <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-4 mb-2">{navContent.mobile.accountSectionLabel}</div>
               <div className="flex flex-col gap-0.5">
-                {navContent.accountMenuLinks.map(item => (
+                {navContent.accountMenuLinks.map((item: any) => (
                   <Link key={item.href} href={item.href} className="flex items-center gap-3 px-4 h-11 rounded-xl font-semibold text-sm text-gray-700 hover:bg-[#F5F5F5] transition-colors">
                     <Icon icon={item.icon} className="text-base flex-shrink-0" /> {item.label}
                   </Link>

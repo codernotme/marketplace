@@ -3,7 +3,6 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Query
 
 from core.dependencies import get_tenant, get_tenant_db, pagination_params
-from services.demo_data import shop_dashboard_bootstrap, storefront_content
 from utils.object_id import try_object_id
 from utils.serialize import to_jsonable
 
@@ -15,13 +14,74 @@ def _json_list(items):
 
 
 @router.get("/bootstrap")
-async def bootstrap(_: dict = Depends(get_tenant)):
-    return to_jsonable(shop_dashboard_bootstrap())
+async def bootstrap(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    products = [
+        to_jsonable(item)
+        async for item in tenant_db["products"].find({"tenant_id": tenant["_id"]}).limit(200)
+    ]
+    orders = [
+        to_jsonable(item)
+        async for item in tenant_db["orders"].find({"tenant_id": tenant["_id"]}).sort("created_at", -1).limit(200)
+    ]
+    customers = [
+        to_jsonable(item)
+        async for item in tenant_db["users"].find(
+            {"tenant_id": tenant["_id"], "role": {"$in": ["customer", "user"]}}
+        )
+        .sort("created_at", -1)
+        .limit(200)
+    ]
+
+    categories = [
+        to_jsonable(item)
+        async for item in tenant_db["categories"].find({"tenant_id": tenant["_id"]}).sort("name", 1)
+    ]
+    coupons = [
+        to_jsonable(item)
+        async for item in tenant_db["coupons"].find({"tenant_id": tenant["_id"]}).sort("created_at", -1).limit(200)
+    ]
+    tickets = [
+        to_jsonable(item)
+        async for item in tenant_db["queries"].find({"tenant_id": tenant["_id"]}).sort("created_at", -1).limit(200)
+    ]
+    banners = [
+        to_jsonable(item)
+        async for item in tenant_db["banners"].find({"tenant_id": tenant["_id"]}).sort("created_at", -1).limit(200)
+    ]
+
+    return {
+        "products": products,
+        "orders": orders,
+        "customers": customers,
+        "categories": categories,
+        "brands": [],
+        "coupons": coupons,
+        "tickets": tickets,
+        "banners": banners,
+        "pages": [],
+    }
 
 
 @router.get("/storefront-content")
-async def get_storefront_content(_: dict = Depends(get_tenant)):
-    return storefront_content()
+async def get_storefront_content(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    settings = await tenant_db["shop_settings"].find_one({"tenant_id": tenant["_id"]})
+    return {
+        "brand": {
+            "siteName": (settings or {}).get("brand_name") or tenant.get("name") or "theMrktPlace",
+            "tagline": (settings or {}).get("tagline") or "Shop smarter, live better.",
+        },
+        "navigation": {
+            "shopCategories": (settings or {}).get("shop_categories", []),
+            "primaryLinks": (settings or {}).get("primary_links", []),
+            "searchPlaceholder": (settings or {}).get("search_placeholder", "Search products"),
+            "authLabels": {
+                "signIn": "Sign In",
+                "signOut": "Sign Out",
+                "accountShortName": "Account",
+            },
+        },
+        "footer": (settings or {}).get("footer", {}),
+    }
 
 
 @router.get("/categories")
@@ -94,57 +154,109 @@ async def list_notifications(tenant=Depends(get_tenant), tenant_db=Depends(get_t
 
 
 @router.get("/customers")
-async def list_customers(_: dict = Depends(get_tenant)):
-    bs = shop_dashboard_bootstrap()
-    return {"data": to_jsonable(bs.get("customers", []))}
+async def list_customers(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    cursor = (
+        tenant_db["users"]
+        .find({"tenant_id": tenant["_id"], "role": {"$in": ["customer", "user"]}})
+        .sort("created_at", -1)
+    )
+    return {"data": _json_list([item async for item in cursor])}
 
 
 @router.get("/coupons")
-async def list_coupons(_: dict = Depends(get_tenant)):
-    bs = shop_dashboard_bootstrap()
-    return {"data": to_jsonable(bs.get("coupons", []))}
+async def list_coupons(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    cursor = tenant_db["coupons"].find({"tenant_id": tenant["_id"]}).sort("created_at", -1)
+    return {"data": _json_list([item async for item in cursor])}
 
 
 @router.get("/tickets")
-async def list_tickets(_: dict = Depends(get_tenant)):
-    bs = shop_dashboard_bootstrap()
-    return {"data": to_jsonable(bs.get("tickets", []))}
+async def list_tickets(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    cursor = tenant_db["queries"].find({"tenant_id": tenant["_id"]}).sort("created_at", -1)
+    return {"data": _json_list([item async for item in cursor])}
 
 
 @router.get("/banners")
-async def list_banners(_: dict = Depends(get_tenant)):
-    bs = shop_dashboard_bootstrap()
-    return {"data": to_jsonable(bs.get("banners", []))}
+async def list_banners(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    cursor = tenant_db["banners"].find({"tenant_id": tenant["_id"]}).sort("created_at", -1)
+    return {"data": _json_list([item async for item in cursor])}
 
 
 @router.get("/pages")
-async def list_pages(_: dict = Depends(get_tenant)):
-    bs = shop_dashboard_bootstrap()
-    return {"data": to_jsonable(bs.get("pages", []))}
+async def list_pages(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    cursor = tenant_db["pages"].find({"tenant_id": tenant["_id"]}).sort("created_at", -1)
+    return {"data": _json_list([item async for item in cursor])}
 
 
 @router.get("/email-templates")
-async def list_email_templates(_: dict = Depends(get_tenant)):
-    bs = shop_dashboard_bootstrap()
-    return {"data": to_jsonable(bs.get("emailTemplates", []))}
+async def list_email_templates(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    cursor = tenant_db["email_templates"].find({"tenant_id": tenant["_id"]}).sort("updated_at", -1)
+    return {"data": _json_list([item async for item in cursor])}
 
 
 @router.get("/team")
-async def list_team(_: dict = Depends(get_tenant)):
-    bs = shop_dashboard_bootstrap()
-    return {"data": to_jsonable(bs.get("teamMembers", []))}
+async def list_team(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    cursor = tenant_db["users"].find(
+        {
+            "tenant_id": tenant["_id"],
+            "role": {"$in": ["shop_admin", "staff", "manager"]},
+            "is_active": True,
+        }
+    )
+    return {"data": _json_list([item async for item in cursor])}
 
 
 @router.get("/analytics")
-async def get_analytics(_: dict = Depends(get_tenant)):
-    bs = shop_dashboard_bootstrap()
-    return {"data": to_jsonable(bs.get("analyticsData", {}))}
+async def get_analytics(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    total_orders = await tenant_db["orders"].count_documents({"tenant_id": tenant["_id"]})
+    paid_orders = await tenant_db["orders"].count_documents(
+        {
+            "tenant_id": tenant["_id"],
+            "$or": [
+                {"payment_status": "paid"},
+                {"paymentStatus": "paid"},
+                {"payment.status": "paid"},
+            ],
+        }
+    )
+    return {
+        "data": {
+            "total_orders": total_orders,
+            "paid_orders": paid_orders,
+            "conversion_rate": round((paid_orders / total_orders * 100), 2) if total_orders else 0,
+        }
+    }
 
 
 @router.get("/kpi")
-async def get_kpi(_: dict = Depends(get_tenant)):
-    bs = shop_dashboard_bootstrap()
-    return {"data": to_jsonable(bs.get("kpiData", {}))}
+async def get_kpi(tenant=Depends(get_tenant), tenant_db=Depends(get_tenant_db)):
+    total_orders = await tenant_db["orders"].count_documents({"tenant_id": tenant["_id"]})
+    paid_count = 0
+    gross_revenue = 0.0
+    async for order in tenant_db["orders"].find({"tenant_id": tenant["_id"]}):
+        payment_status = (
+            order.get("payment_status")
+            or order.get("paymentStatus")
+            or (order.get("payment") or {}).get("status")
+            or "pending"
+        )
+        if payment_status == "paid":
+            paid_count += 1
+            pricing = order.get("pricing") or {}
+            gross_revenue += float(
+                order.get("total_amount")
+                or pricing.get("grand_total")
+                or pricing.get("grandTotal")
+                or 0
+            )
+
+    return {
+        "data": {
+            "total_orders": total_orders,
+            "paid_orders": paid_count,
+            "gross_revenue": round(gross_revenue, 2),
+            "aov": round(gross_revenue / paid_count, 2) if paid_count else 0,
+        }
+    }
 
 
 @router.patch("/orders/{order_id}/status")

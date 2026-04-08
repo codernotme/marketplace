@@ -1,28 +1,29 @@
-import { products, categories } from '@/data/mock';
+import {
+  fetchCategories,
+  fetchCategoryBySlug,
+  fetchCustomerOrders,
+  fetchProductBySlug,
+  fetchProducts,
+  fetchTrendingProducts,
+  fetchNewArrivals,
+} from '@/lib/api';
 
 /**
- * Proxy layer for data fetching to allow easy switching between 
- * mock data and real API endpoints.
+ * Proxy layer for data fetching.
  */
 export const proxy = {
   products: {
-    getAll: () => Promise.resolve(products),
-    getBySlug: (slug: string) => Promise.resolve(products.find(p => p.slug === slug)),
-    getTrending: () => Promise.resolve(products.filter(p => p.is_trending)),
-    getNew: () => Promise.resolve(products.filter(p => p.is_new)),
+    getAll: () => fetchProducts(),
+    getBySlug: (slug: string) => fetchProductBySlug(slug),
+    getTrending: () => fetchTrendingProducts(),
+    getNew: () => fetchNewArrivals(),
   },
   categories: {
-    getAll: () => Promise.resolve(categories),
-    getBySlug: (slug: string) => Promise.resolve(categories.find(c => c.slug === slug)),
+    getAll: () => fetchCategories(),
+    getBySlug: (slug: string) => fetchCategoryBySlug(slug),
   },
   user: {
-    getOrders: (userId: string) => {
-      // Mocked orders for specific user
-      return Promise.resolve([
-        { id: 'ORD-1234', date: 'Oct 24, 2026', total: 4999, status: 'Delivered', items: 1 },
-        { id: 'ORD-1235', date: 'Oct 18, 2026', total: 12999, status: 'Processing', items: 2 },
-      ]);
-    },
+    getOrders: (_userId: string) => fetchCustomerOrders(),
     getProfile: (userId: string) => {
       return Promise.resolve({
         id: userId,
@@ -53,6 +54,8 @@ export const proxy = {
       { label: 'Products', value: '12', icon: 'lucide:package', trend: '0%' },
       { label: 'Avg Rating', value: '4.8', icon: 'lucide:star', trend: '+0.1' },
     ]),
-    getProducts: (vendorId: string) => Promise.resolve(products.filter(p => p.vendor_id === vendorId))
+    getProducts: async (_vendorId: string) => {
+      return fetchProducts();
+    }
   }
 };

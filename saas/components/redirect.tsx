@@ -2,22 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSaasAuthStore } from "@/store/saas-auth.store";
 import { Spinner } from "@heroui/react";
 
 export function Redirect() {
   const router = useRouter();
-  const { isAuthenticated } = useSaasAuthStore();
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dashboard");
-    } else {
-      router.push("/login");
-    }
+    router.replace("/login");
     setIsReady(true);
-  }, [isAuthenticated, router]);
+  }, [router]);
 
   if (!isReady) {
     return (

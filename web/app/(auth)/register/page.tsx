@@ -2,13 +2,61 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
-import { useState } from 'react';
-import { storefrontContent } from '@/data/mock';
+import { useEffect, useState } from 'react';
+import { fetchStorefrontContent } from '@/lib/api';
+
+const defaultContent = {
+  brand: { siteName: 'theMrktPlace' },
+  auth: {
+    register: {
+      visualImage: '/images/auth/register.jpg',
+      visualHeading: 'Create your account',
+      visualFeatures: [],
+      backHomeLabel: 'Back to Home',
+      title: 'Create Account',
+      subtitle: 'Get started in minutes',
+      googleLabel: 'Continue with Google',
+      dividerLabel: 'or sign up with email',
+      firstNameLabel: 'First Name',
+      firstNamePlaceholder: 'John',
+      lastNameLabel: 'Last Name',
+      lastNamePlaceholder: 'Doe',
+      emailLabel: 'Email',
+      emailPlaceholder: 'you@example.com',
+      passwordLabel: 'Password',
+      passwordPlaceholder: 'Create password',
+      termsPrefix: 'I agree to the',
+      termsLabel: 'Terms',
+      privacyLabel: 'Privacy Policy',
+      submitLabel: 'Create Account',
+      switchPrompt: 'Already have an account?',
+      switchActionLabel: 'Sign in',
+    },
+  },
+};
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [storefrontContent, setStorefrontContent] = useState<any>(defaultContent);
   const content = storefrontContent.auth.register;
   const brand = storefrontContent.brand;
+
+  useEffect(() => {
+    const loadStorefront = async () => {
+      const response = await fetchStorefrontContent();
+      if (response && typeof response === 'object') {
+        setStorefrontContent({
+          ...defaultContent,
+          ...response,
+          auth: {
+            ...defaultContent.auth,
+            ...((response as any).auth ?? {}),
+          },
+        });
+      }
+    };
+    loadStorefront();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row font-body">

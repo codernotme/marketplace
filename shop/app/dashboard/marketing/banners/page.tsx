@@ -4,10 +4,11 @@ import { useState } from "react";
 import { Button, Input, Card, Separator, Tooltip, Dropdown, Label } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { banners } from "@/lib/mock-data";
+import { useBannersStore } from "@/lib/store";
 
 export default function MarketingBanners() {
   const [search, setSearch] = useState("");
+  const { banners } = useBannersStore();
 
   const filtered = banners.filter(b => b.title.toLowerCase().includes(search.toLowerCase()));
 

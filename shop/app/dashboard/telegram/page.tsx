@@ -4,11 +4,12 @@ import { useState } from "react";
 import { Button, Card, Separator, Tooltip, Dropdown, Label } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { kpiData } from "@/lib/mock-data";
+
+type BotStatus = "active" | "inactive";
 
 export default function TelegramBotPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const status = kpiData.telegramBotStatus;
+  const [status, setStatus] = useState<BotStatus>("active");
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-10">
@@ -20,6 +21,7 @@ export default function TelegramBotPage() {
           <Button
             variant={status === "active" ? "danger" : "primary"}
             className="font-bold gap-2 px-6 shadow-lg shadow-accent/20 h-10 rounded-xl"
+            onPress={() => setStatus((prev) => (prev === "active" ? "inactive" : "active"))}
           >
             <Icon icon={status === "active" ? "solar:power-bold-duotone" : "solar:play-bold-duotone"} className="text-xl" />
             {status === "active" ? "Stop Bot" : "Start Bot"}

@@ -13,7 +13,7 @@ export function KPICards() {
   const mrrByPlan = subscriptions.reduce(
     (acc, sub) => {
       const plan = sub.plan_id;
-      const price = plan === "plan_004" ? 499 : plan === "plan_003" ? 99 : plan === "plan_002" ? 29 : 0;
+      const price = plan === "plan_004" ? 499 : plan === "plan_004a" ? 249 : plan === "plan_003" ? 99 : plan === "plan_002" ? 29 : 0;
       acc[plan] = (acc[plan] || 0) + price;
       return acc;
     },

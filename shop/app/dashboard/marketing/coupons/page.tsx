@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button, Input, Card, Separator, Tooltip, Dropdown, Label } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { coupons } from "@/lib/mock-data";
+import { useCouponsStore } from "@/lib/store";
 
 const TYPE_COLORS = {
   percentage: "bg-accent/15 text-accent",
@@ -15,6 +15,7 @@ const TYPE_COLORS = {
 
 export default function MarketingCoupons() {
   const [search, setSearch] = useState("");
+  const { coupons } = useCouponsStore();
 
   const filtered = coupons.filter(c => c.code.toLowerCase().includes(search.toLowerCase()));
 

@@ -8,7 +8,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useOrdersStore, useUIStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
-import type { OrderStatus } from "@/lib/mock-data";
+
+type OrderStatus = "pending" | "processing" | "packed" | "shipped" | "delivered" | "cancelled" | "returned";
 
 const STATUS_OPTS = [
   { key: "all", label: "All" },

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 
 from core.dependencies import get_master_db, saas_admin_required
 from schemas.saas import PlanCreate, PlanUpdate
+from services.plan_catalog import build_plan_document, normalize_plan_code
 from utils.object_id import to_object_id
 from utils.serialize import to_jsonable
 from utils.time import utcnow
@@ -23,7 +24,7 @@ async def list_plans(_: dict = Depends(saas_admin_required), master_db=Depends(g
 async def create_plan(
     payload: PlanCreate, _: dict = Depends(saas_admin_required), master_db=Depends(get_master_db)
 ):
-    doc = payload.model_dump()
+    doc = build_plan_document(payload.model_dump())
     doc.update({"is_active": True, "created_at": utcnow(), "updated_at": utcnow()})
     result = await master_db["plans"].insert_one(doc)
     return {"id": str(result.inserted_id), "message": "Plan created"}
@@ -37,6 +38,8 @@ async def update_plan(
     master_db=Depends(get_master_db),
 ):
     updates = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if "code" in updates:
+        updates["code"] = normalize_plan_code(str(updates["code"]))
     updates["updated_at"] = utcnow()
     await master_db["plans"].update_one({"_id": to_object_id(plan_id)}, {"$set": updates})
     return {"message": "Plan updated"}

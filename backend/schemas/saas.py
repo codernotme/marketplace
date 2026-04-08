@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -29,19 +30,28 @@ class TenantConfigUpdate(BaseModel):
 class PlanCreate(BaseModel):
     code: str
     name: str
+    description: str | None = None
     monthly_price: float = Field(ge=0)
     yearly_price: float = Field(ge=0)
     max_products: int = Field(ge=1)
     max_staff: int = Field(ge=1)
+    currency: str = Field(default="USD")
+    allowed_modules: list[Literal["shop", "web", "app"]] = Field(default_factory=lambda: ["shop"])
+    requires_contact_sales: bool = False
+    features: list[dict[str, bool | str]] | None = None
 
 
 class PlanUpdate(BaseModel):
     name: str | None = None
+    description: str | None = None
     monthly_price: float | None = Field(default=None, ge=0)
     yearly_price: float | None = Field(default=None, ge=0)
     max_products: int | None = Field(default=None, ge=1)
     max_staff: int | None = Field(default=None, ge=1)
     is_active: bool | None = None
+    currency: str | None = None
+    allowed_modules: list[Literal["shop", "web", "app"]] | None = None
+    requires_contact_sales: bool | None = None
 
 
 class AnnouncementCreate(BaseModel):

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button, Input, Card, Badge, Tooltip, Dropdown, Label, Separator, Avatar } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { tickets } from "@/lib/mock-data";
+import { useTicketsStore } from "@/lib/store";
 
 const PRIORITY_COLORS = {
   low: "bg-default/60 text-muted",
@@ -21,6 +21,7 @@ const STATUS_COLORS = {
 export default function QueriesPage() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const { tickets } = useTicketsStore();
 
   const filtered = tickets.filter(t => 
     (activeFilter === "all" || t.status === activeFilter) &&

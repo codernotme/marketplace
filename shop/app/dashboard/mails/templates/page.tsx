@@ -4,10 +4,24 @@ import { useState } from "react";
 import { Button, Input, Card, Separator, Tooltip, Dropdown, Label } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { emailTemplates } from "@/lib/mock-data";
+
+type EmailTemplate = {
+  id: string;
+  name: string;
+  subject: string;
+  isActive: boolean;
+};
+
+const DEFAULT_EMAIL_TEMPLATES: EmailTemplate[] = [
+  { id: "et_1", name: "Order Confirmed", subject: "Your order #{{order_number}} is confirmed!", isActive: true },
+  { id: "et_2", name: "Order Shipped", subject: "Your order #{{order_number}} is on its way!", isActive: true },
+  { id: "et_3", name: "Order Delivered", subject: "Your order #{{order_number}} has been delivered!", isActive: true },
+  { id: "et_4", name: "Password Reset", subject: "Reset your password", isActive: true },
+];
 
 export default function EmailTemplatesPage() {
   const [search, setSearch] = useState("");
+  const [emailTemplates] = useState<EmailTemplate[]>(DEFAULT_EMAIL_TEMPLATES);
 
   const filtered = emailTemplates.filter(t => t.name.toLowerCase().includes(search.toLowerCase()));
 

@@ -4,13 +4,15 @@ import { useState } from "react";
 import { Button, Card, Separator, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { kpiData, orders } from "@/lib/mock-data";
+import { useOrdersStore } from "@/lib/store";
 import { formatCurrency } from "@/lib/utils";
 
 export default function FinanceSalesReport() {
+  const { orders } = useOrdersStore();
   const totalTax = orders.reduce((s, o) => s + o.tax, 0);
   const totalDiscount = orders.reduce((s, o) => s + o.discount, 0);
-  const netRevenue = kpiData.totalRevenue - totalTax - totalDiscount;
+  const grossRevenue = orders.reduce((s, o) => s + o.total, 0);
+  const netRevenue = grossRevenue - totalTax - totalDiscount;
 
   return (
     <div className="space-y-6 pb-10 max-w-6xl mx-auto">
@@ -37,7 +39,7 @@ export default function FinanceSalesReport() {
         <Card className="p-8 bg-surface border border-border shadow-xl rounded-[2.5rem] relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 blur-3xl rounded-full" />
           <p className="text-[10px] text-muted font-black uppercase tracking-widest mb-2">Gross Revenue</p>
-          <p className="text-3xl font-black text-foreground tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>{formatCurrency(kpiData.totalRevenue)}</p>
+          <p className="text-3xl font-black text-foreground tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>{formatCurrency(grossRevenue)}</p>
           <div className="flex items-center gap-2 mt-4 text-[11px] font-bold text-success">
             <Icon icon="solar:arrow-up-bold-duotone" />
             +18.4% since last month

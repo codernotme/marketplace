@@ -4,21 +4,53 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button, Input, Checkbox, Label } from "@heroui/react";
+import { Button, Label } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { siteConfig } from "@/lib/mock-data";
+import { useShopAuthStore } from "@/lib/auth-store";
+
+const siteName = "theMrktPlace";
 
 export default function SetupPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { register, verifyEmailOtp, isLoading, error, clearError } = useShopAuthStore();
+  const [registered, setRegistered] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    storeName: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    // Simulate register
-    setTimeout(() => {
+
+    try {
+      clearError();
+      const name = `${form.firstName} ${form.lastName}`.trim();
+      await register({
+        name,
+        email: form.email,
+        password: form.password,
+        phone: form.phone || undefined,
+      });
+      setRegistered(true);
+    } catch {
+      // Error is already reflected by auth store.
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      clearError();
+      await verifyEmailOtp(form.email, otp);
       router.push("/dashboard");
-    }, 2000);
+    } catch {
+      // Error is already reflected by auth store.
+    }
   };
 
   return (
@@ -37,32 +69,85 @@ export default function SetupPage() {
             <p className="text-muted text-sm">Create your administrator account and start growing your platform.</p>
           </div>
 
-          <form onSubmit={handleRegister} className="space-y-5">
+          {!registered ? (
+            <form onSubmit={handleRegister} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">First Name</Label>
-                <input id="firstName" placeholder="John" required className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200" />
+                <input
+                  id="firstName"
+                  placeholder="John"
+                  required
+                  value={form.firstName}
+                  onChange={(e) => setForm((prev) => ({ ...prev, firstName: e.target.value }))}
+                  className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Last Name</Label>
-                <input id="lastName" placeholder="Doe" required className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200" />
+                <input
+                  id="lastName"
+                  placeholder="Doe"
+                  required
+                  value={form.lastName}
+                  onChange={(e) => setForm((prev) => ({ ...prev, lastName: e.target.value }))}
+                  className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200"
+                />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="storeName" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Store Name</Label>
-              <input id="storeName" placeholder="My Awesome Store" required className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200" />
+              <input
+                id="storeName"
+                placeholder="My Awesome Store"
+                required
+                value={form.storeName}
+                onChange={(e) => setForm((prev) => ({ ...prev, storeName: e.target.value }))}
+                className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200"
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Work Email</Label>
-              <input id="email" type="email" placeholder="you@example.com" required className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200" />
+              <input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                required
+                value={form.email}
+                onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+                className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Phone (Optional)</Label>
+              <input
+                id="phone"
+                type="tel"
+                placeholder="9876543210"
+                value={form.phone}
+                onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
+                className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200"
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Create Password</Label>
-              <input id="password" type="password" placeholder="At least 8 characters" required className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200" />
+              <input
+                id="password"
+                type="password"
+                placeholder="At least 8 characters"
+                minLength={8}
+                required
+                value={form.password}
+                onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-accent transition-all duration-200"
+              />
             </div>
+
+            {error ? <p className="text-xs text-danger font-bold">{error}</p> : null}
 
             <div className="flex items-start gap-2 px-1 py-1">
               <input type="checkbox" id="terms" className="mt-1 w-4 h-4 rounded border-border text-accent focus:ring-accent accent-accent" required />
@@ -74,11 +159,53 @@ export default function SetupPage() {
             <Button
               type="submit"
               variant="primary"
+              isPending={isLoading}
               className="w-full py-4 rounded-2xl shadow-xl shadow-accent/20 font-bold"
             >
               Initialize My Dashboard
             </Button>
-          </form>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-5">
+              <div className="rounded-2xl border border-accent/25 bg-accent/5 p-4 text-xs text-muted">
+                We sent a 6-digit OTP to <span className="font-bold text-foreground">{form.email}</span>. Verify it to activate your account.
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="otp" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted ml-1">Email OTP</Label>
+                <input
+                  id="otp"
+                  placeholder="123456"
+                  minLength={6}
+                  maxLength={6}
+                  required
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  className="w-full bg-default/40 border border-border rounded-2xl px-4 py-3 text-sm tracking-[0.3em] font-bold text-center focus:outline-none focus:border-accent transition-all duration-200"
+                />
+              </div>
+
+              {error ? <p className="text-xs text-danger font-bold">{error}</p> : null}
+
+              <Button
+                type="submit"
+                variant="primary"
+                isPending={isLoading}
+                className="w-full py-4 rounded-2xl shadow-xl shadow-accent/20 font-bold"
+              >
+                Verify & Open Dashboard
+              </Button>
+
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full py-4 rounded-2xl font-bold"
+                onPress={() => setRegistered(false)}
+              >
+                Edit Registration Details
+              </Button>
+            </form>
+          )}
 
           <p className="text-center mt-8 text-sm text-muted">
             Already have an account?{" "}
@@ -98,7 +225,7 @@ export default function SetupPage() {
               <Image src="/logo.svg" alt="Logo" width={24} height={24} />
             </div>
             <span className="text-xl font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>
-              {siteConfig.name}
+              {siteName}
             </span>
           </div>
 

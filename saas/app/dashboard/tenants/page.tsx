@@ -32,6 +32,14 @@ export default function TenantsPage() {
     plan_code: "starter",
   });
 
+  const planOptions = [
+    { code: "free", label: "Free", modules: ["shop"], sales: false },
+    { code: "starter", label: "Starter", modules: ["shop"], sales: false },
+    { code: "intermediate", label: "Intermediate", modules: ["shop", "web"], sales: false },
+    { code: "growth", label: "Growth", modules: ["shop", "web", "app"], sales: false },
+    { code: "enterprise", label: "Enterprise", modules: ["shop", "web", "app"], sales: true },
+  ] as const;
+
   const fetchTenants = async () => {
     setIsLoading(true);
     try {
@@ -76,7 +84,7 @@ export default function TenantsPage() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight flex items-center gap-3" style={{ fontFamily: "var(--font-outfit)" }}>
+          <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
              <Icon icon="solar:users-group-two-rounded-bold-duotone" className="text-3xl text-primary" />
              Tenants
           </h1>
@@ -84,7 +92,7 @@ export default function TenantsPage() {
         </div>
         <Button 
           variant="primary" 
-          className="font-bold flex items-center gap-2 shadow-lg shadow-accent/20"
+          className="font-bold flex items-center gap-2 shadow-lg shadow-accent-soft-hover"
           onClick={() => setIsModalOpen(true)}
         >
           <Icon icon="solar:add-circle-bold-duotone" className="text-lg" />
@@ -93,8 +101,8 @@ export default function TenantsPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-4 justify-between">
-        <div className="flex-1 min-w-[300px]">
-          <InputGroup className="max-w-md bg-default-100/50 border border-border/50 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-accent/20 transition-all">
+        <div className="flex-1 min-w-75">
+          <InputGroup className="max-w-md bg-default-100/50 border border-border/50 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-accent-soft-hover transition-all">
             <InputGroup.Prefix className="pl-3 text-muted-foreground">
               <Icon icon="solar:magnifer-linear" className="text-default-400" width={18} />
             </InputGroup.Prefix>
@@ -156,7 +164,7 @@ export default function TenantsPage() {
                   <tr key={tenant._id} className="hover:bg-default-50/50 transition-colors group">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-4">
-                         <div className="w-10 h-10 rounded-2xl bg-accent/10 border border-accent/20 text-accent flex items-center justify-center font-black text-xs">
+                         <div className="w-10 h-10 rounded-2xl bg-accent/10 border border-accent-soft-hover text-accent flex items-center justify-center font-black text-xs">
                             {tenant.name?.charAt(0).toUpperCase() || "T"}
                          </div>
                          <div>
@@ -174,12 +182,21 @@ export default function TenantsPage() {
                     <td className="px-5 py-4">
                       <Chip 
                         variant="soft" 
-                        color={tenant.plan === "enterprise" ? "accent" : "default"}
+                        color={tenant.plan === "enterprise" ? "accent" : tenant.plan === "growth" ? "success" : tenant.plan === "intermediate" ? "warning" : "default"}
                         className="font-black text-[10px] uppercase tracking-wider h-6 pr-2"
                       >
-                         <Icon icon="solar:crown-bold-duotone" className="mr-1 mt-[-1px]" />
-                        {tenant.plan || "Starter"}
+                         <Icon icon="solar:crown-bold-duotone" className="mr-1 -mt-px" />
+                        {tenant.plan || tenant.plan_code || "Starter"}
                       </Chip>
+                      {tenant.module_access?.length ? (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {tenant.module_access.map((module) => (
+                            <Chip key={module} size="sm" variant="soft" className="text-[9px] font-black uppercase tracking-wider h-5">
+                              {module}
+                            </Chip>
+                          ))}
+                        </div>
+                      ) : null}
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
@@ -196,11 +213,11 @@ export default function TenantsPage() {
                     <td className="px-5 py-4 text-right">
                       <Dropdown>
                         <Dropdown.Trigger>
-                           <button className="flex items-center justify-center rounded-full h-8 w-8 opacity-60 hover:opacity-100 hover:bg-default-100 transition-all outline-none">
+                          <button title="Tenant actions" aria-label="Tenant actions" className="flex items-center justify-center rounded-full h-8 w-8 opacity-60 hover:opacity-100 hover:bg-default-100 transition-all outline-none">
                               <Icon icon="solar:menu-dots-bold-duotone" className="text-lg" />
                            </button>
                         </Dropdown.Trigger>
-                        <Dropdown.Popover className="min-w-[180px] bg-background border border-border shadow-xl rounded-2xl p-1">
+                        <Dropdown.Popover className="min-w-45 bg-background border border-border shadow-xl rounded-2xl p-1">
                            <Dropdown.Menu onAction={(key) => {
                              if (key === "view") router.push(`/dashboard/tenants/${tenant._id}`);
                            }}>
@@ -239,7 +256,7 @@ export default function TenantsPage() {
                       <Icon icon="solar:shop-add-bold-duotone" className="text-2xl" />
                    </div>
                    <div>
-                      <h3 className="text-lg font-black tracking-tight" style={{ fontFamily: "var(--font-outfit)" }}>Provision New Tenant</h3>
+                      <h3 className="text-lg font-black tracking-tight">Provision New Tenant</h3>
                       <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Spin up a new marketplace instance</p>
                    </div>
                 </div>
@@ -278,19 +295,42 @@ export default function TenantsPage() {
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Subscription Tier</Label>
                     <div className="flex items-center gap-3 p-1 bg-default-100/50 border border-border/50 rounded-xl">
-                      {["starter", "pro", "enterprise"].map((plan) => (
+                      {planOptions.map((plan) => (
                         <button
-                          key={plan}
-                          onClick={() => setFormData({ ...formData, plan_code: plan })}
+                          key={plan.code}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, plan_code: plan.code })}
                           className={cn(
                             "flex-1 py-2 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                            formData.plan_code === plan 
+                            formData.plan_code === plan.code 
                               ? "bg-background text-accent shadow-sm" 
                               : "text-muted-foreground hover:text-foreground"
                           )}
                         >
-                          {plan}
+                          {plan.label}
                         </button>
+                      ))}
+                    </div>
+                 </div>
+                 <div className="rounded-2xl border border-border/60 bg-default-50/70 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Module access by tier</p>
+                    <div className="space-y-2 text-xs">
+                      {planOptions.map((plan) => (
+                        <div key={plan.code} className="flex items-center justify-between gap-4">
+                          <span className="font-bold capitalize">{plan.label}</span>
+                          <div className="flex flex-wrap justify-end gap-1.5">
+                            {plan.modules.map((module) => (
+                              <Chip key={module} size="sm" variant="soft" className="text-[9px] font-black uppercase tracking-wider h-5">
+                                {module}
+                              </Chip>
+                            ))}
+                            {plan.sales ? (
+                              <Chip size="sm" variant="soft" color="warning" className="text-[9px] font-black uppercase tracking-wider h-5">
+                                contact sales
+                              </Chip>
+                            ) : null}
+                          </div>
+                        </div>
                       ))}
                     </div>
                  </div>
@@ -301,7 +341,7 @@ export default function TenantsPage() {
                 </Button>
                 <Button 
                   variant="primary" 
-                  className="flex-1 font-bold rounded-xl h-11 shadow-lg shadow-accent/20" 
+                  className="flex-1 font-bold rounded-xl h-11 shadow-lg shadow-accent-soft-hover" 
                   onClick={handleCreateTenant}
                   isPending={isSaving}
                 >

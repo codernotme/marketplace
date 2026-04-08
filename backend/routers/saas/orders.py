@@ -1,54 +1,111 @@
-from fastapi import APIRouter, HTTPException, Query
-from typing import List, Optional
-from datetime import datetime, timedelta
-import random
+from __future__ import annotations
 
-# Mock database
-MOCK_ORDERS = [
-    {
-        "_id": f"ord_{i:04d}",
-        "tenant_id": random.choice(["65f2b1a2c3d4", "65f2c2a3b1c2"]),
-        "order_number": f"TRZ-{1000 + i}",
-        "user_email": f"customer_{i}@example.com",
-        "total_amount": round(random.uniform(20.0, 500.0), 2),
-        "payment_status": random.choice(["paid", "pending", "failed", "refunded"]),
-        "fulfillment_status": random.choice(["pending", "processing", "shipped", "delivered", "cancelled"]),
-        "created_at": (datetime.now() - timedelta(days=random.randint(0, 30), minutes=random.randint(0, 1440))).isoformat(),
-    } for i in range(1, 21)
-]
+from fastapi import APIRouter, Depends, Query, Request
 
-router = APIRouter(tags=["SaaS Orders"])
+from core.dependencies import get_master_db, saas_admin_required
+from utils.serialize import to_jsonable
+
+router = APIRouter(tags=["saas-orders"])
+
+
+def _get_payment_status(order: dict) -> str:
+    return (
+        order.get("payment_status")
+        or order.get("paymentStatus")
+        or (order.get("payment") or {}).get("status")
+        or "pending"
+    )
+
+
+def _get_fulfillment_status(order: dict) -> str:
+    return (
+        order.get("fulfillment_status")
+        or order.get("fulfillmentStatus")
+        or (order.get("fulfillment") or {}).get("status")
+        or "pending"
+    )
+
+
+def _get_total_amount(order: dict) -> float:
+    if "total_amount" in order:
+        return float(order.get("total_amount", 0) or 0)
+    pricing = order.get("pricing") or {}
+    if "grand_total" in pricing:
+        return float(pricing.get("grand_total", 0) or 0)
+    if "grandTotal" in pricing:
+        return float(pricing.get("grandTotal", 0) or 0)
+    return 0.0
+
 
 @router.get("/orders")
 async def get_all_orders(
-    tenant_id: Optional[str] = None,
-    payment_status: Optional[str] = None,
-    fulfillment_status: Optional[str] = None
+    request: Request,
+    tenant_id: str | None = Query(default=None),
+    payment_status: str | None = Query(default=None),
+    fulfillment_status: str | None = Query(default=None),
+    _: dict = Depends(saas_admin_required),
+    master_db=Depends(get_master_db),
 ):
-    """
-    Retrieve all transactions across the entire multi-tenant ecosystem.
-    """
-    filtered = MOCK_ORDERS
+    db_manager = request.app.state.db_manager
+
+    tenant_query = {"status": "active"}
     if tenant_id:
-        filtered = [o for o in filtered if o["tenant_id"] == tenant_id]
-    if payment_status:
-        filtered = [o for o in filtered if o["payment_status"] == payment_status]
-    if fulfillment_status:
-        filtered = [o for o in filtered if o["fulfillment_status"] == fulfillment_status]
-        
-    return {"data": filtered}
+        tenant_query["$or"] = [{"slug": tenant_id}, {"_id": tenant_id}]
+
+    resolved_tenants = [t async for t in master_db["tenants"].find(tenant_query)]
+
+    data: list[dict] = []
+    for tenant in resolved_tenants:
+        tenant_db = await db_manager.get_tenant_db(tenant)
+        query: dict = {"tenant_id": tenant["_id"]}
+        cursor = tenant_db["orders"].find(query).sort("created_at", -1).limit(500)
+        async for order in cursor:
+            order_payment_status = _get_payment_status(order)
+            order_fulfillment_status = _get_fulfillment_status(order)
+            if payment_status and order_payment_status != payment_status:
+                continue
+            if fulfillment_status and order_fulfillment_status != fulfillment_status:
+                continue
+
+            obj = to_jsonable(order)
+            obj["tenant_slug"] = tenant.get("slug")
+            obj["tenant_name"] = tenant.get("name")
+            obj["payment_status"] = order_payment_status
+            obj["fulfillment_status"] = order_fulfillment_status
+            obj["total_amount"] = _get_total_amount(order)
+            data.append(obj)
+
+    return {"data": data}
+
 
 @router.get("/orders/stats")
-async def get_order_stats():
-    """
-    Return platform-level KPI statistics for the Orders dashboard.
-    """
-    total_revenue = sum(o["total_amount"] for o in MOCK_ORDERS if o["payment_status"] == "paid")
-    successful_orders = len([o for o in MOCK_ORDERS if o["payment_status"] == "paid"])
-    
+async def get_order_stats(
+    request: Request,
+    _: dict = Depends(saas_admin_required),
+    master_db=Depends(get_master_db),
+):
+    db_manager = request.app.state.db_manager
+
+    total_revenue = 0.0
+    total_orders = 0
+    successful_orders = 0
+
+    async for tenant in master_db["tenants"].find({"status": "active"}):
+        tenant_db = await db_manager.get_tenant_db(tenant)
+        cursor = tenant_db["orders"].find({"tenant_id": tenant["_id"]})
+        async for order in cursor:
+            total_orders += 1
+            payment_status = _get_payment_status(order)
+            if payment_status == "paid":
+                successful_orders += 1
+                total_revenue += _get_total_amount(order)
+
+    avg_order_value = (total_revenue / successful_orders) if successful_orders > 0 else 0.0
+    success_rate = (successful_orders / total_orders * 100) if total_orders > 0 else 0.0
+
     return {
         "gross_revenue": round(total_revenue, 2),
-        "avg_order_value": round(total_revenue / successful_orders if successful_orders > 0 else 0, 2),
-        "total_volume": len(MOCK_ORDERS),
-        "success_rate": round(successful_orders / len(MOCK_ORDERS) * 100, 2) if len(MOCK_ORDERS) > 0 else 0
+        "avg_order_value": round(avg_order_value, 2),
+        "total_volume": total_orders,
+        "success_rate": round(success_rate, 2),
     }

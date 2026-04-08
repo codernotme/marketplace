@@ -79,6 +79,49 @@ async def get_current_user(
     return user
 
 
+async def get_current_user_optional(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db_manager: DatabaseManager = Depends(get_db_manager),
+) -> dict | None:
+    if credentials is None:
+        return None
+
+    try:
+        payload = decode_access_token(credentials.credentials)
+    except Exception:
+        return None
+
+    user_id = payload.get("sub")
+    role = payload.get("role")
+    if not user_id or not role:
+        return None
+
+    user_oid = try_object_id(user_id)
+    if user_oid is None:
+        return None
+
+    if role == "saas_admin":
+        user = await db_manager.master_db["saas_admins"].find_one(
+            {"_id": user_oid, "is_active": True}
+        )
+    else:
+        tenant_db = getattr(request.state, "tenant_db", None)
+        tenant = getattr(request.state, "tenant", None)
+        tenant_id = tenant.get("_id") if tenant else None
+        if tenant_db is None or tenant_id is None:
+            return None
+        user = await tenant_db["users"].find_one(
+            {"_id": user_oid, "tenant_id": tenant_id, "is_active": True}
+        )
+
+    if user is None:
+        return None
+
+    user["token_payload"] = payload
+    return user
+
+
 def require_roles(roles: list[str]) -> Callable:
     async def _guard(user: dict = Depends(get_current_user)) -> dict:
         if user.get("role") not in roles:

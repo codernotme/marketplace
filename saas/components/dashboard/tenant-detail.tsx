@@ -1,15 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Card, Button, Chip } from "@heroui/react";
 import { tenants } from "@/lib/data/tenants";
 import { subscriptions } from "@/lib/data/subscriptions";
 import { configs } from "@/lib/data/configs";
 import { plans } from "@/lib/data/plans";
-import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 interface TenantDetailProps {
   tenantId: string;
@@ -54,8 +51,8 @@ export function TenantDetail({ tenantId }: TenantDetailProps) {
               <h1 className="text-2xl font-bold text-gray-900">{tenant.shop_name}</h1>
               <p className="text-gray-600">{tenant.shop_slug}</p>
               <div className="flex gap-2 mt-2">
-                <Badge variant="secondary">{tenant.status}</Badge>
-                <Badge variant="outline">{tenant.plan}</Badge>
+                <Chip size="sm" variant="soft">{tenant.status}</Chip>
+                <Chip size="sm" variant="soft">{tenant.plan}</Chip>
               </div>
             </div>
           </div>
@@ -89,7 +86,9 @@ export function TenantDetail({ tenantId }: TenantDetailProps) {
             <span className="text-sm text-gray-600">Step {tenant.onboarding_step} of 5</span>
             <span className="text-sm font-medium">{Math.round(onboardingProgress)}%</span>
           </div>
-          <Progress value={onboardingProgress} className="w-full" />
+          <div className="h-2 w-full overflow-hidden rounded-full bg-default-200">
+            <div className="h-full bg-primary" style={{ width: `${onboardingProgress}%` }} />
+          </div>
           <p className="text-xs text-gray-500 mt-2">
             {tenant.onboarding_complete ? "Onboarding completed" : "Onboarding in progress"}
           </p>
@@ -152,7 +151,7 @@ export function TenantDetail({ tenantId }: TenantDetailProps) {
         </Button>
         {tenant.status === "active" && (
           <Button
-            variant="destructive"
+            variant="danger"
             onClick={() => setShowSuspend(!showSuspend)}
           >
             Suspend Tenant
@@ -174,7 +173,7 @@ export function TenantDetail({ tenantId }: TenantDetailProps) {
             <li>• Pause all integrations</li>
           </ul>
           <div className="flex gap-2">
-            <Button className="bg-red-600 hover:bg-red-700">Confirm Suspension</Button>
+            <Button variant="danger">Confirm Suspension</Button>
             <Button variant="outline" onClick={() => setShowSuspend(false)}>
               Cancel
             </Button>

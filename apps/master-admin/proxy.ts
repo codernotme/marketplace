@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { auth } from "@workspace/auth/lib/auth";
 import { canAccessApp, resolveRequestMeta, getPrimaryApp, APP_ROOTS } from "@workspace/auth/lib/proxy";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const session = await auth.api.getSession({
     headers: request.headers,
   });
@@ -15,11 +15,6 @@ export async function middleware(request: NextRequest) {
                      request.nextUrl.pathname.startsWith("/forgot-password") ||
                      request.nextUrl.pathname.startsWith("/reset-password");
 
-  // Public routes on landing app
-  if (app === "landing" && !isAuthPage) {
-    return NextResponse.next();
-  }
-
   if (!session && !isAuthPage) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -27,13 +22,12 @@ export async function middleware(request: NextRequest) {
   if (session) {
     const role = session.user.role || "CUSTOMER";
     
-    // Check RBAC
     if (!canAccessApp(role, app)) {
       const primaryApp = getPrimaryApp(role);
-      return NextResponse.redirect(new URL(APP_ROOTS[primaryApp]));
+      const redirectUrl = APP_ROOTS[primaryApp];
+      return NextResponse.redirect(new URL(redirectUrl));
     }
     
-    // Redirect logged in users away from auth pages
     if (isAuthPage) {
        return NextResponse.redirect(new URL("/", request.url));
     }

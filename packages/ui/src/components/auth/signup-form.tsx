@@ -30,9 +30,10 @@ type SignupValues = z.infer<typeof signupSchema>;
 
 interface SignupFormProps extends React.ComponentPropsWithoutRef<"div"> {
   onSuccess?: () => void;
+  defaultRole?: string;
 }
 
-export function SignupForm({ className, onSuccess, ...props }: SignupFormProps) {
+export function SignupForm({ className, onSuccess, defaultRole = "CUSTOMER", ...props }: SignupFormProps) {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<SignupValues>({
@@ -51,6 +52,7 @@ export function SignupForm({ className, onSuccess, ...props }: SignupFormProps) 
         email: values.email,
         password: values.password,
         name: values.name,
+        role: defaultRole,
         callbackURL: "/", 
       });
 

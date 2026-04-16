@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { auth } from "@workspace/auth/lib/auth";
 import { canAccessApp, resolveRequestMeta, getPrimaryApp, APP_ROOTS } from "@workspace/auth/lib/proxy";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const session = await auth.api.getSession({
     headers: request.headers,
   });

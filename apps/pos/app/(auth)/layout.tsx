@@ -1,0 +1,49 @@
+import type { ReactNode } from "react";
+import { cn } from "@workspace/ui/lib/utils";
+
+interface AuthLayoutProps {
+  children: ReactNode;
+}
+
+export default function AuthLayout({ children }: AuthLayoutProps) {
+  return (
+    <div className="min-h-screen flex">
+      {/* Left panel — POS Branding */}
+      <div className="hidden lg:flex lg:w-1/2 xl:w-2/5 flex-col justify-between bg-emerald-600 p-12 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-white -translate-y-1/2 translate-x-1/2" />
+        </div>
+
+        <div className="relative z-10">
+          <div className="flex items-center gap-2">
+            <div className="size-8 rounded-lg bg-white/20 flex items-center justify-center text-sm font-bold">
+              P
+            </div>
+            <span className={cn("text-xl font-bold tracking-tight")}>themrktplace POS</span>
+          </div>
+        </div>
+
+        <div className="relative z-10">
+          <blockquote className="text-2xl font-semibold leading-snug mb-6">
+            "Speed up your checkout process and manage your inventory with ease."
+          </blockquote>
+        </div>
+
+        <div className="relative z-10">
+          <ul className="flex flex-col gap-2 text-sm opacity-90">
+            {["Offline-first capability", "Real-time sync", "Inventory management", "Multi-terminal support"].map((f) => (
+              <li key={f} className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-white/60" />
+                {f}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-16 bg-background">
+        <div className="w-full max-w-sm">{children}</div>
+      </div>
+    </div>
+  );
+}

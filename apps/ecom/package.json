@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "ecom",
   "version": "0.0.1",
   "type": "module",
   "private": true,
@@ -15,7 +15,7 @@
     "@hugeicons/core-free-icons": "^4.1.1",
     "@hugeicons/react": "^1.1.6",
     "@workspace/ui": "*",
-    "next": "16.1.6",
+    "next": "^16.2.4",
     "next-themes": "^0.4.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"

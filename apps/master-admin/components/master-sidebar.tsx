@@ -4,7 +4,7 @@ import {
   GridViewIcon,
   Building01Icon,
   CreditCardIcon,
-  ChartBarSquareIcon,
+  PieChartSquareIcon,
   Settings01Icon,
   UserMultiple02Icon,
   ArrowDown01Icon,
@@ -37,7 +37,7 @@ const masterNavItems = [
   { label: "Overview", href: "/dashboard", icon: GridViewIcon },
   { label: "Tenants", href: "/dashboard/tenants", icon: Building01Icon },
   { label: "Billing", href: "/dashboard/billing", icon: CreditCardIcon },
-  { label: "Analytics", href: "/dashboard/analytics", icon: ChartBarSquareIcon },
+  { label: "Analytics", href: "/dashboard/analytics", icon: PieChartSquareIcon },
   { label: "Users", href: "/dashboard/users", icon: UserMultiple02Icon },
   { label: "Settings", href: "/dashboard/settings", icon: Settings01Icon },
 ];

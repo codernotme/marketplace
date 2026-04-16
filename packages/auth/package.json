@@ -1,0 +1,29 @@
+{
+  "name": "@workspace/auth",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "main": "./lib/auth.ts",
+  "types": "./lib/auth.ts",
+  "exports": {
+    ".": "./lib/auth.ts",
+    "./lib/auth": "./lib/auth.ts",
+    "./lib/client": "./lib/client.ts",
+    "./lib/proxy": "./lib/proxy.ts"
+  },
+  "scripts": {
+    "lint": "eslint",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@workspace/db": "*",
+    "better-auth": "^1.6.5",
+    "kysely": "^0.28.16"
+  },
+  "devDependencies": {
+    "@workspace/eslint-config": "*",
+    "@workspace/typescript-config": "*",
+    "typescript": "^5.9.3"
+  }
+}

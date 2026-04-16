@@ -10,12 +10,19 @@
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@prisma/client": "^7.7.0",
     "@workspace/eslint-config": "*",
     "@workspace/typescript-config": "*",
+    "@workspace/ui": "^0.0.0",
+    "better-auth": "^1.6.5",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "prisma": "^7.7.0",
+    "react-hook-form": "^7.72.1",
     "turbo": "^2.8.17",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "zod": "^4.3.6"
   },
   "packageManager": "npm@11.11.1",
   "engines": {
@@ -24,5 +31,10 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@types/pg": "^8.20.0",
+    "pg": "^8.20.0",
+    "resend": "^6.12.0"
+  }
 }

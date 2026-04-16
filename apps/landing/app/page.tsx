@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Badge } from "@workspace/ui/components/badge";
 import { Card, CardContent } from "@workspace/ui/components/card";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -12,6 +11,7 @@ import {
   SecurityIcon,
   FlashIcon
 } from "@hugeicons/core-free-icons";
+import { Button } from "@workspace/ui/components/button";
 
 export default function LandingHomePage() {
   return (

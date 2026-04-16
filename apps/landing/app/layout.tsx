@@ -3,6 +3,7 @@ import "@workspace/ui/globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@workspace/ui/lib/utils";
 import type { Metadata } from "next";
+import { Separator } from "@workspace/ui/components/separator";
 
 const ralewayHeading = Raleway({
   subsets: ["latin"],
@@ -66,7 +67,7 @@ export default function RootLayout({
                   <a href="/docs" className="transition-colors hover:text-foreground">Docs</a>
                 </nav>
                 <div className="flex items-center gap-4">
-                  <a href="https://app.themrktplace.io/login" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">Log in</a>
+                  <a href="/login" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">Log in</a>
                   <Button size="sm" className="rounded-full px-5 h-9 font-semibold shadow-lg shadow-primary/20">
                     Get Started
                   </Button>

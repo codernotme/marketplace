@@ -1,83 +1,16 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Button } from "@workspace/ui/components/button";
+import { cn } from "@workspace/ui/lib/utils";
+import { ChartBarLineIcon, FlashIcon, Settings03Icon, GlobalIcon, ArrowRight01Icon, Mouse01Icon, Store01Icon, PackageIcon, CpuIcon, CreditCardIcon, Tick02Icon, AgreementIcon } from "@hugeicons/core-free-icons";
 
-// ─── Utility ──────────────────────────────────────────────────────────────────
-function cn(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+// ─── Decorative Components ───────────────────────────────────────────────────
 
-// ─── Icons (inline SVG) ───────────────────────────────────────────────────────
-const Icons = {
-  Store: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <path d="M3 9l1-5h16l1 5" /><path d="M3 9a2 2 0 0 0 2 2 2 2 0 0 0 2-2 2 2 0 0 0 2 2 2 2 0 0 0 2-2 2 2 0 0 0 2 2 2 2 0 0 0 2-2" />
-      <path d="M5 20V11m14 9V11" /><rect x="9" y="14" width="6" height="6" rx="1" />
-    </svg>
-  ),
-  Lightning: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-    </svg>
-  ),
-  Globe: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-    </svg>
-  ),
-  Shield: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-  ),
-  Cpu: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <rect x="4" y="4" width="16" height="16" rx="2" /><rect x="9" y="9" width="6" height="6" />
-      <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3" />
-    </svg>
-  ),
-  ArrowRight: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <path d="M5 12h14M12 5l7 7-7 7" />
-    </svg>
-  ),
-  Menu: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <path d="M3 12h18M3 6h18M3 18h12" />
-    </svg>
-  ),
-  X: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <path d="M18 6L6 18M6 6l12 12" />
-    </svg>
-  ),
-  Star: () => (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  ),
-  Check: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <path d="M20 6L9 17l-5-5" />
-    </svg>
-  ),
-  Chart: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <path d="M3 3v18h18" /><path d="M7 16l4-4 4 4 4-4" />
-    </svg>
-  ),
-  Package: () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
-      <path d="M16.5 9.4L7.55 4.24M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-      <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" />
-    </svg>
-  ),
-};
-
-// ─── Noise Texture Overlay ────────────────────────────────────────────────────
 function NoiseOverlay() {
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-50 opacity-[0.025] mix-blend-overlay"
+      className="pointer-events-none fixed inset-0 z-50 opacity-[0.02] mix-blend-overlay"
       style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
         backgroundRepeat: "repeat",
@@ -87,502 +20,238 @@ function NoiseOverlay() {
   );
 }
 
-// ─── Animated Counter ─────────────────────────────────────────────────────────
-function Counter({ to, suffix = "", duration = 2000 }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const started = useRef(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started.current) {
-          started.current = true;
-          const start = Date.now();
-          const tick = () => {
-            const elapsed = Date.now() - start;
-            const progress = Math.min(elapsed / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.round(eased * to));
-            if (progress < 1) requestAnimationFrame(tick);
-          };
-          requestAnimationFrame(tick);
-        }
-      },
-      { threshold: 0.3 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [to, duration]);
-
-  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
-}
-
-// ─── Marquee ──────────────────────────────────────────────────────────────────
-function Marquee({ items }) {
-  return (
-    <div className="overflow-hidden py-4 border-y border-[#222]">
-      <style>{`
-        @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-        .marquee-track { animation: marquee 28s linear infinite; display: flex; width: max-content; }
-        .marquee-track:hover { animation-play-state: paused; }
-      `}</style>
-      <div className="marquee-track">
-        {[...items, ...items].map((item, i) => (
-          <span key={i} className="flex items-center gap-3 px-8 text-[#555] text-sm font-medium tracking-[0.2em] uppercase whitespace-nowrap">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C9A84C] inline-block" />
-            {item}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Floating Orb ─────────────────────────────────────────────────────────────
-function Orb({ className, style }) {
+function Orb({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <div
-      className={cn("absolute rounded-full pointer-events-none blur-[100px] opacity-30", className)}
+      className={cn("absolute rounded-full blur-[120px] pointer-events-none", className)}
       style={style}
     />
   );
 }
 
-// ─── Nav ──────────────────────────────────────────────────────────────────────
-function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+// ─── Hero Components ─────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
-
-  const links = ["Platform", "Features", "Pricing", "About"];
-
+function HeroDashboardMockup() {
   return (
-    <nav
-      className={cn(
-        "fixed top-0 left-0 right-0 z-40 transition-all duration-500",
-        scrolled
-          ? "bg-[#080808]/90 backdrop-blur-xl border-b border-[#1a1a1a] py-3"
-          : "py-6"
-      )}
-    >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex flex-col leading-none">
-          <span
-            className="font-black text-white tracking-[-0.04em]"
-            style={{ fontFamily: "'Syne', sans-serif", fontSize: "22px" }}
-          >
-            themrktplace
-          </span>
-          <span className="text-[#C9A84C] text-[9px] tracking-[0.25em] uppercase font-medium">
-            by Tackle Studioz
-          </span>
+    <div className="relative w-full max-w-5xl mx-auto mt-24 group px-4">
+      <div className="absolute -inset-1 bg-gradient-to-r from-[#C9A84C]/20 to-[#8B5CF6]/20 rounded-[32px] blur-3xl opacity-30 group-hover:opacity-60 transition duration-1000"></div>
+      <div className="relative bg-[#0A0A0A] border border-[#1a1a1a] rounded-[24px] overflow-hidden shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)]">
+        {/* Mockup Header */}
+        <div className="h-10 border-b border-[#1a1a1a] flex items-center px-6 justify-between bg-[#0e0e0e]">
+          <div className="flex gap-1.5">
+            <div className="size-2 rounded-full bg-[#333]"></div>
+            <div className="size-2 rounded-full bg-[#333]"></div>
+            <div className="size-2 rounded-full bg-[#333]"></div>
+          </div>
+          <div className="flex items-center gap-4">
+             <div className="h-1.5 w-24 bg-[#1a1a1a] rounded-full"></div>
+             <div className="size-5 rounded-full bg-[#1a1a1a]"></div>
+          </div>
         </div>
-
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8">
-          {links.map((l) => (
-            <a
-              key={l}
-              href={`#${l.toLowerCase()}`}
-              className="text-[#888] hover:text-white text-sm tracking-wide transition-colors duration-200"
-            >
-              {l}
-            </a>
-          ))}
+        
+        {/* Mockup Body */}
+        <div className="p-8 grid grid-cols-12 gap-8 bg-gradient-to-b from-[#0e0e0e] to-black">
+          {/* Main Chart Section */}
+          <div className="col-span-12 lg:col-span-8 space-y-8">
+            <div className="bg-[#111]/50 border border-[#1a1a1a] rounded-2xl p-6 relative overflow-hidden group/chart">
+               <div className="flex justify-between mb-8">
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-[#555] font-black uppercase tracking-widest">Gross Merchandise Volume</p>
+                    <h4 className="text-2xl font-black text-white" style={{ fontFamily: "'Syne', sans-serif" }}>$482,904.00</h4>
+                  </div>
+                  <div className="size-10 rounded-xl bg-[#C9A84C]/5 border border-[#C9A84C]/10 flex items-center justify-center">
+                    <HugeiconsIcon icon={ChartBarLineIcon} className="size-5 text-[#C9A84C]" />
+                  </div>
+               </div>
+               <div className="flex items-end gap-1.5 h-32">
+                  {[40, 70, 45, 90, 65, 80, 55, 95, 75, 85, 60, 100, 80, 90].map((h, i) => (
+                    <div key={i} className="flex-1 bg-[#C9A84C]/20 rounded-t-md hover:bg-[#C9A84C]/40 transition-colors" style={{ height: `${h}%` }}></div>
+                  ))}
+               </div>
+            </div>
+            
+            {/* Secondary Widgets */}
+            <div className="grid grid-cols-2 gap-6">
+               <div className="bg-[#111]/30 border border-[#1a1a1a] rounded-2xl p-5 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div className="h-1.5 w-12 bg-[#333] rounded-full"></div>
+                    <div className="size-4 rounded bg-[#1a1a1a]"></div>
+                  </div>
+                  <div className="h-4 w-24 bg-white/5 rounded"></div>
+                  <div className="space-y-2">
+                    <div className="h-1 w-full bg-[#1a1a1a] rounded-full overflow-hidden">
+                      <div className="h-full w-2/3 bg-[#8B5CF6]"></div>
+                    </div>
+                    <div className="h-1 w-full bg-[#1a1a1a] rounded-full overflow-hidden">
+                      <div className="h-full w-1/2 bg-[#C9A84C]"></div>
+                    </div>
+                  </div>
+               </div>
+               <div className="bg-[#111]/30 border border-[#1a1a1a] rounded-2xl p-5 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div className="h-1.5 w-12 bg-[#333] rounded-full"></div>
+                    <div className="size-4 rounded bg-[#1a1a1a]"></div>
+                  </div>
+                  <div className="h-4 w-24 bg-white/5 rounded"></div>
+                  <div className="flex gap-2">
+                    {[1,2,3,4].map(i => <div key={i} className="size-6 rounded-full bg-[#1a1a1a] border border-white/5"></div>)}
+                  </div>
+               </div>
+            </div>
+          </div>
+          
+          {/* Sidebar Section */}
+          <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+             <div className="flex-1 bg-gradient-to-br from-[#1a1a1a]/40 to-transparent border border-[#1a1a1a] rounded-2xl p-6 flex flex-col justify-between">
+                <div className="space-y-6">
+                  <div className="size-12 rounded-2xl bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 flex items-center justify-center">
+                     <HugeiconsIcon icon={FlashIcon} className="size-6 text-[#8B5CF6]" />
+                  </div>
+                  <div className="space-y-4">
+                    <div className="h-2 w-3/4 bg-[#222] rounded-full"></div>
+                    <div className="h-2 w-1/2 bg-[#222] rounded-full"></div>
+                  </div>
+                </div>
+                <div className="pt-6 border-t border-[#1a1a1a]">
+                   <div className="h-10 w-full bg-[#1a1a1a] rounded-xl flex items-center px-4">
+                      <div className="h-1.5 w-20 bg-[#333] rounded-full"></div>
+                   </div>
+                </div>
+             </div>
+             <div className="h-48 bg-[#C9A84C]/5 border border-[#C9A84C]/10 rounded-2xl p-6 overflow-hidden relative group/alert">
+                <div className="relative z-10 flex flex-col justify-between h-full">
+                  <div className="size-8 rounded-lg bg-[#C9A84C] flex items-center justify-center">
+                    <HugeiconsIcon icon={Settings03Icon} className="size-4 text-[#080808]" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-white font-bold text-sm">System Healthy</p>
+                    <p className="text-[#888] text-[10px]">All tenants operational</p>
+                  </div>
+                </div>
+                <HugeiconsIcon icon={GlobalIcon} className="absolute -right-8 -bottom-8 size-32 text-[#C9A84C]/5" />
+             </div>
+          </div>
         </div>
-
-        {/* CTA */}
-        <div className="hidden md:flex items-center gap-3">
-          <button className="text-[#888] hover:text-white text-sm transition-colors">Sign in</button>
-          <button className="bg-[#C9A84C] hover:bg-[#E0BF6A] text-[#080808] text-sm font-bold px-5 py-2.5 rounded-full transition-all duration-200 hover:scale-105 tracking-wide">
-            Get Started
-          </button>
-        </div>
-
-        {/* Mobile Toggle */}
-        <button
-          className="md:hidden text-white w-6 h-6"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <Icons.X /> : <Icons.Menu />}
-        </button>
       </div>
-
-      {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden bg-[#0D0D0D] border-t border-[#1a1a1a] px-6 py-6 flex flex-col gap-5">
-          {links.map((l) => (
-            <a
-              key={l}
-              href={`#${l.toLowerCase()}`}
-              className="text-[#aaa] hover:text-white text-lg font-medium tracking-wide transition-colors"
-              onClick={() => setMobileOpen(false)}
-            >
-              {l}
-            </a>
-          ))}
-          <button className="mt-4 bg-[#C9A84C] text-[#080808] font-bold py-3 rounded-full tracking-wide">
-            Get Started
-          </button>
-        </div>
-      )}
-    </nav>
+    </div>
   );
 }
 
-// ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => { setTimeout(() => setVisible(true), 100); }, []);
-
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-[#080808]">
-      {/* Orbs */}
-      <Orb className="w-[700px] h-[700px] bg-[#C9A84C] top-[-200px] right-[-200px]" />
-      <Orb className="w-[500px] h-[500px] bg-[#1a5c4a] bottom-[-100px] left-[-100px]" />
-      <Orb className="w-[300px] h-[300px] bg-[#8B5CF6] top-[40%] left-[20%]" style={{ opacity: 0.1 }} />
+    <section className="relative pt-40 pb-24 overflow-hidden bg-[#080808]">
+      <Orb className="w-[1000px] h-[1000px] bg-[#C9A84C] -top-[500px] -left-[300px]" style={{ opacity: 0.08 }} />
+      <Orb className="w-[800px] h-[800px] bg-[#8B5CF6] bottom-0 -right-[400px]" style={{ opacity: 0.05 }} />
 
-      {/* Grid overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)`,
-          backgroundSize: "80px 80px",
-        }}
-      />
+      <div className="container relative z-10 mx-auto px-6 text-center">
+        <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-[#C9A84C]/20 bg-[#C9A84C]/5 text-[#C9A84C] text-[10px] uppercase tracking-[0.25em] font-black mb-12 animate-in">
+          <HugeiconsIcon icon={FlashIcon} className="size-3.5 fill-[#C9A84C]" />
+          The Modern Commerce OS for India
+        </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-24">
-        {/* Badge */}
-        <div
-          className={cn(
-            "inline-flex items-center gap-2 border border-[#C9A84C]/30 bg-[#C9A84C]/10 text-[#C9A84C] text-xs tracking-[0.2em] uppercase font-bold px-4 py-2 rounded-full mb-10 transition-all duration-700",
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          )}
+        <h1 
+          className="text-white font-black leading-[0.8] tracking-[-0.06em] mb-10 transition-all duration-1000"
+          style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(60px, 14vw, 180px)" }}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#C9A84C] animate-pulse" />
-          Presenting themrktplace — by Tackle Studioz
+          BUILD <br />
+          <span className="text-transparent" style={{ WebkitTextStroke: "1.5px rgba(255,255,255,0.2)" }}>EMPIRES</span>
+        </h1>
+
+        <p className="max-w-2xl mx-auto text-[#888] text-lg md:text-2xl leading-relaxed mb-14 font-medium">
+          The unified infrastructure layer for physical retail, online stores, and global marketplaces. Fully multi-tenant, hyper-scalable, and built for performance.
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+          <Button className="rounded-full px-12 h-16 font-black bg-[#C9A84C] text-[#080808] text-xl hover:bg-[#E0BF6A] transition-all hover:scale-105 shadow-2xl shadow-[#C9A84C]/20">
+            Get Started Free
+            <HugeiconsIcon icon={ArrowRight01Icon} className="ms-2 size-6" />
+          </Button>
+          <a href="#platform" className="group flex items-center gap-3 text-white/50 hover:text-white transition-colors font-bold tracking-widest uppercase text-xs">
+            View Platform
+            <HugeiconsIcon icon={Mouse01Icon} className="size-5 group-hover:translate-y-1 transition-transform" />
+          </a>
         </div>
 
-        {/* Headline */}
-        <div className="overflow-hidden mb-3">
-          <h1
-            className={cn(
-              "text-white font-black leading-[0.88] tracking-[-0.04em] transition-all duration-700 delay-100",
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"
-            )}
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontSize: "clamp(52px, 9vw, 130px)",
-            }}
-          >
-            Commerce.
-          </h1>
-        </div>
-        <div className="overflow-hidden mb-3">
-          <h1
-            className={cn(
-              "font-black leading-[0.88] tracking-[-0.04em] transition-all duration-700 delay-200",
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"
-            )}
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontSize: "clamp(52px, 9vw, 130px)",
-              WebkitTextStroke: "2px #C9A84C",
-              color: "transparent",
-            }}
-          >
-            Elevated.
-          </h1>
-        </div>
-        <div className="overflow-hidden mb-12">
-          <h1
-            className={cn(
-              "text-white font-black leading-[0.88] tracking-[-0.04em] transition-all duration-700 delay-300",
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full"
-            )}
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontSize: "clamp(52px, 9vw, 130px)",
-            }}
-          >
-            Unmatched.
-          </h1>
-        </div>
-
-        {/* Subtext + CTA row */}
-        <div
-          className={cn(
-            "flex flex-col lg:flex-row items-start lg:items-end justify-between gap-10 transition-all duration-700 delay-[400ms]",
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          )}
-        >
-          <p className="text-[#777] text-lg md:text-xl leading-relaxed max-w-lg">
-            The only unified platform bridging your <span className="text-white font-medium">physical store</span>,{" "}
-            <span className="text-white font-medium">online marketplace</span>, and{" "}
-            <span className="text-white font-medium">enterprise operations</span> — with zero compromise.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 shrink-0">
-            <button className="group flex items-center gap-3 bg-[#C9A84C] hover:bg-[#E0BF6A] text-[#080808] font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 text-base tracking-wide">
-              Start Building
-              <span className="w-5 h-5 group-hover:translate-x-1 transition-transform">
-                <Icons.ArrowRight />
-              </span>
-            </button>
-            <button className="flex items-center gap-3 border border-[#2a2a2a] hover:border-[#C9A84C]/50 text-white px-8 py-4 rounded-full transition-all duration-300 text-base tracking-wide bg-transparent hover:bg-[#C9A84C]/5">
-              Watch Demo
-            </button>
-          </div>
-        </div>
-
-        {/* Floating product cards - decorative */}
-        <div
-          className={cn(
-            "hidden xl:block absolute right-8 top-1/2 -translate-y-1/2 transition-all duration-1000 delay-500",
-            visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20"
-          )}
-        >
-          <div className="relative w-72">
-            {/* Card 1 */}
-            <div className="bg-[#111] border border-[#222] rounded-2xl p-5 mb-4 shadow-2xl">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[#888] text-xs tracking-widest uppercase">Today's Revenue</span>
-                <span className="text-emerald-400 text-xs font-bold bg-emerald-400/10 px-2 py-1 rounded-full">↑ 24%</span>
-              </div>
-              <div className="text-white font-black text-3xl tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                $48,290
-              </div>
-              <div className="mt-3 flex gap-1">
-                {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 100].map((h, i) => (
-                  <div key={i} className="flex-1 rounded-sm bg-[#C9A84C]/20 relative overflow-hidden">
-                    <div className="absolute bottom-0 left-0 right-0 bg-[#C9A84C] rounded-sm transition-all duration-1000" style={{ height: `${h}%` }} />
-                  </div>
-                ))}
-              </div>
-              <div className="h-16 relative" />
-            </div>
-            {/* Card 2 */}
-            <div className="bg-[#111] border border-[#222] rounded-2xl p-5 shadow-2xl ml-8">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-xs font-black text-white">JD</div>
-                <div>
-                  <div className="text-white text-sm font-semibold">New Order #4821</div>
-                  <div className="text-[#666] text-xs">2 mins ago · $320.00</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 mt-3">
-                <span className="text-emerald-400 text-xs bg-emerald-400/10 px-2 py-1 rounded-full font-medium">Paid</span>
-                <span className="text-[#555] text-xs">via Stripe Terminal</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[#444]">
-        <span className="text-xs tracking-[0.3em] uppercase">Scroll</span>
-        <div className="w-px h-12 bg-gradient-to-b from-[#C9A84C]/50 to-transparent" />
+        <HeroDashboardMockup />
       </div>
     </section>
   );
 }
 
-// ─── Marquee Section ──────────────────────────────────────────────────────────
-function MarqueeSection() {
-  return (
-    <Marquee
-      items={[
-        "Multi-Tenant SaaS", "POS Terminal", "eCommerce", "Offline Mode",
-        "Stripe Integration", "AI-Powered", "Real-Time Sync", "Enterprise Ready",
-        "Next.js 15", "shadcn/ui", "Tackle Studioz",
-      ]}
-    />
-  );
-}
+// ─── Bento Grid Section ──────────────────────────────────────────────────────
 
-// ─── Features ────────────────────────────────────────────────────────────────
-const features = [
-  {
-    icon: Icons.Store,
-    label: "01",
-    title: "Unified POS",
-    description: "Blazing-fast point-of-sale with full offline capability. Works without internet, syncs instantly on reconnect.",
-    accent: "#C9A84C",
-    bg: "from-[#C9A84C]/10 to-transparent",
-    tags: ["Offline-first", "Stripe Terminal", "Receipt printing"],
-  },
-  {
-    icon: Icons.Globe,
-    label: "02",
-    title: "eCommerce Engine",
-    description: "White-labeled storefronts per tenant. SSR, ISR, lightning Lighthouse scores, SEO-ready out of the box.",
-    accent: "#10B981",
-    bg: "from-[#10B981]/10 to-transparent",
-    tags: ["Next.js ISR", "Custom domains", "Multi-currency"],
-  },
-  {
-    icon: Icons.Shield,
-    label: "03",
-    title: "Enterprise Security",
-    description: "PostgreSQL Row-Level Security, JWT rotation, PCI-DSS SAQ-A compliant, full audit logging.",
-    accent: "#8B5CF6",
-    bg: "from-[#8B5CF6]/10 to-transparent",
-    tags: ["PCI-DSS", "GDPR", "SOC2 roadmap"],
-  },
-  {
-    icon: Icons.Cpu,
-    label: "04",
-    title: "AI-Powered",
-    description: "Smart reorder suggestions, AI product descriptions, collaborative filtering recommendations, fraud scoring.",
-    accent: "#EC4899",
-    bg: "from-[#EC4899]/10 to-transparent",
-    tags: ["Claude API", "RAG Chatbot", "Fraud detection"],
-  },
-  {
-    icon: Icons.Chart,
-    label: "05",
-    title: "Unified Analytics",
-    description: "One dashboard. Online + in-store sales, cohort analysis, CLV, real-time ticker, custom report builder.",
-    accent: "#F97316",
-    bg: "from-[#F97316]/10 to-transparent",
-    tags: ["Real-time", "Custom reports", "Export"],
-  },
-  {
-    icon: Icons.Package,
-    label: "06",
-    title: "Multi-Tenant SaaS",
-    description: "Serve thousands of isolated merchants. Per-tenant subdomains, custom domains, tiered plans with hard limits.",
-    accent: "#06B6D4",
-    bg: "from-[#06B6D4]/10 to-transparent",
-    tags: ["Subdomain routing", "Plan limits", "Billing"],
-  },
-];
-
-function FeaturesSection() {
+function FeaturesBento() {
   return (
-    <section id="features" className="bg-[#080808] py-24 md:py-40">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Section header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-20">
-          <div>
-            <span className="text-[#C9A84C] text-xs tracking-[0.3em] uppercase font-bold mb-4 block">
-              Platform Features
-            </span>
-            <h2
-              className="text-white font-black tracking-[-0.04em] leading-[0.9]"
-              style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(40px, 6vw, 80px)" }}
-            >
-              Everything you need.<br />
-              <span style={{ WebkitTextStroke: "1.5px #C9A84C", color: "transparent" }}>
-                Nothing you don't.
-              </span>
+    <section id="features" className="py-40 bg-[#080808]">
+      <div className="container mx-auto px-6">
+        <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20">
+          <div className="space-y-4">
+            <span className="text-[#C9A84C] text-xs font-black uppercase tracking-[0.3em]">Core Modules</span>
+            <h2 className="text-white font-black text-5xl md:text-7xl leading-[0.9] tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+              Functional <br />
+              <span className="text-transparent" style={{ WebkitTextStroke: "1px #C9A84C" }}>Elegance.</span>
             </h2>
           </div>
-          <p className="text-[#777] text-lg max-w-sm leading-relaxed">
-            6 core modules, unified into one commerce operating system.
+          <p className="text-[#666] text-xl max-w-sm leading-relaxed">
+            Every feature is engineered to remove friction and amplify your growth. No fluff, just results.
           </p>
         </div>
 
-        {/* Feature grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#1a1a1a] rounded-3xl overflow-hidden border border-[#1a1a1a]">
-          {features.map((f, i) => (
-            <div
-              key={i}
-              className={cn(
-                "group relative bg-[#080808] p-8 md:p-10 overflow-hidden cursor-pointer transition-all duration-500",
-                "hover:bg-[#0E0E0E]"
-              )}
-            >
-              {/* Gradient hover fill */}
-              <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500", f.bg)} />
-
-              <div className="relative z-10">
-                {/* Number + icon row */}
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-[#333] text-xs font-mono tracking-widest">{f.label}</span>
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
-                    style={{ background: `${f.accent}15`, color: f.accent, padding: "10px" }}
-                  >
-                    <f.icon />
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 h-auto md:h-[800px]">
+          {/* Main Large Card */}
+          <div className="md:col-span-4 lg:col-span-3 bg-[#0D0D0D] border border-[#1a1a1a] rounded-[32px] p-10 flex flex-col justify-between group overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#C9A84C]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative z-10 flex flex-col h-full justify-between">
+              <div className="space-y-6">
+                <div className="size-14 rounded-2xl bg-[#C9A84C]/10 flex items-center justify-center border border-[#C9A84C]/20">
+                  <HugeiconsIcon icon={Store01Icon} className="size-7 text-[#C9A84C]" />
                 </div>
-
-                <h3
-                  className="text-white text-2xl font-black tracking-tight mb-3"
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  {f.title}
-                </h3>
-                <p className="text-[#666] text-sm leading-relaxed mb-6">{f.description}</p>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2">
-                  {f.tags.map((tag, j) => (
-                    <span
-                      key={j}
-                      className="text-xs px-3 py-1 rounded-full border"
-                      style={{ borderColor: `${f.accent}30`, color: f.accent, background: `${f.accent}08` }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                <div>
+                  <h3 className="text-white text-3xl font-black mb-4" style={{ fontFamily: "'Syne', sans-serif" }}>Unified POS</h3>
+                  <p className="text-[#888] text-lg leading-relaxed max-w-xs transition-colors group-hover:text-[#aaa]">
+                    Bridging physical retail and digital sync with zero latency. Even when the internet dies.
+                  </p>
                 </div>
-
-                {/* Arrow */}
-                <div
-                  className="mt-8 w-8 h-8 rounded-full flex items-center justify-center border border-[#2a2a2a] group-hover:border-current transition-all duration-300 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0"
-                  style={{ color: f.accent }}
-                >
-                  <div className="w-4 h-4"><Icons.ArrowRight /></div>
-                </div>
+              </div>
+              <div className="flex gap-2">
+                <span className="px-4 py-2 rounded-full border border-[#C9A84C]/20 bg-[#C9A84C]/5 text-[#C9A84C] text-[10px] font-black uppercase tracking-widest">Offline-First</span>
+                <span className="px-4 py-2 rounded-full border border-white/5 bg-white/5 text-[#555] text-[10px] font-black uppercase tracking-widest transition-colors group-hover:text-[#888]">Sync Engine</span>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+            <div className="absolute -right-20 -bottom-20 size-80 bg-[#C9A84C]/5 rounded-full blur-3xl group-hover:bg-[#C9A84C]/10 transition-all duration-700"></div>
+          </div>
 
-// ─── Stats ────────────────────────────────────────────────────────────────────
-function StatsSection() {
-  const stats = [
-    { value: 1200000, suffix: "+", label: "Weekly Transactions", note: "processed across all tenants" },
-    { value: 480, suffix: "M+", label: "Monthly Volume", note: "USD across the platform" },
-    { value: 99.9, suffix: "%", label: "Uptime SLA", note: "guaranteed reliability" },
-    { value: 10, suffix: "ms", label: "Avg API Latency", note: "p95 response time" },
-  ];
-
-  return (
-    <section className="bg-[#080808] py-24 border-y border-[#111]">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Big ticker strip */}
-        <div className="bg-[#0D0D0D] border border-[#1a1a1a] rounded-3xl overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-[#1a1a1a]">
-            {stats.map((s, i) => (
-              <div key={i} className="p-10 md:p-12 relative group overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#C9A84C]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10">
-                  <div
-                    className="font-black text-white tracking-[-0.04em] mb-2"
-                    style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(36px, 4vw, 60px)" }}
-                  >
-                    <Counter to={s.value} suffix={s.suffix} />
-                  </div>
-                  <div className="text-white font-semibold text-base mb-1">{s.label}</div>
-                  <div className="text-[#555] text-sm">{s.note}</div>
-                </div>
+          <div className="md:col-span-2 lg:col-span-3 bg-[#0D0D0D] border border-[#1a1a1a] rounded-[32px] p-10 flex flex-col justify-between group overflow-hidden relative">
+            <div className="relative z-10 space-y-6">
+              <div className="size-14 rounded-2xl bg-[#EC4899]/10 flex items-center justify-center border border-[#EC4899]/20">
+                <HugeiconsIcon icon={PackageIcon} className="size-7 text-[#EC4899]" />
               </div>
-            ))}
+              <h3 className="text-white text-3xl font-black" style={{ fontFamily: "'Syne', sans-serif" }}>Multi-Tenant SaaS</h3>
+              <p className="text-[#888] text-lg leading-relaxed group-hover:text-[#aaa]">
+                Isolate merchant data with PostgreSQL RLS. Custom domains and white-labeling baked into the core.
+              </p>
+            </div>
+            <div className="absolute top-0 right-0 p-8">
+               <div className="size-2 rounded-full bg-[#EC4899] animate-pulse"></div>
+            </div>
+          </div>
+
+          <div className="md:col-span-2 lg:col-span-2 bg-[#0D0D0D] border border-[#1a1a1a] rounded-[32px] p-8 flex flex-col gap-6 group hover:translate-y-[-4px] transition-transform duration-500">
+             <HugeiconsIcon icon={GlobalIcon} className="size-10 text-[#10B981]" />
+             <h4 className="text-white text-xl font-black" style={{ fontFamily: "'Syne', sans-serif" }}>Global Ready</h4>
+             <p className="text-[#666] text-sm leading-relaxed group-hover:text-[#888]">Localized payments, tax calculation, and multi-currency support.</p>
+          </div>
+
+          <div className="md:col-span-2 lg:col-span-2 bg-[#0D0D0D] border border-[#1a1a1a] rounded-[32px] p-8 flex flex-col gap-6 group hover:translate-y-[-4px] transition-transform duration-500">
+             <HugeiconsIcon icon={CpuIcon} className="size-10 text-[#06B6D4]" />
+             <h4 className="text-white text-xl font-black" style={{ fontFamily: "'Syne', sans-serif" }}>AI Insights</h4>
+             <p className="text-[#666] text-sm leading-relaxed group-hover:text-[#888]">Predict inventory needs and detect patterns using advanced ML models.</p>
+          </div>
+
+          <div className="md:col-span-4 lg:col-span-2 bg-[#0D0D0D] border border-[#1a1a1a] rounded-[32px] p-8 flex flex-col gap-6 group hover:translate-y-[-4px] transition-transform duration-500">
+             <HugeiconsIcon icon={CreditCardIcon} className="size-10 text-[#8B5CF6]" />
+             <h4 className="text-white text-xl font-black" style={{ fontFamily: "'Syne', sans-serif" }}>Fluid Billing</h4>
+             <p className="text-[#666] text-sm leading-relaxed group-hover:text-[#888]">Prorated upgrades, usage gating, and automated invoicing.</p>
           </div>
         </div>
       </div>
@@ -590,105 +259,69 @@ function StatsSection() {
   );
 }
 
-// ─── Platform Modules ─────────────────────────────────────────────────────────
-function PlatformSection() {
-  const [active, setActive] = useState(0);
+// ─── Platform Selection UI ───────────────────────────────────────────────────
 
-  const modules = [
-    {
-      name: "SaaS Admin",
-      desc: "Global platform management with full tenant control. Provision merchants, manage billing, monitor health, impersonate for support.",
-      visual: "Admin",
-      color: "#C9A84C",
-    },
-    {
-      name: "POS Terminal",
-      desc: "Touch-optimized, offline-first POS. Full cart management, multi-tender, barcode scanning, receipt printing. Syncs on reconnect.",
-      visual: "POS",
-      color: "#10B981",
-    },
-    {
-      name: "eCommerce Store",
-      desc: "White-labeled storefronts with SSR, ISR, custom domains. Full checkout, Apple Pay, abandoned cart recovery, reviews.",
-      visual: "Store",
-      color: "#8B5CF6",
-    },
-    {
-      name: "Mobile App",
-      desc: "React Native app for inventory management, reporting, barcode scanning, and push notifications. Coming Phase 2.",
-      visual: "Mobile",
-      color: "#EC4899",
-    },
+function PlatformShowcase() {
+  const [active, setActive] = useState(0);
+  const platforms = [
+    { title: "Master Admin", icon: Settings03Icon, color: "#C9A84C", desc: "The command center for your entire platform. Manage tenants, billing, and global metrics." },
+    { title: "Merchant Hub", icon: Store01Icon, color: "#8B5CF6", desc: "Inventory management, order fulfillment, and marketing tools for your sellers." },
+    { title: "Storefront", icon: GlobalIcon, color: "#10B981", desc: "Lightning fast, SEO optimized customer experiences across every device." },
+    { title: "POS Terminal", icon: PackageIcon, color: "#EC4899", desc: "Native terminal application for in-person transactions with full hardware support." }
   ];
 
-  const mod = modules[active];
-
   return (
-    <section id="platform" className="bg-[#080808] py-24 md:py-40">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="mb-16">
-          <span className="text-[#C9A84C] text-xs tracking-[0.3em] uppercase font-bold mb-4 block">
-            Four Modules
-          </span>
-          <h2
-            className="text-white font-black tracking-[-0.04em]"
-            style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(36px, 5vw, 70px)" }}
-          >
-            One operating system<br />
-            <span className="text-[#444]">for modern commerce.</span>
+    <section id="platform" className="py-40 bg-black border-y border-white/5">
+      <div className="container mx-auto px-6">
+        <div className="max-w-4xl mx-auto text-center mb-20 space-y-6">
+          <h2 className="text-white font-black text-4xl md:text-7xl leading-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+            Four Modules. <br />
+            <span className="text-[#444]">One Ecosystem.</span>
           </h2>
+          <p className="text-[#777] text-xl font-medium">Modular by design. Unified by data.</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Sidebar */}
-          <div className="lg:col-span-2 flex flex-col gap-2">
-            {modules.map((m, i) => (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5 space-y-4">
+            {platforms.map((p, i) => (
               <button
                 key={i}
                 onClick={() => setActive(i)}
                 className={cn(
-                  "text-left p-6 rounded-2xl border transition-all duration-300 group",
-                  active === i
-                    ? "border-[#C9A84C]/30 bg-[#0D0D0D]"
-                    : "border-[#111] bg-transparent hover:bg-[#0A0A0A] hover:border-[#222]"
+                  "w-full text-left p-8 rounded-[24px] transition-all duration-500 flex items-center justify-between group",
+                  active === i 
+                    ? "bg-[#111] border border-white/10 shadow-2xl" 
+                    : "opacity-40 hover:opacity-100"
                 )}
               >
-                <div className="flex items-center justify-between">
-                  <span
-                    className="font-bold text-base transition-colors duration-200"
-                    style={{ fontFamily: "'Syne', sans-serif", color: active === i ? m.color : "#888" }}
-                  >
-                    {m.name}
-                  </span>
-                  {active === i && (
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: m.color }} />
-                  )}
+                <div className="flex gap-6 items-center">
+                  <div className={cn("size-12 rounded-xl flex items-center justify-center transition-colors", active === i ? "bg-white/5" : "bg-transparent")}>
+                    <HugeiconsIcon icon={p.icon} className={cn("size-6 transition-colors", active === i ? "text-white" : "text-[#555]")} />
+                  </div>
+                  <span className={cn("text-xl font-black tracking-tight", active === i ? "text-white" : "text-[#888]")} style={{ fontFamily: "'Syne', sans-serif" }}>{p.title}</span>
                 </div>
-                {active === i && (
-                  <p className="text-[#666] text-sm mt-3 leading-relaxed">{m.desc}</p>
-                )}
+                {active === i && <HugeiconsIcon icon={ArrowRight01Icon} className="size-5 text-white" />}
               </button>
             ))}
           </div>
-
-          {/* Visual panel */}
-          <div className="lg:col-span-3 rounded-3xl border border-[#1a1a1a] bg-[#0D0D0D] overflow-hidden min-h-[400px] relative flex flex-col items-center justify-center p-12">
-            <Orb
-              className="w-64 h-64"
-              style={{ background: mod.color, top: "50%", left: "50%", transform: "translate(-50%, -50%)", opacity: 0.08 }}
-            />
-            <div
-              className="text-[120px] md:text-[180px] font-black tracking-[-0.08em] leading-none select-none transition-all duration-500"
-              style={{ fontFamily: "'Syne', sans-serif", WebkitTextStroke: `2px ${mod.color}`, color: "transparent", opacity: 0.4 }}
-            >
-              {mod.visual}
-            </div>
-            <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between">
-              <span className="text-[#444] text-xs tracking-[0.2em] uppercase">{mod.name} Module</span>
-              <span className="text-xs px-3 py-1 rounded-full border" style={{ borderColor: `${mod.color}30`, color: mod.color }}>
-                {active === 3 ? "Phase 2" : "Available now"}
-              </span>
-            </div>
+          
+          <div className="lg:col-span-7 aspect-video bg-[#0D0D0D] border border-white/5 rounded-[40px] p-12 relative flex flex-col justify-center overflow-hidden">
+             <div 
+               className="absolute inset-0 transition-all duration-700 opacity-20 blur-3xl scale-110" 
+               style={{ background: `radial-gradient(circle at center, ${platforms[active].color}20, transparent)` }}
+             ></div>
+             <div className="relative z-10 space-y-8 animate-in">
+                <span className="text-[8px] font-black tracking-[0.4em] uppercase text-[#555]">Module Preview</span>
+                <h3 className="text-white text-4xl md:text-5xl font-black leading-[0.9]" style={{ fontFamily: "'Syne', sans-serif" }}>
+                  {platforms[active].title}
+                </h3>
+                <p className="text-[#888] text-xl leading-relaxed max-w-lg">
+                  {platforms[active].desc}
+                </p>
+                <Button className="rounded-full px-10 h-14 bg-white text-black font-black hover:bg-white/90">
+                  Explore Module
+                </Button>
+             </div>
           </div>
         </div>
       </div>
@@ -696,189 +329,61 @@ function PlatformSection() {
   );
 }
 
-// ─── Pricing ──────────────────────────────────────────────────────────────────
+// ─── Pricing Section ─────────────────────────────────────────────────────────
+
 const plans = [
-  {
-    name: "Starter",
-    price: "49",
-    desc: "Perfect for independent merchants getting started.",
-    features: ["1 Location", "5 Staff members", "500 Products", "1,000 monthly orders", "POS + eCommerce", "Email support"],
-    cta: "Start free trial",
-    accent: "#888",
-    highlight: false,
-  },
-  {
-    name: "Growth",
-    price: "149",
-    desc: "For scaling businesses that need more power.",
-    features: ["5 Locations", "25 Staff members", "10,000 Products", "20,000 monthly orders", "Custom domain", "AI features", "Priority support"],
-    cta: "Start free trial",
-    accent: "#C9A84C",
-    highlight: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    desc: "Unlimited scale, white-label, dedicated infrastructure.",
-    features: ["Unlimited locations", "Unlimited staff", "Unlimited products", "Unlimited orders", "White-label", "AI + ML features", "SLA + dedicated support"],
-    cta: "Contact sales",
-    accent: "#10B981",
-    highlight: false,
-  },
+  { name: "Starter", price: "49", target: "Indie stores" },
+  { name: "Growth", price: "199", target: "Scaling Brands", premium: true },
+  { name: "Enterprise", price: "Custom", target: "Global Orgs" }
 ];
 
 function PricingSection() {
   return (
-    <section id="pricing" className="bg-[#080808] py-24 md:py-40">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-20">
-          <span className="text-[#C9A84C] text-xs tracking-[0.3em] uppercase font-bold mb-4 block">Pricing</span>
-          <h2
-            className="text-white font-black tracking-[-0.04em] mb-5"
-            style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(36px, 5vw, 70px)" }}
-          >
-            Straightforward pricing.<br />
-            <span style={{ WebkitTextStroke: "1.5px #C9A84C", color: "transparent" }}>Extraordinary value.</span>
+    <section id="pricing" className="py-40 bg-[#080808]">
+      <div className="container mx-auto px-6">
+        <div className="text-center mb-24 space-y-6">
+          <h2 className="text-white font-black text-5xl md:text-8xl leading-none" style={{ fontFamily: "'Syne', sans-serif" }}>
+            Scale at your <br />
+            <span className="text-[#C9A84C]">own pace.</span>
           </h2>
-          <p className="text-[#666] text-lg max-w-lg mx-auto">
-            All plans include a 14-day free trial. No credit card required.
-          </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {plans.map((plan, i) => (
-            <div
-              key={i}
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {plans.map((p, i) => (
+            <div 
+              key={i} 
               className={cn(
-                "relative rounded-3xl p-8 md:p-10 border transition-all duration-300 hover:-translate-y-1",
-                plan.highlight
-                  ? "border-[#C9A84C]/40 bg-[#0D0D0D]"
-                  : "border-[#1a1a1a] bg-[#0A0A0A]"
+                "rounded-[40px] p-10 border transition-all duration-500 group",
+                p.premium 
+                  ? "bg-[#0A0A0A] border-[#C9A84C]/30 shadow-2xl shadow-[#C9A84C]/5" 
+                  : "bg-transparent border-[#1a1a1a] hover:border-white/10"
               )}
             >
-              {plan.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-[#C9A84C] text-[#080808] text-xs font-black px-4 py-1.5 rounded-full tracking-widest uppercase">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-
-              <div className="mb-8">
-                <span className="text-[#555] text-xs tracking-[0.2em] uppercase font-medium">{plan.name}</span>
-                <div className="mt-3 flex items-end gap-1">
-                  {plan.price !== "Custom" && <span className="text-[#555] text-2xl font-bold mt-1">$</span>}
-                  <span
-                    className="text-white font-black tracking-[-0.04em] leading-none"
-                    style={{ fontFamily: "'Syne', sans-serif", fontSize: plan.price === "Custom" ? "36px" : "60px" }}
-                  >
-                    {plan.price}
-                  </span>
-                  {plan.price !== "Custom" && <span className="text-[#555] text-base mb-2">/mo</span>}
-                </div>
-                <p className="text-[#555] text-sm mt-3 leading-relaxed">{plan.desc}</p>
-              </div>
-
-              <div className="flex flex-col gap-3 mb-10">
-                {plan.features.map((f, j) => (
-                  <div key={j} className="flex items-center gap-3">
-                    <div
-                      className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
-                      style={{ background: `${plan.accent}20`, color: plan.accent, padding: "3px" }}
-                    >
-                      <Icons.Check />
+              <div className="flex flex-col h-full justify-between gap-12">
+                <div className="space-y-6">
+                  <span className="text-[10px] font-black tracking-[0.3em] uppercase text-[#555]">{p.target}</span>
+                  <div className="space-y-2">
+                    <h4 className="text-white text-3xl font-black" style={{ fontFamily: "'Syne', sans-serif" }}>{p.name}</h4>
+                    <div className="flex items-end gap-1">
+                      <span className="text-4xl font-black text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        {p.price !== "Custom" && "$"}
+                        {p.price}
+                      </span>
+                      {p.price !== "Custom" && <span className="text-[#555] text-sm mb-1 font-bold">/mo</span>}
                     </div>
-                    <span className="text-[#888] text-sm">{f}</span>
                   </div>
-                ))}
-              </div>
-
-              <button
-                className={cn(
-                  "w-full py-4 rounded-full font-bold text-sm tracking-wide transition-all duration-300 hover:scale-105",
-                  plan.highlight
-                    ? "bg-[#C9A84C] text-[#080808] hover:bg-[#E0BF6A]"
-                    : "border border-[#2a2a2a] text-white hover:border-[#444] bg-transparent"
-                )}
-              >
-                {plan.cta}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── Testimonials ─────────────────────────────────────────────────────────────
-const testimonials = [
-  {
-    quote: "themrktplace replaced 4 different tools we were paying for. Our checkout conversion went up 31% in the first month.",
-    name: "Aisha Nkosi",
-    role: "Founder, Kente & Co.",
-    avatar: "AN",
-    color: "#C9A84C",
-  },
-  {
-    quote: "The offline POS is a game-changer. We operate in a market with spotty wifi — now we never miss a sale.",
-    name: "Marco Ferreira",
-    role: "Owner, Casa Moderna",
-    avatar: "MF",
-    color: "#10B981",
-  },
-  {
-    quote: "Onboarded 200 merchants on the platform in 3 weeks. The multi-tenant architecture is rock solid.",
-    name: "Priya Chandrasekaran",
-    role: "CTO, RetailOS",
-    avatar: "PC",
-    color: "#8B5CF6",
-  },
-];
-
-function TestimonialsSection() {
-  return (
-    <section className="bg-[#080808] py-24 border-t border-[#111]">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="mb-16">
-          <span className="text-[#C9A84C] text-xs tracking-[0.3em] uppercase font-bold mb-4 block">
-            What merchants say
-          </span>
-          <h2
-            className="text-white font-black tracking-[-0.04em]"
-            style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(36px, 5vw, 64px)" }}
-          >
-            Trusted by builders<br />
-            <span className="text-[#333]">across the globe.</span>
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t, i) => (
-            <div
-              key={i}
-              className="border border-[#1a1a1a] bg-[#0A0A0A] rounded-2xl p-8 hover:border-[#2a2a2a] transition-colors duration-300 group"
-            >
-              {/* Stars */}
-              <div className="flex gap-1 mb-5">
-                {[...Array(5)].map((_, j) => (
-                  <div key={j} className="w-3.5 h-3.5 text-[#C9A84C]"><Icons.Star /></div>
-                ))}
-              </div>
-              <blockquote className="text-[#888] text-base leading-relaxed mb-8 group-hover:text-[#aaa] transition-colors duration-300">
-                "{t.quote}"
-              </blockquote>
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black text-white"
-                  style={{ background: `${t.color}30`, color: t.color }}
-                >
-                  {t.avatar}
+                  <ul className="space-y-4">
+                    {[1,2,3,4].map(j => (
+                      <li key={j} className="flex gap-3 items-center text-[#777] text-sm group-hover:text-[#aaa] transition-colors">
+                        <HugeiconsIcon icon={Tick02Icon} size={14} className="text-[#C9A84C]" />
+                        <span>Advanced platform feature {j}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div>
-                  <div className="text-white text-sm font-semibold">{t.name}</div>
-                  <div className="text-[#555] text-xs">{t.role}</div>
-                </div>
+                <Button className={cn("rounded-full h-14 font-black transition-all", p.premium ? "bg-[#C9A84C] text-black hover:bg-[#C9A84C]/90" : "bg-black text-white border border-[#222] hover:border-white/20")}>
+                  {p.price === "Custom" ? "Contact Sales" : "Start Trial"}
+                </Button>
               </div>
             </div>
           ))}
@@ -888,177 +393,68 @@ function TestimonialsSection() {
   );
 }
 
-// ─── CTA ──────────────────────────────────────────────────────────────────────
-function CTASection() {
-  return (
-    <section className="bg-[#080808] py-24 md:py-40">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="relative rounded-[48px] overflow-hidden border border-[#1a1a1a] p-16 md:p-28 text-center">
-          {/* Background */}
-          <div className="absolute inset-0 bg-[#0D0D0D]" />
-          <Orb className="w-[600px] h-[600px] bg-[#C9A84C] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ opacity: 0.06 }} />
-          <Orb className="w-[300px] h-[300px] bg-[#8B5CF6] top-0 right-0" style={{ opacity: 0.08 }} />
+// ─── CTA Section ────────────────────────────────────────────────────────────
 
-          <div className="relative z-10 flex flex-col items-center gap-8">
-            <span className="text-[#C9A84C] text-xs tracking-[0.3em] uppercase font-bold">
-              Ready to launch?
-            </span>
-            <h2
-              className="text-white font-black tracking-[-0.04em] leading-[0.9]"
-              style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(48px, 8vw, 110px)" }}
-            >
-              Build your empire.
+function CTA() {
+  return (
+    <section className="py-40 px-6">
+       <div className="max-w-6xl mx-auto rounded-[60px] bg-gradient-to-b from-[#111] to-black border border-white/5 p-16 md:p-32 text-center relative overflow-hidden">
+          <Orb className="w-[600px] h-[600px] bg-[#C9A84C] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ opacity: 0.05 }} />
+          <div className="relative z-10 space-y-10">
+            <h2 className="text-white font-black text-5xl md:text-9xl tracking-tighter" style={{ fontFamily: "'Syne', sans-serif" }}>
+              BUILD THE <br />
+              <span className="text-transparent" style={{ WebkitTextStroke: "1px #8B5CF6" }}>FUTURE.</span>
             </h2>
-            <p className="text-[#666] text-xl max-w-md leading-relaxed">
-              Join hundreds of merchants already powering their commerce with themrktplace.
+            <p className="text-[#666] text-xl md:text-2xl font-medium max-w-xl mx-auto leading-relaxed">
+              Join the elite retail network bringing India's commerce into the next decade.
             </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 mt-4">
-              <button className="group flex items-center gap-3 bg-[#C9A84C] hover:bg-[#E0BF6A] text-[#080808] font-bold px-10 py-5 rounded-full transition-all duration-300 hover:scale-105 text-base tracking-wide">
-                Start for free — 14 days
-                <span className="w-5 h-5 group-hover:translate-x-1 transition-transform">
-                  <Icons.ArrowRight />
-                </span>
-              </button>
-              <button className="flex items-center gap-3 border border-[#2a2a2a] text-white px-10 py-5 rounded-full transition-all duration-300 hover:border-[#444] text-base tracking-wide">
-                Book a demo
-              </button>
+            <div className="flex flex-col sm:flex-row justify-center gap-6">
+               <Button className="rounded-full h-16 px-12 bg-[#8B5CF6] text-white font-black text-lg hover:bg-[#8B5CF6]/90 transition-all hover:scale-105 flex items-center gap-3">
+                 Get Started
+                 <HugeiconsIcon icon={ArrowRight01Icon} size={24} />
+               </Button>
+               <Button variant="outline" className="rounded-full h-16 px-12 border-[#222] text-white font-black text-lg hover:bg-white/5 transition-all flex items-center gap-3">
+                 Book a Demo
+                 <HugeiconsIcon icon={AgreementIcon} size={24} />
+               </Button>
             </div>
-
-            <p className="text-[#444] text-sm mt-2">
-              No credit card required · Cancel anytime · by{" "}
-              <span className="text-[#C9A84C]">Tackle Studioz</span>
-            </p>
           </div>
-        </div>
-      </div>
+       </div>
     </section>
   );
 }
 
-// ─── Footer ───────────────────────────────────────────────────────────────────
-function Footer() {
-  const cols = [
-    {
-      title: "Platform",
-      links: ["POS Terminal", "eCommerce", "SaaS Admin", "Mobile App", "Integrations"],
-    },
-    {
-      title: "Resources",
-      links: ["Documentation", "API Reference", "Status Page", "Changelog", "GitHub"],
-    },
-    {
-      title: "Company",
-      links: ["About Tackle Studioz", "Blog", "Careers", "Press Kit", "Contact"],
-    },
-  ];
+// ─── Main Page ───────────────────────────────────────────────────────────────
 
-  return (
-    <footer className="bg-[#080808] border-t border-[#111]">
-      <div className="max-w-7xl mx-auto px-6 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-          {/* Brand */}
-          <div>
-            <div className="flex flex-col leading-none mb-6">
-              <span
-                className="font-black text-white tracking-[-0.04em]"
-                style={{ fontFamily: "'Syne', sans-serif", fontSize: "24px" }}
-              >
-                themrktplace
-              </span>
-              <span className="text-[#C9A84C] text-[10px] tracking-[0.25em] uppercase font-medium mt-1">
-                by Tackle Studioz
-              </span>
-            </div>
-            <p className="text-[#555] text-sm leading-relaxed max-w-xs">
-              The unified commerce operating system for physical stores, online marketplaces, and enterprise operations.
-            </p>
-          </div>
-
-          {/* Link cols */}
-          {cols.map((col) => (
-            <div key={col.title}>
-              <span className="text-[#444] text-xs tracking-[0.2em] uppercase font-medium mb-5 block">
-                {col.title}
-              </span>
-              <div className="flex flex-col gap-3">
-                {col.links.map((l) => (
-                  <a key={l} href="#" className="text-[#666] hover:text-white text-sm transition-colors duration-200">
-                    {l}
-                  </a>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="border-t border-[#111] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-[#444] text-sm">
-            © 2025 Tackle Studioz. All rights reserved.
-          </span>
-          <div className="flex items-center gap-6">
-            {["Privacy", "Terms", "Cookies"].map((l) => (
-              <a key={l} href="#" className="text-[#444] hover:text-[#888] text-sm transition-colors">
-                {l}
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-// ─── Root ─────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body, html {
-          background: #080808;
-          color: #fff;
-          font-family: 'DM Sans', sans-serif;
-          -webkit-font-smoothing: antialiased;
-          scroll-behavior: smooth;
+    <div className="selection:bg-[#C9A84C]/30 selection:text-[#C9A84C]">
+      <style jsx global>{`
+        .animate-in {
+          animation: fade-up 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
         }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #080808; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: #C9A84C; }
-
-        ::selection { background: #C9A84C30; color: #C9A84C; }
 
         @keyframes fade-up {
-          from { opacity: 0; transform: translateY(24px); }
+          from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .animate-in { animation: fade-up 0.7s ease forwards; }
 
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
-        }
-        .float { animation: float 6s ease-in-out infinite; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #080808; }
+        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #C9A84C; }
+        
+        body { -webkit-font-smoothing: antialiased; }
       `}</style>
-
+      
       <NoiseOverlay />
-      <Nav />
-      <main>
+      <main className="relative z-10">
         <Hero />
-        <MarqueeSection />
-        <FeaturesSection />
-        <StatsSection />
-        <PlatformSection />
+        <FeaturesBento />
+        <PlatformShowcase />
         <PricingSection />
-        <TestimonialsSection />
-        <CTASection />
+        <CTA />
       </main>
-      <Footer />
-    </>
+    </div>
   );
 }

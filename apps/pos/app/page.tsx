@@ -8,16 +8,16 @@ import { Input } from "@workspace/ui/components/input";
 import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
-  SearchIcon, 
+  Search01Icon, 
   ShoppingCart01Icon, 
   UserIcon, 
   Settings02Icon, 
   Delete01Icon,
   ShoppingBag01Icon,
   CheckmarkCircle01Icon,
-  CalculatorIcon,
+  Calculator01Icon,
   RefreshIcon
-} from "@hugeicons/core-free-icons";
+} from "@hugeicons/react";
 import { formatINR } from "@workspace/ui/lib/formatters";
 import { usePosStore } from "@/lib/store";
 import { getPosProducts, createPosOrder } from "@/app/actions/pos";
@@ -90,7 +90,7 @@ export default function PosTerminalPage() {
                <span className="font-heading font-bold text-lg tracking-tight">themrktplace POS</span>
             </div>
             <div className="relative w-80">
-               <HugeiconsIcon icon={SearchIcon} size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+               <HugeiconsIcon icon={Search01Icon} size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                <Input 
                  placeholder="Search items or scan barcode..." 
                  className="pl-10 h-10 rounded-full bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary h-11" 
@@ -266,7 +266,7 @@ export default function PosTerminalPage() {
               
               <div className="grid grid-cols-2 gap-4">
                  <Button variant="outline" className="h-16 rounded-2xl font-bold flex flex-col gap-1 items-center justify-center border-2 border-border/50 hover:bg-background hover:scale-[1.02] transition-all bg-background shadow-sm">
-                    <HugeiconsIcon icon={CalculatorIcon} size={20} className="text-muted-foreground" />
+                    <HugeiconsIcon icon={Calculator01Icon} size={20} className="text-muted-foreground" />
                     <span className="text-[10px] uppercase tracking-[0.15em] font-black text-muted-foreground">Hold Ticket</span>
                  </Button>
                  <Button 

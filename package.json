@@ -7,7 +7,8 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "turbo format",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "postinstall": "npm run generate --workspace=@workspace/db"
   },
   "devDependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -9,12 +9,3 @@ export const authClient = createAuthClient({
     multiSessionClient(),
   ],
 });
-
-export const { 
-  signIn, 
-  signUp, 
-  signOut, 
-  useSession, 
-  organization, 
-  admin 
-} = authClient;

@@ -12,8 +12,8 @@ import {
   ChartBarSquare01Icon,
   ArrowUpRight01Icon,
   TrendingUpScaleIcon,
-  GlobeIcon
-} from "@hugeicons/core-free-icons";
+  Globe01Icon
+} from "@hugeicons/react";
 import { formatINR, formatCompact, formatRelativeTime } from "@workspace/ui/lib/formatters";
 import { getMasterStats } from "@/app/actions/master";
 import { TenantWizard } from "@/components/tenants/tenant-wizard";
@@ -77,7 +77,7 @@ export default function MasterDashboardPage() {
           description="Bird's-eye view of the entire themrktplace platform health."
         />
         <Badge variant="outline" className="px-4 py-2 rounded-full border-none bg-background shadow-sm text-primary font-bold hidden md:flex items-center gap-2">
-           <HugeiconsIcon icon={GlobeIcon} size={14} />
+           <HugeiconsIcon icon={Globe01Icon} size={14} />
            Global Region: Asia-South
         </Badge>
       </div>

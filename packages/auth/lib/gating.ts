@@ -36,12 +36,19 @@ export async function checkFeature(organizationId: string, feature: FeatureKey):
 
   // 2. Check override feature flags first (explicitly enabled for this tenant)
   const override = org.featureFlags[0];
-  if (override) return override.enabled;
+  if (override) return override.value === "true";
 
   // 3. Check plan defaults
-  const planFeatureFlags = org.subscription?.plan?.featureFlags as Record<string, boolean> | undefined;
-  if (planFeatureFlags && planFeatureFlags[feature] !== undefined) {
-    return planFeatureFlags[feature];
+  const featuresStr = org.subscription?.plan?.features;
+  if (featuresStr) {
+    try {
+      const planFeatureFlags = JSON.parse(featuresStr) as Record<string, boolean>;
+      if (planFeatureFlags[feature] !== undefined) {
+        return planFeatureFlags[feature];
+      }
+    } catch (e) {
+      console.error("Failed to parse plan features", e);
+    }
   }
 
   return false;
@@ -66,8 +73,17 @@ export async function checkLimit(organizationId: string, limitKey: PlanLimit, cu
         return { allowed: false, limit: 0 };
     }
   
-    const planLimits = org.subscription.plan.limits as Record<string, number> | undefined;
-    const limitValue = planLimits?.[limitKey] ?? 0;
+    const limitsStr = org.subscription.plan.limits;
+    let limitValue = 0;
+
+    if (limitsStr) {
+      try {
+        const planLimits = JSON.parse(limitsStr) as Record<string, number>;
+        limitValue = planLimits[limitKey] ?? 0;
+      } catch (e) {
+        console.error("Failed to parse plan limits", e);
+      }
+    }
   
     // limitValue === -1 means unlimited
     if (limitValue === -1) return { allowed: true, limit: -1 };

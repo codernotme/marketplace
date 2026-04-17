@@ -2,7 +2,11 @@ import { PageHeader } from "@workspace/ui/components/page-header";
 import { Button } from "@workspace/ui/components/button";
 import { Badge } from "@workspace/ui/components/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon, FilterIcon, Download01Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon, Download01Icon, PencilEdit01Icon } from "@hugeicons/core-free-icons";
+import { DataTable } from "@workspace/ui/components/data-table";
+import { formatINR } from "@workspace/ui/lib/formatters";
+import { getProducts } from "@/app/actions/products";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,93 +14,105 @@ export const metadata: Metadata = {
   description: "Manage your store's product catalog.",
 };
 
-const mockProducts = [
-  { id: "1", name: "Classic White Tee", sku: "TEE-001", price: "₹599", stock: 142, status: "published" },
-  { id: "2", name: "Slim Fit Jeans", sku: "JNS-002", price: "₹1,499", stock: 38, status: "published" },
-  { id: "3", name: "Running Sneakers", sku: "SNK-003", price: "₹2,999", stock: 0, status: "published" },
-  { id: "4", name: "Canvas Backpack", sku: "BAG-004", price: "₹899", stock: 25, status: "draft" },
-  { id: "5", name: "Silk Scarf", sku: "ACC-005", price: "₹399", stock: 88, status: "archived" },
+const columns = [
+  {
+    accessorKey: "name",
+    header: "Product",
+    cell: ({ row }: any) => (
+      <div className="flex flex-col">
+        <span className="font-medium text-sm">{row.original.name}</span>
+        <span className="text-xs text-muted-foreground">{row.original.category?.name || "No Category"}</span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "sku",
+    header: "SKU",
+    cell: ({ row }: any) => <span className="font-mono text-xs">{row.original.sku || "N/A"}</span>,
+  },
+  {
+    accessorKey: "price",
+    header: "Price",
+    cell: ({ row }: any) => (
+      <span className="tabular-nums">
+        {row.original.variants?.[0] ? formatINR(row.original.variants[0].price) : "—"}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }: any) => {
+      const status = row.original.status as string;
+      return (
+        <Badge 
+          variant={status === "active" ? "default" : status === "draft" ? "secondary" : "outline"}
+          className="capitalize shadow-none"
+        >
+          {status}
+        </Badge>
+      );
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }: any) => (
+      <Button variant="ghost" size="icon" asChild className="rounded-full h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors">
+        <Link href={`/dashboard/products/${row.original.id}`}>
+          <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+        </Link>
+      </Button>
+    ),
+  },
 ];
 
-const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-  published: "default",
-  draft: "secondary",
-  archived: "outline",
-};
+export default async function ProductsPage() {
+  const products = await getProducts();
 
-export default function ProductsPage() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <PageHeader
         title="Products"
         description="Manage your product catalog — add, edit, and organize products."
       >
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className="shadow-none rounded-full">
           <HugeiconsIcon icon={Download01Icon} data-icon="inline-start" />
           Export
         </Button>
-        <Button size="sm">
-          <HugeiconsIcon icon={Add01Icon} data-icon="inline-start" />
-          Add product
+        <Button size="sm" asChild className="shadow-none rounded-full px-5">
+          <Link href="/dashboard/products/new">
+            <HugeiconsIcon icon={Add01Icon} data-icon="inline-start" />
+            Add product
+          </Link>
         </Button>
       </PageHeader>
 
-      {/* Quick stats */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* Quick stats with glass effect */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: "Total products", value: "86" },
-          { label: "Low stock", value: "12" },
-          { label: "Out of stock", value: "4" },
+          { label: "Total products", value: products.length, trend: "+2 this week" },
+          { label: "Low stock", value: "0", trend: "0 archived" },
+          { label: "Out of stock", value: "0", trend: "All good" },
         ].map((s) => (
-          <div key={s.label} className="rounded-lg border border-border p-4 bg-card">
-            <p className="text-xs text-muted-foreground">{s.label}</p>
-            <p className="text-2xl font-bold mt-1">{s.value}</p>
+          <div key={s.label} className="group rounded-2xl border border-border/50 p-6 bg-card/50 backdrop-blur-sm hover:border-primary/20 transition-all hover:shadow-lg hover:shadow-primary/5">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{s.label}</p>
+            <div className="flex items-baseline gap-3 mt-2">
+              <p className="text-3xl font-bold tracking-tight">{s.value}</p>
+              <span className="text-[10px] font-medium text-success bg-success/10 px-1.5 py-0.5 rounded">
+                {s.trend}
+              </span>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Products table */}
-      <div className="rounded-lg border border-border overflow-hidden bg-card">
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <p className="text-sm font-medium">All Products</p>
-          <Button variant="outline" size="sm">
-            <HugeiconsIcon icon={FilterIcon} data-icon="inline-start" />
-            Filter
-          </Button>
-        </div>
-        <div className="divide-y divide-border">
-          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 px-4 py-2 bg-muted/50 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            <span>Product</span>
-            <span>SKU</span>
-            <span>Price</span>
-            <span>Stock</span>
-            <span>Status</span>
-          </div>
-          {mockProducts.map((product) => (
-            <div
-              key={product.id}
-              className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 px-4 py-3 items-center hover:bg-muted/30 transition-colors cursor-pointer"
-            >
-              <span className="text-sm font-medium">{product.name}</span>
-              <span className="text-sm font-mono text-muted-foreground">{product.sku}</span>
-              <span className="text-sm tabular-nums">{product.price}</span>
-              <span
-                className={`text-sm tabular-nums font-medium ${
-                  product.stock === 0
-                    ? "text-destructive"
-                    : product.stock < 20
-                    ? "text-warning"
-                    : ""
-                }`}
-              >
-                {product.stock === 0 ? "Out of stock" : product.stock}
-              </span>
-              <Badge variant={statusVariant[product.status] ?? "outline"}>
-                {product.status}
-              </Badge>
-            </div>
-          ))}
-        </div>
+      <div className="bg-card/30 backdrop-blur-sm rounded-2xl border border-border/50 p-6 shadow-sm">
+        <DataTable 
+          columns={columns as any} 
+          data={products} 
+          searchColumn="name"
+          searchPlaceholder="Search products..."
+        />
       </div>
     </div>
   );

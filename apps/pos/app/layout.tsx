@@ -32,6 +32,8 @@ export const metadata: Metadata = {
   description: "Advanced Point of Sale terminal for modern retail.",
 };
 
+import { Toaster } from "@workspace/ui/components/sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -57,6 +59,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster position="top-right" richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

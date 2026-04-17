@@ -36,6 +36,7 @@ export const tenantNavItems: NavItem[] = [
     icon: PackageIcon,
     children: [
       { label: "All Products", href: "/dashboard/products" },
+      { label: "Categories", href: "/dashboard/categories" },
       { label: "Collections", href: "/dashboard/products/collections" },
       { label: "Inventory", href: "/dashboard/products/inventory" },
     ],

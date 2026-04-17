@@ -1,93 +1,110 @@
+"use client";
+
 import { PageHeader } from "@workspace/ui/components/page-header";
-import { StatCard, StatGrid } from "@workspace/ui/components/stat-card";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
+import { Button } from "@workspace/ui/components/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ChartBarSquare01Icon,
-  UserMultiple02Icon,
-  Building01Icon,
-  GlobalIcon,
-  ArrowUpRight01Icon,
+import { 
+  Download01Icon, 
+  ChartBarSquare01Icon, 
+  TrendingUpScaleIcon,
+  ShoppingBasket01Icon,
+  DollarCircleIcon
 } from "@hugeicons/core-free-icons";
-import { formatINR, formatCompact } from "@workspace/ui/lib/formatters";
-import type { Metadata } from "next";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  LineChart,
+  Line
+} from "recharts";
+import { formatINR } from "@workspace/ui/lib/formatters";
 
-export const metadata: Metadata = {
-  title: "Platform Analytics — themrktplace Master Admin",
-  description: "Global performance metrics and multi-tenant insights.",
-};
-
-const stats = [
-  { title: "Total Platform GMV", value: formatINR(18500000, true), change: { value: 24.1, period: "last month" }, icon: <HugeiconsIcon icon={ChartBarSquare01Icon} size={20} /> },
-  { title: "Total Users", value: formatCompact(48200), change: { value: 11.7, period: "last month" }, icon: <HugeiconsIcon icon={UserMultiple02Icon} size={20} /> },
-  { title: "Active Tenants", value: "142", change: { value: 5.2, period: "last month" }, icon: <HugeiconsIcon icon={Building01Icon} size={20} /> },
-  { title: "Avg. Engagement", value: "84%", change: { value: 2.4, period: "last month" }, icon: <HugeiconsIcon icon={GlobalIcon} size={20} /> },
+const data = [
+  { month: 'Jan', revenue: 450000, orders: 1200 },
+  { month: 'Feb', revenue: 520000, orders: 1450 },
+  { month: 'Mar', revenue: 480000, orders: 1320 },
+  { month: 'Apr', revenue: 610000, orders: 1680 },
+  { month: 'May', revenue: 750000, orders: 1900 },
+  { month: 'Jun', revenue: 890000, orders: 2400 },
 ];
 
 export default function MasterAnalyticsPage() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8 animate-in fade-in duration-700">
       <PageHeader
         title="Platform Analytics"
-        description="Aggregate data from across all tenants and regions."
-      />
+        description="Deep dive into cross-tenant revenue and transaction performance."
+      >
+        <Button variant="outline" size="sm" className="rounded-full shadow-none bg-background">
+          <HugeiconsIcon icon={Download01Icon} data-icon="inline-start" />
+          Export Report
+        </Button>
+      </PageHeader>
 
-      <StatGrid cols={4}>
-        {stats.map((s) => (
-          <StatCard key={s.title} {...s} />
-        ))}
-      </StatGrid>
-
-      <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
-        <Card className="lg:col-span-4">
-          <CardHeader>
-            <CardTitle className="text-base">Platform Revenue Growth</CardTitle>
-            <CardDescription>Aggregate GMV across all tenants (Last 6 Months)</CardDescription>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card className="border-none shadow-sm bg-card/40 backdrop-blur-md rounded-[40px] overflow-hidden">
+          <CardHeader className="p-8">
+            <CardTitle className="text-lg font-black tracking-tight flex items-center gap-3">
+               <div className="p-2 bg-primary/10 rounded-xl text-primary">
+                  <HugeiconsIcon icon={DollarCircleIcon} size={20} />
+               </div>
+               Platform Revenue
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-64 flex items-end gap-2 px-4 pb-4">
-              {[45, 60, 55, 85, 75, 100].map((h, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                  <div 
-                    className="w-full bg-primary/20 group-hover:bg-primary/40 rounded-t transition-all duration-300" 
-                    style={{ height: `${h}%` }}
-                  />
-                  <span className="text-[10px] text-muted-foreground uppercase font-medium">Month {i + 1}</span>
-                </div>
-              ))}
-            </div>
+          <CardContent className="h-[300px] p-4">
+             <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data}>
+                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
+                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
+                   <YAxis hide />
+                   <Tooltip 
+                     contentStyle={{ backgroundColor: "rgba(255, 255, 255, 0.9)", borderRadius: "16px", border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", fontSize: "12px", fontWeight: "bold" }}
+                     formatter={(val: number) => [formatINR(val), "Revenue"]}
+                   />
+                   <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[10, 10, 10, 10]} barSize={24} />
+                </BarChart>
+             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="text-base">Top Performing Tenants</CardTitle>
-            <CardDescription>By revenue contribution</CardDescription>
+        <Card className="border-none shadow-sm bg-card/40 backdrop-blur-md rounded-[40px] overflow-hidden">
+          <CardHeader className="p-8">
+            <CardTitle className="text-lg font-black tracking-tight flex items-center gap-3">
+               <div className="p-2 bg-info/10 rounded-xl text-info">
+                  <HugeiconsIcon icon={ShoppingBasket01Icon} size={20} />
+               </div>
+               Transaction Volume
+            </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            {[
-              { name: "FashionHub", share: "24%", revenue: "₹4.4M" },
-              { name: "SportZone", share: "18%", revenue: "₹3.3M" },
-              { name: "TechGadgets India", share: "15%", revenue: "₹2.7M" },
-              { name: "ArtisanKitchen", share: "12%", revenue: "₹2.2M" },
-              { name: "GreenLeaf Organics", share: "9%", revenue: "₹1.6M" },
-            ].map((tenant) => (
-              <div key={tenant.name} className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{tenant.name}</p>
-                  <div className="w-full h-1 bg-muted rounded-full mt-1 overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: tenant.share }} />
-                  </div>
-                </div>
-                <div className="text-right ml-4">
-                  <p className="text-sm font-semibold">{tenant.revenue}</p>
-                  <p className="text-[10px] text-muted-foreground">{tenant.share} share</p>
-                </div>
-              </div>
-            ))}
+          <CardContent className="h-[300px] p-4">
+             <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
+                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700 }} />
+                   <YAxis hide />
+                   <Tooltip 
+                     contentStyle={{ backgroundColor: "rgba(255, 255, 255, 0.9)", borderRadius: "16px", border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)", fontSize: "12px", fontWeight: "bold" }}
+                   />
+                   <Line type="monotone" dataKey="orders" stroke="hsl(var(--info))" strokeWidth={4} dot={{ r: 6, fill: "hsl(var(--info))", strokeWidth: 3, stroke: "#fff" }} />
+                </LineChart>
+             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
+
+      <Card className="border-none shadow-sm bg-card/20 backdrop-blur-sm rounded-[40px] p-12 text-center flex flex-col items-center gap-4">
+         <div className="p-5 bg-primary/10 rounded-full animate-bounce">
+            <HugeiconsIcon icon={TrendingUpScaleIcon} size={32} className="text-primary" />
+         </div>
+         <h3 className="text-2xl font-black tracking-tighter">AI Predictions</h3>
+         <p className="text-sm text-muted-foreground max-w-[400px]">Based on current growth patterns, platform GMV is projected to hit ₹1.2Cr by the end of Q3 2026.</p>
+         <Button className="rounded-2xl px-12 h-12 font-black shadow-2xl shadow-primary/20 mt-4">Download Full Deck</Button>
+      </Card>
     </div>
   );
 }

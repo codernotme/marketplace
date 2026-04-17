@@ -14,7 +14,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { 
   MoreVerticalIcon, 
   Notification01Icon, 
-  ShieldOffIcon, 
   SquareLock02Icon,
   LicenseIcon
 } from "@hugeicons/core-free-icons";

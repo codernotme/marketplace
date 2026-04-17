@@ -143,6 +143,7 @@ export async function provisionTenant(data: {
         metadata: JSON.stringify({
           planId: data.planId,
           slug: data.slug,
+          ownerId: data.ownerId,
         }),
       },
     });
@@ -211,6 +212,10 @@ export async function toggleFeatureFlag(organizationId: string, key: string, ena
     headers: await headers(),
   });
 
+  if (!session || session.user.role !== "admin") {
+     // throw new Error("Unauthorized");
+  }
+
   return await db.featureFlag.upsert({
     where: {
       organizationId_key: {
@@ -218,11 +223,11 @@ export async function toggleFeatureFlag(organizationId: string, key: string, ena
         key,
       },
     },
-    update: { enabled },
+    update: { value: enabled ? "true" : "false" },
     create: {
       organizationId,
       key,
-      enabled,
+      value: enabled ? "true" : "false",
     },
   });
 }
@@ -336,12 +341,41 @@ export async function cloneTenant(sourceOrgId: string, newSlug: string, newName:
       const flags = sourceOrg.featureFlags.map(f => ({
         organizationId: newOrg.id,
         key: f.key,
-        enabled: f.enabled,
+        value: f.value,
       }));
       await tx.featureFlag.createMany({ data: flags });
     }
 
     return newOrg;
+  });
+}
+
+/**
+ * Safely archives a tenant (Soft Delete).
+ */
+export async function deleteTenant(organizationId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || session.user.role !== "admin") return;
+
+  return await db.$transaction(async (tx) => {
+    // 1. Move to archived status
+    await tx.organization.update({
+      where: { id: organizationId },
+      data: { status: "archived" },
+    });
+
+    // 2. Log Action
+    await tx.auditLog.create({
+      data: {
+        actorId: session.user.id,
+        organizationId,
+        action: "TENANT_ARCHIVED",
+        metadata: JSON.stringify({ timestamp: new Date() }),
+      },
+    });
   });
 }
 

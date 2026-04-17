@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@work
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { DollarCircleIcon, TrendUpIcon, UserMultiple02Icon, ArrowUpRight01Icon, Download01Icon } from "@hugeicons/core-free-icons";
+import { DollarCircleIcon, Activity01Icon, UserMultiple02Icon, ArrowUpRight01Icon, Download01Icon } from "@hugeicons/core-free-icons";
 import { formatINR } from "@workspace/ui/lib/formatters";
 import type { Metadata } from "next";
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 const stats = [
   { title: "MRR", value: formatINR(697542), change: { value: 14.2, period: "last month" }, icon: <HugeiconsIcon icon={DollarCircleIcon} size={20} /> },
-  { title: "ARR", value: formatINR(8370504, true), change: { value: 14.2, period: "last year" }, icon: <HugeiconsIcon icon={TrendUpIcon} size={20} /> },
+  { title: "ARR", value: formatINR(8370504, true), change: { value: 14.2, period: "last year" }, icon: <HugeiconsIcon icon={Activity01Icon} size={20} /> },
   { title: "Active Subscriptions", value: "134", change: { value: 9.8, period: "last month" }, icon: <HugeiconsIcon icon={UserMultiple02Icon} size={20} /> },
   { title: "Churn Rate", value: "2.1%", change: { value: -0.4, period: "last month" }, icon: <HugeiconsIcon icon={ArrowUpRight01Icon} size={20} /> },
 ];

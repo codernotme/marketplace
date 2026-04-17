@@ -58,6 +58,8 @@ export function DataTable<TData, TValue>({
   onPaginationChange,
   totalCount,
   className,
+  onSelectionChange,
+  renderToolbar,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

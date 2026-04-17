@@ -6,8 +6,8 @@ import { Button } from "@workspace/ui/components/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { 
   Download01Icon, 
-  ChartBarSquare01Icon, 
-  TrendingUpScaleIcon,
+  ChartBarLineIcon, 
+  Activity01Icon,
   ShoppingBasket01Icon,
   DollarCircleIcon
 } from "@hugeicons/core-free-icons";
@@ -98,9 +98,9 @@ export default function MasterAnalyticsPage() {
       </div>
 
       <Card className="border-none shadow-sm bg-card/20 backdrop-blur-sm rounded-[40px] p-12 text-center flex flex-col items-center gap-4">
-         <div className="p-5 bg-primary/10 rounded-full animate-bounce">
-            <HugeiconsIcon icon={TrendingUpScaleIcon} size={32} className="text-primary" />
-         </div>
+          <div className="p-5 bg-primary/10 rounded-full animate-bounce">
+             <HugeiconsIcon icon={Activity01Icon} size={32} className="text-primary" />
+          </div>
          <h3 className="text-2xl font-black tracking-tighter">AI Predictions</h3>
          <p className="text-sm text-muted-foreground max-w-[400px]">Based on current growth patterns, platform GMV is projected to hit ₹1.2Cr by the end of Q3 2026.</p>
          <Button className="rounded-2xl px-12 h-12 font-black shadow-2xl shadow-primary/20 mt-4">Download Full Deck</Button>

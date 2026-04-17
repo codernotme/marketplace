@@ -93,7 +93,7 @@ export function TenantTable({ data }: TenantTableProps) {
               </a>
             </Button>
             <Button variant="ghost" size="icon" asChild className="rounded-full h-8 w-8 hover:bg-primary/5 hover:text-primary transition-colors">
-              <Link href={`/dashboard/tenants/${tenant.id}`}>
+              <Link href={`/tenants/${tenant.id}`}>
                 <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
               </Link>
             </Button>

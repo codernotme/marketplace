@@ -9,11 +9,10 @@ import {
   Building01Icon,
   DollarCircleIcon,
   UserMultiple02Icon,
-  ChartBarSquare01Icon,
-  ArrowUpRight01Icon,
-  TrendingUpScaleIcon,
-  Globe01Icon
-} from "@hugeicons/react";
+  ChartBarLineIcon,
+  Activity01Icon,
+  Globe02Icon,
+} from "@hugeicons/core-free-icons";
 import { formatINR, formatCompact, formatRelativeTime } from "@workspace/ui/lib/formatters";
 import { getMasterStats } from "@/app/actions/master";
 import { TenantWizard } from "@/components/tenants/tenant-wizard";
@@ -24,27 +23,19 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
+  ResponsiveContainer
 } from "recharts";
 import { cn } from "@workspace/ui/lib/utils";
 
 export default function MasterDashboardPage() {
   const [data, setData] = useState<any>(null);
-  const [trends, setTrends] = useState<any>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const [stats, trendData] = await Promise.all([
-          getMasterStats(),
-          import("@/app/actions/analytics").then(m => m.getPlatformTrends())
-        ]);
+        const stats = await getMasterStats();
         setData(stats);
-        setTrends(trendData);
       } catch (error) {
         console.error("Failed to load master data", error);
       } finally {
@@ -66,7 +57,7 @@ export default function MasterDashboardPage() {
     { title: "Total Tenants", value: data.tenantsCount.toString(), change: { value: 18.3, period: "last month" }, icon: Building01Icon, color: "text-primary", bg: "bg-primary/10" },
     { title: "Platform GMV", value: formatINR(data.totalGMV, true), change: { value: 24.1, period: "last month" }, icon: DollarCircleIcon, color: "text-success", bg: "bg-success/10" },
     { title: "Active Users", value: formatCompact(data.totalUsers), change: { value: 11.7, period: "last month" }, icon: UserMultiple02Icon, color: "text-info", bg: "bg-info/10" },
-    { title: "Avg MRR / Tenant", value: formatINR(data.avgRevenue), change: { value: 3.2, period: "last month" }, icon: ChartBarSquare01Icon, color: "text-warning", bg: "bg-warning/10" },
+    { title: "Avg MRR / Tenant", value: formatINR(data.avgRevenue), change: { value: 3.2, period: "last month" }, icon: ChartBarLineIcon, color: "text-warning", bg: "bg-warning/10" },
   ];
 
   return (
@@ -77,7 +68,7 @@ export default function MasterDashboardPage() {
           description="Bird's-eye view of the entire themrktplace platform health."
         />
         <Badge variant="outline" className="px-4 py-2 rounded-full border-none bg-background shadow-sm text-primary font-bold hidden md:flex items-center gap-2">
-           <HugeiconsIcon icon={Globe01Icon} size={14} />
+           <HugeiconsIcon icon={Globe02Icon} size={14} />
            Global Region: Asia-South
         </Badge>
       </div>
@@ -91,7 +82,7 @@ export default function MasterDashboardPage() {
                   <HugeiconsIcon icon={s.icon} size={24} className={s.color} />
                 </div>
                 <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-success">
-                   <HugeiconsIcon icon={TrendingUpScaleIcon} size={14} />
+                   <HugeiconsIcon icon={Activity01Icon} size={14} />
                    {s.change.value}%
                 </div>
               </div>
@@ -151,7 +142,7 @@ export default function MasterDashboardPage() {
           <CardContent className="p-0 flex-1">
              <div className="divide-y divide-border/40">
                 {data.recentTenants.map((tenant: any, idx: number) => (
-                  <div key={tenant.name} className="px-8 py-5 flex items-center justify-between hover:bg-muted/30 transition-all group animate-in slide-in-from-right-4" style={{ animationDelay: `${idx * 50}ms` }}>
+                  <div key={tenant.name || idx} className="px-8 py-5 flex items-center justify-between hover:bg-muted/30 transition-all group animate-in slide-in-from-right-4" style={{ animationDelay: `${idx * 50}ms` }}>
                     <div className="flex flex-col gap-0.5">
                       <p className="text-[13px] font-bold group-hover:text-primary transition-colors tracking-tight">{tenant.name}</p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Joined {formatRelativeTime(tenant.joined)}</p>

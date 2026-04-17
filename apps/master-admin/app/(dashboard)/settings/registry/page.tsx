@@ -7,7 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { 
   CreditCardIcon, 
   DeliveryTruck01Icon, 
-  TaxIcon, 
+  InvoiceIcon, 
   Add01Icon,
   Settings02Icon
 } from "@hugeicons/core-free-icons";
@@ -86,7 +86,7 @@ export default function RegistryPage() {
         <Card className="bg-card/30 backdrop-blur-md border-border/50 rounded-[32px] overflow-hidden shadow-none">
           <CardHeader>
             <div className="size-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-2">
-              <HugeiconsIcon icon={TaxIcon} size={20} />
+              <HugeiconsIcon icon={InvoiceIcon} size={20} />
             </div>
             <CardTitle className="text-lg font-black tracking-tight">Tax Rule Templates</CardTitle>
             <CardDescription className="text-xs font-medium text-muted-foreground">Standardized tax configurations.</CardDescription>

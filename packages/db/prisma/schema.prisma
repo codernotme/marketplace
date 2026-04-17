@@ -30,7 +30,160 @@ model User {
   members       Member[]
   invitations   Invitation[]
 
+  productsCreated Product[]
+  orders          Order[]
+  cart            Cart?
+
   @@map("user")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  parentId    String?
+  name        String
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  isActive    Boolean   @default(true)
+  metadata    String?   // JSON string
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  parent      Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  children    Category[] @relation("SubCategories")
+  products    Product[]
+
+  @@map("category")
+}
+
+model Product {
+  id              String           @id @default(cuid())
+  categoryId      String?
+  name            String
+  slug            String           @unique
+  description     String?
+  descriptionHtml String?
+  shortDescription String?
+  status          String           @default("draft") // draft, active, archived
+  vendor          String?
+  tags            String?          // JSON array of strings
+  attributes      String?          // JSON string
+  seo             String?          // JSON string
+  options         String?          // JSON string
+  featuredImage   String?
+  version         Int              @default(1)
+  publishedAt     DateTime?
+  createdById     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  category        Category?        @relation(fields: [categoryId], references: [id])
+  createdBy       User?            @relation(fields: [createdById], references: [id])
+  variants        ProductVariant[]
+  orderItems      OrderItem[]
+  cartItems       CartItem[]
+
+  @@map("product")
+}
+
+model ProductVariant {
+  id              String    @id @default(cuid())
+  productId       String
+  sku             String    @unique
+  title           String
+  optionValues    String?   // JSON string { color: "Red", size: "L" }
+  price           Float
+  comparePrice    Float?
+  cost            Float?
+  weight          Float?
+  weightUnit      String    @default("kg")
+  requiresShipping Boolean  @default(true)
+  isActive        Boolean   @default(true)
+  imageId         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  product         Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+
+  @@map("product_variant")
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  customerId      String?
+  email           String
+  phone           String?
+  status          String      @default("pending") // pending, processing, shipped, delivered, cancelled
+  paymentStatus   String      @default("pending") // pending, paid, refunded
+  fulfillmentStatus String    @default("unfulfilled") // unfulfilled, partial, fulfilled
+  total           Float
+  subtotal        Float
+  taxAmount       Float       @default(0)
+  discountAmount  Float       @default(0)
+  shippingAmount  Float       @default(0)
+  shippingAddress String?     // JSON string
+  billingAddress  String?     // JSON string
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  customer        User?       @relation(fields: [customerId], references: [id])
+  items           OrderItem[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id              String         @id @default(cuid())
+  orderId         String
+  productId       String
+  variantId       String
+  sku             String
+  title           String
+  variantTitle    String?
+  quantity        Int
+  unitPrice       Float
+  total           Float
+  createdAt       DateTime       @default(now())
+
+  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product         Product        @relation(fields: [productId], references: [id])
+  variant         ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("order_item")
+}
+
+model Cart {
+  id              String      @id @default(cuid())
+  userId          String?     @unique
+  sessionId       String?     @unique // For guest carts
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            User?       @relation(fields: [userId], references: [id])
+  items           CartItem[]
+
+  @@map("cart")
+}
+
+model CartItem {
+  id              String         @id @default(cuid())
+  cartId          String
+  productId       String
+  variantId       String
+  quantity        Int
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  cart            Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product         Product        @relation(fields: [productId], references: [id])
+  variant         ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@unique([cartId, variantId])
+  @@map("cart_item")
 }
 
 model Session {

@@ -15,7 +15,11 @@ export async function proxy(request: NextRequest) {
                      request.nextUrl.pathname.startsWith("/forgot-password") ||
                      request.nextUrl.pathname.startsWith("/reset-password");
 
-  if (!session && !isAuthPage) {
+  const isProtectedRoute = request.nextUrl.pathname.startsWith("/account") || 
+                           request.nextUrl.pathname.startsWith("/orders") ||
+                           request.nextUrl.pathname.startsWith("/settings");
+
+  if (!session && isProtectedRoute && !isAuthPage) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

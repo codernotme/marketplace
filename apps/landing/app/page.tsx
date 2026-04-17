@@ -5,171 +5,137 @@ import {
   ArrowRight01Icon, 
   Store01Icon, 
   ShoppingBag01Icon, 
-  Agreement01Icon,
   GlobalIcon,
   DashboardSquare01Icon,
   SecurityIcon,
-  FlashIcon
+  FlashIcon,
+  CrownIcon,
+  Diamond01Icon
 } from "@hugeicons/core-free-icons";
 import { Button } from "@workspace/ui/components/button";
+import Link from "next/link";
 
 export default function LandingHomePage() {
   return (
-    <div className="flex flex-col gap-24 pb-24">
+    <div className="flex flex-col gap-12 sm:gap-24 pb-24 bg-[#FAFAFA] dark:bg-background overflow-hidden">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-20 pb-16 md:pt-32 md:pb-32">
+      <section className="relative pt-24 pb-16 md:pt-32 md:pb-24">
+        {/* Dynamic Abstract Background Elements */}
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#FFE066]/40 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-overlay -z-10 animate-pulse" />
+        <div className="absolute top-[20%] left-[-10%] w-[600px] h-[600px] bg-[#8CE0D8]/40 blur-[150px] rounded-full mix-blend-multiply dark:mix-blend-overlay -z-10" />
+        
         <div className="container mx-auto px-4 md:px-8 relative z-10 flex flex-col items-center text-center gap-8">
-           <Badge variant="outline" className="animate-in fade-in slide-in-from-bottom-2 duration-1000 px-4 py-1.5 rounded-full bg-primary/5 text-primary border-primary/20 text-xs font-bold uppercase tracking-widest">
-              Available now across India
+           <Badge variant="outline" className="animate-in fade-in slide-in-from-bottom-2 duration-1000 px-5 py-2 rounded-full bg-white/80 dark:bg-black/50 backdrop-blur-md text-foreground border-border/50 text-xs font-bold uppercase tracking-widest shadow-sm">
+              <span className="flex items-center gap-2">
+                 <HugeiconsIcon icon={CrownIcon} size={16} className="text-amber-500" />
+                 Presenting The All-New Marketplace
+              </span>
            </Badge>
-           <h1 className="animate-in fade-in slide-in-from-bottom-3 duration-1000 delay-100 font-heading text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] max-w-4xl">
-             Commerce at the <br />
-             <span className="text-primary italic">speed</span> of light.
+
+           <h1 className="animate-in fade-in slide-in-from-bottom-3 duration-1000 delay-100 font-heading text-6xl md:text-8xl lg:text-[120px] font-black tracking-tighter leading-[0.85] max-w-5xl text-balance">
+             Boldly <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-blue-500">Built.</span> <br />
+             Fiercely Branded.
            </h1>
-           <p className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200 text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-             The only platform that bridges the gap between your physical store, online marketplace, and enterprise operations. Built for the next billion users.
-           </p>
-           <div className="animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-300 flex flex-col sm:flex-row gap-4 mt-4">
-              <Button size="lg" className="h-14 px-10 rounded-full text-base font-bold shadow-2xl shadow-primary/30">
-                 Launch your shop
-                 <HugeiconsIcon icon={ArrowRight01Icon} data-icon="inline-end" />
-              </Button>
-              <Button variant="outline" size="lg" className="h-14 px-10 rounded-full text-base font-bold bg-background/50 backdrop-blur-sm">
-                 Book a demo
-              </Button>
-           </div>
            
-           {/* Mockup / Visual */}
-           <div className="mt-20 w-full max-w-6xl aspect-[16/9] bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-[32px] border border-border/50 shadow-2xl relative overflow-hidden flex items-center justify-center group">
-              <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)] pointer-events-none" />
-              <div className="relative flex items-center justify-center gap-8">
-                 <HugeiconsIcon icon={DashboardSquare01Icon} size={160} className="text-primary/20 group-hover:scale-110 transition-transform duration-700" />
-                 <div className="flex flex-col gap-2">
-                    <div className="h-4 w-32 bg-primary/20 rounded-full" />
-                    <div className="h-4 w-48 bg-primary/10 rounded-full" />
-                    <div className="h-4 w-24 bg-primary/5 rounded-full" />
-                 </div>
-              </div>
-              {/* Floating badges */}
-              <div className="absolute top-1/4 left-10 p-4 bg-background/80 backdrop-blur-xl rounded-2xl border border-border shadow-lg hidden lg:block animate-bounce-subtle">
-                 <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-600 font-bold">₹</div>
-                    <div>
-                       <p className="text-xs font-bold tracking-tight">+14.2% Growth</p>
-                       <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Real-time GMV</p>
-                    </div>
-                 </div>
-              </div>
+           <p className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200 text-lg md:text-2xl text-muted-foreground max-w-3xl leading-relaxed mt-4">
+             The only platform that bridges the gap between your physical store, online marketplace, and enterprise operations with uncompromising luxury.
+           </p>
+           
+           <div className="animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-300 flex flex-col sm:flex-row gap-4 mt-8">
+              <Button size="lg" className="h-16 px-12 rounded-full text-lg font-bold shadow-2xl hover:scale-105 transition-transform bg-foreground text-background">
+                 Explore Storefront
+                 <HugeiconsIcon icon={ArrowRight01Icon} data-icon="inline-end" className="ml-2" />
+              </Button>
            </div>
         </div>
-        
-        {/* Glow effect */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 blur-[120px] rounded-full -z-10" />
       </section>
 
-      {/* Features Grid */}
+      {/* Colorful Bento Grid Section */}
       <section id="features" className="container mx-auto px-4 md:px-8">
-         <div className="flex flex-col items-center text-center gap-4 mb-20">
-            <h2 className="font-heading text-4xl md:text-5xl font-bold tracking-tight">One platform. Infinite scale.</h2>
-            <p className="text-muted-foreground text-lg max-w-2xl">
-               We've consolidated the entire commerce stack so you can focus on building your brand.
-            </p>
-         </div>
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-               { 
-                 title: "Hyper-local POS", 
-                 desc: "Blazing fast point of sale that works offline and syncs instantly when you're back.", 
-                 icon: Store01Icon, 
-                 color: "bg-blue-500" 
-               },
-               { 
-                 title: "Enterprise Multi-tenant", 
-                 desc: "Run thousands of independent stores under one umbrella with isolated data and unified billing.", 
-                 icon: GlobalIcon, 
-                 color: "bg-purple-500" 
-               },
-               { 
-                 title: "Marketplace Engine", 
-                 desc: "Power complex multi-vendor ecosystems with automated split payments and shipping orchestration.", 
-                 icon: ShoppingBag01Icon, 
-                 color: "bg-indigo-500" 
-               },
-               { 
-                 title: "Deep Analytics", 
-                 desc: "Get actionable insights across every touchpoint, from customer churn to inventory velocity.", 
-                 icon: DashboardSquare01Icon, 
-                 color: "bg-emerald-500" 
-               },
-               { 
-                 title: "Fortified Security", 
-                 desc: "Bank-grade encryption, PCI compliance, and role-based access control built-in from day one.", 
-                 icon: SecurityIcon, 
-                 color: "bg-rose-500" 
-               },
-               { 
-                 title: "Modern Tech Stack", 
-                 desc: "Built on Next.js, tRPC, and Supabase for ultimate performance and developer experience.", 
-                 icon: FlashIcon, 
-                 color: "bg-amber-500" 
-               },
-            ].map((f) => (
-               <Card key={f.title} className="border-border/50 bg-muted/20 hover:bg-muted/40 transition-all duration-300 group cursor-default">
-                  <CardContent className="p-8 flex flex-col gap-4">
-                     <div className={`size-12 rounded-2xl ${f.color} flex items-center justify-center text-white shadow-lg shadow-black/5`}>
-                        <HugeiconsIcon icon={f.icon} size={24} />
-                     </div>
-                     <h3 className="text-xl font-bold tracking-tight mt-2">{f.title}</h3>
-                     <p className="text-muted-foreground leading-relaxed text-sm">
-                        {f.desc}
-                     </p>
-                  </CardContent>
-               </Card>
-            ))}
+         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-auto md:h-[600px]">
+            {/* Feature 1: Large Left */}
+            <div className="md:col-span-2 md:row-span-2 bg-[#F1F6F9] dark:bg-card p-10 rounded-[40px] flex flex-col justify-between group overflow-hidden relative shadow-sm border border-border/10">
+               <div className="relative z-10">
+                  <div className="size-16 rounded-3xl bg-blue-500 flex items-center justify-center text-white mb-6 transform -rotate-6 group-hover:rotate-0 transition-transform duration-500 shadow-xl shadow-blue-500/20">
+                     <HugeiconsIcon icon={Store01Icon} size={32} />
+                  </div>
+                  <h3 className="text-4xl font-heading font-black tracking-tight mb-4 text-slate-900 dark:text-white">Hyper-local POS</h3>
+                  <p className="text-slate-600 dark:text-muted-foreground text-lg leading-relaxed max-w-md">
+                     Blazing fast point of sale that works completely offline and synchronizes your inventory the moment you reconnect.
+                  </p>
+               </div>
+               <div className="absolute -bottom-10 -right-10 w-96 h-96 bg-blue-400/20 rounded-full blur-[80px] group-hover:bg-blue-400/30 transition-colors duration-500 z-0" />
+            </div>
+
+            {/* Feature 2: Top Right Small */}
+            <div className="md:col-span-1 md:row-span-1 bg-[#FFF9E6] dark:bg-card p-8 rounded-[40px] flex flex-col justify-between group overflow-hidden relative shadow-sm border border-border/10">
+               <div className="relative z-10">
+                  <div className="size-14 rounded-3xl bg-amber-500 flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-500">
+                     <HugeiconsIcon icon={GlobalIcon} size={28} />
+                  </div>
+                  <h3 className="text-2xl font-heading font-black tracking-tight text-slate-900 dark:text-white">Multi-tenant</h3>
+                  <p className="text-slate-600 dark:text-muted-foreground mt-2">One umbrella, thousands of isolated stores.</p>
+               </div>
+            </div>
+
+            {/* Feature 3: Top Right Small */}
+            <div className="md:col-span-1 md:row-span-1 bg-[#FDF0ED] dark:bg-card p-8 rounded-[40px] flex flex-col justify-between group overflow-hidden relative shadow-sm border border-border/10">
+               <div className="relative z-10">
+                  <div className="size-14 rounded-3xl bg-rose-500 flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-500">
+                     <HugeiconsIcon icon={FlashIcon} size={28} />
+                  </div>
+                  <h3 className="text-2xl font-heading font-black tracking-tight text-slate-900 dark:text-white">Performance</h3>
+                  <p className="text-slate-600 dark:text-muted-foreground mt-2">Built on Next.js 15 routing.</p>
+               </div>
+            </div>
+
+            {/* Feature 4: Bottom Right Wide */}
+            <div className="md:col-span-2 md:row-span-1 bg-[#E8F5E9] dark:bg-card p-8 rounded-[40px] flex flex-row items-center justify-between group overflow-hidden relative shadow-sm border border-border/10">
+               <div className="relative z-10 max-w-[60%]">
+                  <div className="size-14 rounded-3xl bg-emerald-500 flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-500">
+                     <HugeiconsIcon icon={Diamond01Icon} size={28} />
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-heading font-black tracking-tight text-slate-900 dark:text-white">Luxury & Scalability</h3>
+               </div>
+               <div className="absolute top-1/2 right-10 -translate-y-1/2 h-32 w-32 bg-emerald-500/20 blur-[50px] rounded-full" />
+            </div>
          </div>
       </section>
 
-      {/* Trust / Stats */}
-      <section className="bg-muted/30 py-24">
-         <div className="container mx-auto px-4 md:px-8 grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
-            <div>
-               <p className="font-heading text-5xl font-black tracking-tight mb-2">1.2M+</p>
-               <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Weekly Transactions</p>
-            </div>
-            <div>
-               <p className="font-heading text-5xl font-black tracking-tight mb-2">₹480Cr</p>
-               <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Monthly GMV</p>
-            </div>
-            <div>
-               <p className="font-heading text-5xl font-black tracking-tight mb-2">14,200</p>
-               <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Active Merchants</p>
-            </div>
-            <div>
-               <p className="font-heading text-5xl font-black tracking-tight mb-2">99.99%</p>
-               <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Platform Uptime</p>
+      {/* Modern Stats Section */}
+      <section className="py-24">
+         <div className="container mx-auto px-4 md:px-8">
+            <div className="bg-foreground text-background rounded-[48px] p-12 md:p-20 grid grid-cols-1 md:grid-cols-3 gap-12 text-center relative overflow-hidden">
+               <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+               <div className="relative z-10 flex flex-col gap-2">
+                  <p className="font-heading text-6xl md:text-8xl font-black tracking-tighter">1.2M</p>
+                  <p className="text-sm uppercase font-bold tracking-widest text-background/60">Weekly Transactions</p>
+               </div>
+               <div className="relative z-10 flex flex-col gap-2">
+                  <p className="font-heading text-6xl md:text-8xl font-black tracking-tighter">480M</p>
+                  <p className="text-sm uppercase font-bold tracking-widest text-background/60">Monthly Volume (USD)</p>
+               </div>
+               <div className="relative z-10 flex flex-col gap-2">
+                  <p className="font-heading text-6xl md:text-8xl font-black tracking-tighter">99.9%</p>
+                  <p className="text-sm uppercase font-bold tracking-widest text-background/60">Uptime SLA</p>
+               </div>
             </div>
          </div>
       </section>
 
       {/* CTA */}
       <section className="container mx-auto px-4 md:px-8">
-         <div className="bg-primary rounded-[48px] p-8 md:p-24 text-primary-foreground text-center relative overflow-hidden flex flex-col items-center gap-8">
-            <h2 className="font-heading text-4xl md:text-7xl font-bold tracking-tight max-w-4xl z-10">
-               Ready to build the future of commerce?
+         <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-[48px] p-12 md:p-24 text-white text-center relative overflow-hidden flex flex-col items-center gap-10">
+            <h2 className="font-heading text-5xl md:text-7xl font-black tracking-tight max-w-4xl z-10 leading-tight">
+               Build your empire with us.
             </h2>
-            <p className="text-primary-foreground/80 text-lg md:text-xl max-w-2xl z-10">
-               Join thousands of businesses already scaling on themrktplace. No credit card required to start.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 z-10">
-               <Button size="lg" variant="secondary" className="h-16 px-12 rounded-full text-lg font-bold">
-                  Start for free
-               </Button>
-               <Button variant="outline" size="lg" className="h-16 px-12 rounded-full text-lg font-bold bg-white/5 border-white/20 hover:bg-white/10 hover:text-white">
-                  Talk to sales
-               </Button>
+            <div className="flex flex-col sm:flex-row gap-6 z-10">
+               <Link href="http://localhost:3000" target="_blank">
+                  <Button size="lg" variant="secondary" className="h-16 px-12 rounded-full text-lg font-bold text-slate-900 bg-white hover:bg-white/90 hover:scale-105 transition-all">
+                     View Demo Storefront
+                  </Button>
+               </Link>
             </div>
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
          </div>
       </section>
     </div>

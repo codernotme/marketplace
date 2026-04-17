@@ -5,7 +5,10 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon, Download01Icon, ArrowRight01Icon, Building01Icon } from "@hugeicons/core-free-icons";
 import { formatDateTime } from "@workspace/ui/lib/formatters";
 import { DataTable } from "@workspace/ui/components/data-table";
+import { cn } from "@workspace/ui/lib/utils";
 import { getTenants } from "@/app/actions/master";
+import { TenantWizard } from "@/components/tenants/tenant-wizard";
+import { ViewIcon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -38,21 +41,42 @@ const columns = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }: any) => (
-      <Badge className="bg-success/10 text-success border-transparent shadow-none text-[10px] uppercase font-black tracking-tight h-5">
-        Active
-      </Badge>
-    ),
+    cell: ({ row }: any) => {
+      const status = row.original.status || "active";
+      return (
+        <Badge className={cn(
+          "border-transparent shadow-none text-[10px] uppercase font-black tracking-tight h-5",
+          status === "active" ? "bg-success/10 text-success" : 
+          status === "suspended" ? "bg-destructive/10 text-destructive" :
+          "bg-warning/10 text-warning"
+        )}>
+          {status}
+        </Badge>
+      );
+    },
   },
   {
     id: "actions",
-    cell: ({ row }: any) => (
-      <Button variant="ghost" size="icon" asChild className="rounded-full h-8 w-8 hover:bg-primary/5 hover:text-primary transition-colors">
-        <Link href={`/dashboard/tenants/${row.original.id}`}>
-          <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
-        </Link>
-      </Button>
-    ),
+    cell: ({ row }: any) => {
+      const tenant = row.original;
+      // In dev, we use subdomain on localhost. In prod, we'd use the mapping.
+      const impersonateUrl = `http://admin.${tenant.slug}.localhost:3000`;
+      
+      return (
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" asChild title="Impersonate" className="rounded-full h-8 w-8 hover:bg-primary/5 hover:text-primary transition-colors">
+            <a href={impersonateUrl} target="_blank" rel="noopener noreferrer">
+              <HugeiconsIcon icon={ViewIcon} size={14} />
+            </a>
+          </Button>
+          <Button variant="ghost" size="icon" asChild className="rounded-full h-8 w-8 hover:bg-primary/5 hover:text-primary transition-colors">
+            <Link href={`/dashboard/tenants/${tenant.id}`}>
+              <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+            </Link>
+          </Button>
+        </div>
+      );
+    },
   },
 ];
 
@@ -70,9 +94,9 @@ export default async function TenantsPage() {
           Export Data
         </Button>
         <Button size="sm" className="rounded-full shadow-none px-5">
-          <HugeiconsIcon icon={Add01Icon} data-icon="inline-start" />
-          Provision Tenant
+          Export Data
         </Button>
+        <TenantWizard />
       </PageHeader>
 
       {/* Metrics breakdown */}

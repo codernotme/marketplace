@@ -9,6 +9,9 @@ import {
   UserMultiple02Icon,
   ArrowDown01Icon,
   Logout01Icon,
+  Activity01Icon,
+  Trophy01Icon,
+  Database01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -38,7 +41,10 @@ const masterNavItems = [
   { label: "Tenants", href: "/dashboard/tenants", icon: Building01Icon },
   { label: "Billing", href: "/dashboard/billing", icon: CreditCardIcon },
   { label: "Analytics", href: "/dashboard/analytics", icon: PieChartSquareIcon },
+  { label: "Leaderboard", href: "/dashboard/analytics/leaderboard", icon: Trophy01Icon },
+  { label: "Registry", href: "/dashboard/settings/registry", icon: Database01Icon },
   { label: "Users", href: "/dashboard/users", icon: UserMultiple02Icon },
+  { label: "Activity", href: "/dashboard/activity", icon: Activity01Icon },
   { label: "Settings", href: "/dashboard/settings", icon: Settings01Icon },
 ];
 

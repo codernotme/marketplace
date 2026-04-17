@@ -3,21 +3,21 @@
 ## Product 1: Master Admin (SaaS Control Plane)
 
 ### 🏢 Tenant Management
-- [ ] Tenant onboarding wizard (3-step: profile → plan → store config)
-- [ ] Tenant listing with health indicators (revenue, uptime, activity)
+- [x] Tenant onboarding wizard (3-step: profile → plan → store config)
+- [x] Tenant listing with health indicators (revenue, uptime, activity)
 - [ ] Per-tenant feature flags & plan gating
-- [ ] Tenant suspension / reinstatement workflows
+- [x] Tenant suspension / reinstatement workflows
 - [ ] Bulk tenant operations (notifications, config push)
 - [ ] Tenant cloning (duplicate a store config for new tenant)
 - [ ] White-label branding per tenant (logo, colors, domain)
-- [ ] Custom domain mapping with SSL auto-provisioning (Let's Encrypt)
-- [ ] Tenant audit log (all actions, impersonation sessions)
+- [x] Custom domain mapping with SSL auto-provisioning (Let's Encrypt)
+- [x] Tenant audit log (all actions, impersonation sessions)
 
 ### 💳 Billing & Subscriptions
-- [ ] Plan builder (create/edit pricing tiers with feature bundles)
+- [x] Plan builder (create/edit pricing tiers with feature bundles)
 - [ ] Stripe Billing integration (subscriptions, usage-based, invoices)
 - [ ] Trial management (duration, auto-conversion, grace periods)
-- [ ] Revenue dashboard (MRR, ARR, churn rate, LTV, ARPU)
+- [x] Revenue dashboard (MRR, ARR, churn rate, LTV, ARPU)
 - [ ] Proration handling on plan upgrades/downgrades
 - [ ] Coupon & discount code management
 - [ ] Invoice generation & PDF export
@@ -25,8 +25,8 @@
 - [ ] Add-on module billing (per-module charges)
 
 ### 📊 Platform Analytics
-- [ ] Real-time platform GMV dashboard
-- [ ] Tenant performance leaderboard
+- [x] Real-time platform GMV dashboard
+- [x] Tenant performance leaderboard
 - [ ] Cross-tenant trend analysis
 - [ ] Cohort analysis (tenant activation, retention)
 - [ ] Alert rules (low activity, spike detection, error thresholds)
@@ -34,28 +34,28 @@
 - [ ] Custom report builder with drag-and-drop
 
 ### 🔧 Platform Configuration
-- [ ] Global tax rule templates
-- [ ] Supported payment gateway registry
-- [ ] Shipping carrier registry & rate cards
+- [x] Global tax rule templates
+- [x] Supported payment gateway registry
+- [x] Shipping carrier registry & rate cards
 - [ ] Email template library (global defaults)
 - [ ] Global product category taxonomy
 - [ ] Platform-wide announcement system
-- [ ] Maintenance mode (per-tenant or global)
+- [x] Maintenance mode (per-tenant or global)
 
 ### 👤 Super Admin User Management
-- [ ] Role-based access (Super Admin, Support, Finance, Read-only)
+- [x] Role-based access (Super Admin, Support, Finance, Read-only)
 - [ ] MFA enforcement for all master admin users
-- [ ] Session management & device tracking
-- [ ] Impersonation mode (log in as any tenant)
-- [ ] Admin activity log
+- [x] Session management & device tracking
+- [x] Impersonation mode (log in as any tenant)
+- [x] Admin activity log
 
 ---
 
 ## Product 2: Tenant Admin (Merchant Dashboard)
 
 ### 🛍️ Product Management
-- [ ] Product CRUD with rich text description (TipTap editor)
-- [ ] Variant engine (size, color, material — unlimited dimensions)
+- [x] Product CRUD with rich text description (TipTap editor)
+- [x] Variant engine (size, color, material — unlimited dimensions)
 - [ ] Bulk product import/export (CSV, Excel, Shopify format)
 - [ ] Digital products support (file delivery, license keys)
 - [ ] Product bundles & kits
@@ -69,10 +69,10 @@
 - [ ] Multi-warehouse inventory tracking
 - [ ] Low stock alerts & reorder points
 - [ ] Inventory audit logs
-- [ ] Draft / published / archived states
+- [x] Draft / published / archived states
 
 ### 📦 Order Management
-- [ ] Order listing with advanced filters
+- [x] Order listing with advanced filters
 - [ ] Order timeline (status history with timestamps)
 - [ ] Manual order creation
 - [ ] Order editing (pre-fulfillment)
@@ -86,7 +86,7 @@
 - [ ] Order export (CSV, API webhook)
 
 ### 👥 Customer Management
-- [ ] Customer profiles with purchase history
+- [x] Customer profiles with purchase history
 - [ ] Customer segmentation (RFM, tags, custom rules)
 - [ ] Address book management
 - [ ] Customer notes & internal tags
@@ -143,7 +143,7 @@
 - [ ] Store profile (name, address, logo, timezone)
 - [ ] Tax configuration (rules, exemptions, GST/VAT modes)
 - [ ] Notification templates (email, SMS, push)
-- [ ] Staff user management (roles, permissions, 2FA)
+- [x] Staff user management (roles, permissions, 2FA)
 - [ ] API key management (webhooks, integrations)
 - [ ] Storefront theme customizer
 - [ ] Navigation & menu builder
@@ -195,8 +195,8 @@
 - [ ] Advanced filtering (faceted search)
 - [ ] Product detail page with image gallery, 360 view, video
 - [ ] Real-time stock indicator
-- [ ] Guest checkout & account checkout
-- [ ] Persistent cart (cross-device)
+- [x] Guest checkout & account checkout
+- [x] Persistent cart (cross-device)
 - [ ] Wishlist / save for later
 - [ ] Product comparison tool
 - [ ] Recently viewed products

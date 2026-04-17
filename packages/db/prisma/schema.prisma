@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -33,6 +32,7 @@ model User {
   productsCreated Product[]
   orders          Order[]
   cart            Cart?
+  auditLogs       AuditLog[] @relation("UserAuditLogs")
 
   @@map("user")
 }
@@ -237,12 +237,17 @@ model Organization {
   name        String
   slug        String   @unique
   logo        String?
+  status      String   @default("active") // active, suspended, pending
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   metadata    String?
 
-  members     Member[]
-  invitations Invitation[]
+  members      Member[]
+  invitations  Invitation[]
+  subscription Subscription?
+  featureFlags FeatureFlag[]
+  domains      DomainMapping[]
+  auditLogs    AuditLog[]
 
   @@map("organization")
 }
@@ -276,4 +281,94 @@ model Invitation {
   user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
 
   @@map("invitation")
+}
+model SubscriptionPlan {
+  id             String         @id @default(cuid())
+  name           String
+  slug           String         @unique
+  description    String?
+  price          Float
+  interval       String         @default("month") // month, year
+  features       String?        // JSON string of feature list
+  limits         String?        // JSON string of resource limits
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  
+  subscriptions  Subscription[]
+
+  @@map("subscription_plan")
+}
+
+model Subscription {
+  id             String           @id @default(cuid())
+  organizationId String           @unique
+  planId         String
+  status         String           @default("active") // active, trialing, past_due, canceled
+  currentPeriodEnd DateTime?
+  stripeId       String?          @unique
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan           SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  @@map("subscription")
+}
+
+model FeatureFlag {
+  id             String       @id @default(cuid())
+  organizationId String
+  key            String
+  value          String       // Boolean "true"/"false" or specialized string
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, key])
+  @@map("feature_flag")
+}
+
+model AuditLog {
+  id             String       @id @default(cuid())
+  organizationId String?
+  actorId        String
+  action         String       // e.g., "TENANT_PROVISIONED", "SUBSCRIPTION_UPDATED"
+  entityType     String?      // e.g., "ORDER", "PRODUCT"
+  entityId       String?
+  metadata       String?      // JSON string of change details
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime     @default(now())
+
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  actor          User          @relation("UserAuditLogs", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@map("audit_log")
+}
+
+model DomainMapping {
+  id             String       @id @default(cuid())
+  organizationId String
+  domain         String       @unique
+  isCustom       Boolean      @default(false)
+  isPrimary      Boolean      @default(true)
+  sslStatus      String       @default("pending") // pending, active, failed
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("domain_mapping")
+}
+
+model SystemConfig {
+  id             String       @id @default(cuid())
+  key            String       @unique
+  value          String       // JSON encoded config
+  description    String?
+  updatedAt      DateTime     @updatedAt
+
+  @@map("system_config")
 }

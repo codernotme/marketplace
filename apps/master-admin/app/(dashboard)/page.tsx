@@ -16,6 +16,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { formatINR, formatCompact, formatRelativeTime } from "@workspace/ui/lib/formatters";
 import { getMasterStats } from "@/app/actions/master";
+import { TenantWizard } from "@/components/tenants/tenant-wizard";
 import { 
   AreaChart, 
   Area, 
@@ -160,11 +161,8 @@ export default function MasterDashboardPage() {
                 ))}
              </div>
              
-             <div className="p-8 bg-muted/5 mt-auto border-t border-border/40">
-                <Button className="w-full h-12 rounded-2xl font-bold bg-background text-foreground border border-border/50 shadow-sm hover:bg-muted/50 transition-all flex items-center gap-2 group">
-                   Add New Tenant Instance
-                   <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} className="group-hover:translate-x-0.5 group-hover:translate-y-[-0.5px] transition-transform" />
-                </Button>
+             <div className="p-8 bg-muted/5 mt-auto border-t border-border/40 flex justify-center">
+                <TenantWizard />
              </div>
           </CardContent>
         </Card>

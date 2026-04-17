@@ -85,29 +85,53 @@ export default function MasterSettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="security" className="mt-6">
+        <TabsContent value="security" className="mt-6 flex flex-col gap-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Security Policies</CardTitle>
+              <CardTitle className="text-base">Global Security Policies</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">Enforce MFA</p>
-                  <p className="text-xs text-muted-foreground">Require Multi-Factor Authentication for all team members</p>
+                  <p className="text-sm font-medium">Enforce MFA (Master Admin)</p>
+                  <p className="text-xs text-muted-foreground">Force all super admins to setup TOTP/SMS MFA</p>
                 </div>
                 <Switch defaultChecked />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">Session Timeout</p>
-                  <p className="text-xs text-muted-foreground">Duration of inactivity before forced logout (minutes)</p>
+                  <p className="text-sm font-medium">Force Multi-Session Logout</p>
+                  <p className="text-xs text-muted-foreground">Automatically log out other devices on password change</p>
                 </div>
-                <Input className="w-20 h-8" type="number" defaultValue="60" />
+                <Switch defaultChecked />
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="performance" className="mt-6 flex flex-col gap-4">
+           <Card className="border-destructive/20 bg-destructive/5 overflow-hidden">
+             <CardHeader>
+               <CardTitle className="text-base text-destructive flex items-center gap-2">
+                  System Maintenance
+               </CardTitle>
+               <CardDescription>Emergency controls for platform stability.</CardDescription>
+             </CardHeader>
+             <CardContent className="flex flex-col gap-4">
+               <div className="flex items-center justify-between">
+                 <div>
+                   <p className="text-sm font-black uppercase text-destructive">Platform-wide Locked mode</p>
+                   <p className="text-xs text-muted-foreground">Block all incoming requests and show maintenance screen</p>
+                 </div>
+                 <Switch className="data-[state=checked]:bg-destructive" />
+               </div>
+               <Separator className="bg-destructive/10" />
+               <div className="flex justify-end">
+                  <Button variant="destructive" className="font-black uppercase tracking-widest text-[10px]">Execute Lockdown</Button>
+               </div>
+             </CardContent>
+           </Card>
         </TabsContent>
       </Tabs>
     </div>

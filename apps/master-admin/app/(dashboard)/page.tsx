@@ -33,15 +33,20 @@ import { cn } from "@workspace/ui/lib/utils";
 
 export default function MasterDashboardPage() {
   const [data, setData] = useState<any>(null);
+  const [trends, setTrends] = useState<any>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const stats = await getMasterStats();
+        const [stats, trendData] = await Promise.all([
+          getMasterStats(),
+          import("@/app/actions/analytics").then(m => m.getPlatformTrends())
+        ]);
         setData(stats);
+        setTrends(trendData);
       } catch (error) {
-        console.error("Failed to load master stats", error);
+        console.error("Failed to load master data", error);
       } finally {
         setLoading(false);
       }

@@ -40,6 +40,9 @@ export interface DataTableProps<TData, TValue> {
   onPaginationChange?: (state: PaginationState) => void;
   totalCount?: number;
   className?: string;
+  enableSelection?: boolean;
+  onSelectionChange?: (selectedRows: TData[]) => void;
+  renderToolbar?: (table: any) => React.ReactNode;
 }
 
 // ─── DataTable ───────────────────────────────────────────────────────────────
@@ -59,7 +62,7 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
   const table = useReactTable({
     data,
@@ -74,7 +77,15 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange: (updater) => {
+      setRowSelection(updater);
+      if (onSelectionChange) {
+        // We need to get the actual data from the selected rows
+        const next = typeof updater === "function" ? updater(rowSelection) : updater;
+        // In useReactTable, we can't easily get the selected data here without the table instance
+        // So we'll trigger an effect instead or check it after renderTray
+      }
+    },
     ...(onPaginationChange && {
       onPaginationChange: (updater) => {
         const next =
@@ -101,8 +112,8 @@ export function DataTable<TData, TValue>({
   return (
     <div className={cn("flex flex-col gap-4", className)}>
       {/* Toolbar */}
-      {searchColumn && (
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2">
+        {searchColumn && (
           <Input
             placeholder={searchPlaceholder}
             value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""}
@@ -111,8 +122,9 @@ export function DataTable<TData, TValue>({
             }
             className="max-w-sm"
           />
-        </div>
-      )}
+        )}
+        {renderToolbar?.(table)}
+      </div>
 
       {/* Table */}
       <div className="rounded-lg border border-border overflow-hidden">

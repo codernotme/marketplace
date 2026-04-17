@@ -12,6 +12,8 @@ import {
   Activity01Icon,
   Trophy01Icon,
   Database01Icon,
+  Notification01Icon,
+  Mail01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -43,6 +45,8 @@ const masterNavItems = [
   { label: "Analytics", href: "/dashboard/analytics", icon: PieChartSquareIcon },
   { label: "Leaderboard", href: "/dashboard/analytics/leaderboard", icon: Trophy01Icon },
   { label: "Registry", href: "/dashboard/settings/registry", icon: Database01Icon },
+  { label: "Broadcast", href: "/dashboard/communications/announcements", icon: Notification01Icon },
+  { label: "Email Templates", href: "/dashboard/communications/templates", icon: Mail01Icon },
   { label: "Users", href: "/dashboard/users", icon: UserMultiple02Icon },
   { label: "Activity", href: "/dashboard/activity", icon: Activity01Icon },
   { label: "Settings", href: "/dashboard/settings", icon: Settings01Icon },

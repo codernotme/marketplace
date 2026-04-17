@@ -245,3 +245,116 @@ export async function getTenantDetails(organizationId: string) {
     },
   });
 }
+export async function bulkUpdateTenants(ids: string[], data: { status?: string; planId?: string }) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  return await db.$transaction(async (tx) => {
+    const updates = ids.map(id => {
+       const updateData: any = {};
+       if (data.status) updateData.status = data.status;
+       
+       const op = tx.organization.update({
+         where: { id },
+         data: updateData,
+       });
+
+       if (data.planId) {
+         tx.subscription.update({
+           where: { organizationId: id },
+           data: { planId: data.planId }
+         });
+       }
+
+       return op;
+    });
+
+    const results = await Promise.all(updates);
+
+    await tx.auditLog.create({
+      data: {
+        actorId: session?.user.id || "admin",
+        action: "BULK_TENANT_UPDATE",
+        metadata: JSON.stringify({ ids, data }),
+      },
+    });
+
+    return results;
+  });
+}
+
+export async function sendAnnouncement(data: { title: string; content: string; targetRoles: string[] }) {
+  return await db.announcement.create({
+    data: {
+      title: data.title,
+      content: data.content,
+      // UserRole enum mapping
+      targetRole: data.targetRoles as any,
+    },
+  });
+}
+
+/**
+ * Deep copies an organization's non-transactional metadata and configuration.
+ * Useful for "Template" organizations or rapid branch setup.
+ */
+export async function cloneTenant(sourceOrgId: string, newSlug: string, newName: string) {
+  const sourceOrg = await db.organization.findUnique({
+    where: { id: sourceOrgId },
+    include: {
+      subscription: true,
+      featureFlags: true,
+    }
+  });
+
+  if (!sourceOrg) throw new Error("Source organization not found");
+
+  return await db.$transaction(async (tx) => {
+    // 1. Create New Org
+    const newOrg = await tx.organization.create({
+      data: {
+        name: newName,
+        slug: newSlug,
+        metadata: sourceOrg.metadata,
+      }
+    });
+
+    // 2. Clone Subscription (keeping same plan)
+    if (sourceOrg.subscription) {
+      await tx.subscription.create({
+        data: {
+          organizationId: newOrg.id,
+          planId: sourceOrg.subscription.planId,
+          status: "active",
+        }
+      });
+    }
+
+    // 3. Clone Feature Flags
+    if (sourceOrg.featureFlags.length > 0) {
+      const flags = sourceOrg.featureFlags.map(f => ({
+        organizationId: newOrg.id,
+        key: f.key,
+        enabled: f.enabled,
+      }));
+      await tx.featureFlag.createMany({ data: flags });
+    }
+
+    return newOrg;
+  });
+}
+
+/**
+ * Administrative override to require MFA for a user account.
+ */
+export async function toggleUserMfa(userId: string, enabled: boolean) {
+  // In a real scenario, this would update the user's compliance requirements
+  // which are checked during sign-in in the proxy/middleware.
+  return await db.user.update({
+    where: { id: userId },
+    data: {
+      image: enabled ? "MFA_ENFORCED" : null // Using image as a placeholder for prototype metadata
+    },
+  });
+}

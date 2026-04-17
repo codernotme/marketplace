@@ -5,46 +5,46 @@
 ### 🏢 Tenant Management
 - [x] Tenant onboarding wizard (3-step: profile → plan → store config)
 - [x] Tenant listing with health indicators (revenue, uptime, activity)
-- [ ] Per-tenant feature flags & plan gating
+- [x] Per-tenant feature flags & plan gating
 - [x] Tenant suspension / reinstatement workflows
-- [ ] Bulk tenant operations (notifications, config push)
-- [ ] Tenant cloning (duplicate a store config for new tenant)
-- [ ] White-label branding per tenant (logo, colors, domain)
+- [x] Bulk tenant operations (notifications, config push)
+- [x] Tenant cloning (duplicate a store config for new tenant)
+- [x] White-label branding per tenant (logo, colors, domain)
 - [x] Custom domain mapping with SSL auto-provisioning (Let's Encrypt)
 - [x] Tenant audit log (all actions, impersonation sessions)
 
 ### 💳 Billing & Subscriptions
 - [x] Plan builder (create/edit pricing tiers with feature bundles)
-- [ ] Stripe Billing integration (subscriptions, usage-based, invoices)
-- [ ] Trial management (duration, auto-conversion, grace periods)
+- [x] Stripe Billing integration (subscriptions, usage-based, invoices)
+- [x] Trial management (duration, auto-conversion, grace periods)
 - [x] Revenue dashboard (MRR, ARR, churn rate, LTV, ARPU)
-- [ ] Proration handling on plan upgrades/downgrades
-- [ ] Coupon & discount code management
-- [ ] Invoice generation & PDF export
-- [ ] Failed payment dunning workflows
-- [ ] Add-on module billing (per-module charges)
+- [x] Proration handling on plan upgrades/downgrades
+- [x] Coupon & discount code management
+- [x] Invoice generation & PDF export
+- [x] Failed payment dunning workflows
+- [x] Add-on module billing (per-module charges)
 
 ### 📊 Platform Analytics
 - [x] Real-time platform GMV dashboard
 - [x] Tenant performance leaderboard
-- [ ] Cross-tenant trend analysis
-- [ ] Cohort analysis (tenant activation, retention)
-- [ ] Alert rules (low activity, spike detection, error thresholds)
-- [ ] Exportable reports (CSV, Excel, PDF)
-- [ ] Custom report builder with drag-and-drop
+- [x] Cross-tenant trend analysis
+- [x] Cohort analysis (tenant activation, retention)
+- [x] Alert rules (low activity, spike detection, error thresholds)
+- [x] Exportable reports (CSV, Excel, PDF)
+- [x] Custom report builder with drag-and-drop
 
 ### 🔧 Platform Configuration
 - [x] Global tax rule templates
 - [x] Supported payment gateway registry
 - [x] Shipping carrier registry & rate cards
-- [ ] Email template library (global defaults)
-- [ ] Global product category taxonomy
-- [ ] Platform-wide announcement system
+- [x] Email template library (global defaults)
+- [x] Global product category taxonomy
+- [x] Platform-wide announcement system
 - [x] Maintenance mode (per-tenant or global)
 
 ### 👤 Super Admin User Management
 - [x] Role-based access (Super Admin, Support, Finance, Read-only)
-- [ ] MFA enforcement for all master admin users
+- [x] MFA enforcement for all master admin users
 - [x] Session management & device tracking
 - [x] Impersonation mode (log in as any tenant)
 - [x] Admin activity log

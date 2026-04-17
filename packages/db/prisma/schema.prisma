@@ -241,6 +241,7 @@ model Organization {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   metadata    String?
+  mfaEnabled  Boolean  @default(false)
 
   members      Member[]
   invitations  Invitation[]
@@ -305,15 +306,73 @@ model Subscription {
   organizationId String           @unique
   planId         String
   status         String           @default("active") // active, trialing, past_due, canceled
-  currentPeriodEnd DateTime?
-  stripeId       String?          @unique
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  trialEndsAt     DateTime?
+  couponId        String?
+  stripeId        String?          @unique
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   plan           SubscriptionPlan @relation(fields: [planId], references: [id])
+  coupon         Coupon?          @relation(fields: [couponId], references: [id])
 
   @@map("subscription")
+}
+
+model Coupon {
+  id             String         @id @default(cuid())
+  code           String         @unique
+  discountType   String         // percentage, fixed
+  amount         Float
+  expiresAt      DateTime?
+  usageLimit     Int?
+  usageCount     Int            @default(0)
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  subscriptions  Subscription[]
+
+  @@map("coupon")
+}
+
+model Announcement {
+  id             String         @id @default(cuid())
+  title          String
+  content        String
+  targetRole     UserRole[]
+  expiresAt      DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@map("announcement")
+}
+
+model EmailTemplate {
+  id             String         @id @default(cuid())
+  name           String         @unique
+  subject        String
+  body           String         // HTML or Markdown
+  variables      String?        // JSON string of allowed variables
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@map("email_template")
+}
+
+model GlobalCategory {
+  id          String    @id @default(cuid())
+  parentId    String?
+  name        String
+  slug        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  parent      GlobalCategory?  @relation("GlobalSubCategories", fields: [parentId], references: [id])
+  children    GlobalCategory[] @relation("GlobalSubCategories")
+
+  @@map("global_category")
 }
 
 model FeatureFlag {

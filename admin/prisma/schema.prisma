@@ -2,7 +2,6 @@
 // Admin App — Master Prisma Schema (Single-Store eCommerce)
 // Source of truth: all migrations run from this app only.
 // ─────────────────────────────────────────────────────────────────────────────
-
 generator client {
   provider = "prisma-client"
   output   = "../app/generated/prisma"
@@ -10,7 +9,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

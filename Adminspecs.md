@@ -23,22 +23,28 @@
 16. [Reviews & Ratings](#16-reviews--ratings)
 17. [Support & Helpdesk](#17-support--helpdesk)
 18. [Settings & Configuration](#18-settings--configuration)
-19. [Master Admin Panel (Super Admin)](#19-master-admin-panel-super-admin)
+19. [Admin Control — System & Settings](#19-admin-control--system--settings)
 20. [Print & Export Flows](#20-print--export-flows)
 21. [Prisma Database Schema](#21-prisma-database-schema)
+22. [Customer Portal (E-commerce)](#22-customer-portal-e-commerce)
 
 ---
 
 ## 1. Architecture Overview
 
-The system is a **single unified database** (PostgreSQL via Prisma) shared between:
+The system is a **standalone single-store eCommerce platform** with a **unified database** (PostgreSQL via Prisma).
 
-- **E-commerce Admin Panel** — store-level management (orders, products, customers, inventory)
-- **Master Admin Panel** — platform-level management (tenants, billing, system health, all stores)
+It consists of two separate Next.js applications:
 
-Both panels are separate Next.js route groups (`/admin` and `/master`) running on the same app, authenticated via role-based JWT. The `User` model's `role` field gates which panel a user can access.
+- **E-commerce Storefront & Customer Portal** (`/ecom`) — Customer-facing storefront, catalog, checkout, and auth-gated customer dashboard (orders, wishlist, loyalty).
+- **Master Admin Panel** (`/admin`) — The single central control panel for the store owner and staff. Manages products, orders, inventory, customers, marketing, and global store settings.
 
-Navigation structure uses a persistent **left sidebar** (`SidebarLayout` from HeroUI) with collapsible sections, a **top Navbar** for global search, notifications bell, and user avatar dropdown.
+Both apps share the same database and connect via Prisma.
+Authentication is handled via `better-auth`:
+- **Admin App** uses role-based admin accounts (e.g. `MASTER_ADMIN`, `STORE_MANAGER`, etc.).
+- **Ecom App** uses customer accounts with simpler capabilities.
+
+Navigation structure in the Admin Panel uses a persistent **left sidebar** (`SidebarLayout` from HeroUI) with collapsible sections, a **top Navbar** for global search, notifications bell, and user avatar dropdown.
 
 ---
 
@@ -97,12 +103,20 @@ Use HeroUI `Modal` with custom positioning class for slide-over:
 
 ### Roles
 
+**Admin App Roles:**
 | Role | Scope |
 |---|---|
-| `MASTER_ADMIN` | All tenants, system settings, billing |
-| `STORE_ADMIN` | Single store, all features |
+| `MASTER_ADMIN` | Store owner, full access to all sections + system settings |
 | `STORE_MANAGER` | Orders, inventory, customers — no finance/settings |
 | `SUPPORT_AGENT` | Orders read, customer messaging, returns |
+| `WAREHOUSE_STAFF` | Inventory, picking, packing, shipping |
+| `FINANCE_MANAGER` | Finance, payouts, refunds, reports |
+| `MARKETING_MANAGER` | Promotions, coupons, CMS, email campaigns |
+
+**Ecom App Roles:**
+| Role | Scope |
+|---|---|
+| `CUSTOMER` | Customer portal only (auto-assigned on registration) |
 | `WAREHOUSE_STAFF` | Inventory, picking, packing, shipping |
 | `FINANCE_MANAGER` | Finance, payouts, refunds, reports |
 | `MARKETING_MANAGER` | Promotions, coupons, CMS, email campaigns |

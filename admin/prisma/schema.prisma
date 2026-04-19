@@ -3,7 +3,7 @@
 // Source of truth: all migrations run from this app only.
 // ─────────────────────────────────────────────────────────────────────────────
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../app/generated/prisma"
 }
 
@@ -58,7 +58,7 @@ model AdminUser {
   id            String        @id @default(cuid())
   email         String        @unique
   name          String
-  role          AdminRole     @default(STORE_MANAGER)
+  role          AdminRole     @default(UNASSIGNED)
   image         String?
   phone         String?
   emailVerified Boolean       @default(false)
@@ -1250,6 +1250,7 @@ model Webhook {
 // ─────────────────────────────────────────────────────────────────────────────
 
 enum AdminRole {
+  UNASSIGNED
   MASTER_ADMIN
   STORE_MANAGER
   SUPPORT_AGENT

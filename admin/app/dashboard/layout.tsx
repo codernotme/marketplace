@@ -87,7 +87,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
         <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center gap-3 mb-4 px-2">
-            <Avatar size="sm" isBordered color="primary" name={session?.name || "Admin"} />
+            <Avatar size="sm" color="accent">
+              <Avatar.Fallback>{session?.name?.charAt(0) || "A"}</Avatar.Fallback>
+            </Avatar>
             <div className="flex flex-col">
               <span className="text-sm font-medium">{session?.name || "Loading..."}</span>
               <span className="text-xs text-zinc-500 truncate w-32">{session?.email}</span>
@@ -95,11 +97,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
           <Button 
             className="w-full justify-start font-medium text-zinc-500" 
-            variant="light" 
-            color="danger" 
-            startContent={<LogOut className="w-4 h-4" />}
+            variant="danger" 
             onPress={handleLogout}
           >
+            <LogOut className="w-4 h-4 mr-2" />
             Sign out
           </Button>
         </div>

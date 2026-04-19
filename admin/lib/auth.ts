@@ -1,12 +1,10 @@
-import { PrismaClient } from "../app/generated/prisma";
+import { prisma } from "@/lib/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { admin } from "better-auth/plugins";
 
-const client = new PrismaClient();
-
 export const auth = betterAuth({
-  database: prismaAdapter(client, { 
+  database: prismaAdapter(prisma, { 
     provider: "postgresql",
   }),
   user: {
@@ -14,7 +12,7 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type: "string",
-        defaultValue: "STORE_MANAGER"
+        defaultValue: "UNASSIGNED"
       },
       phone: {
         type: "string",

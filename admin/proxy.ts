@@ -1,6 +1,6 @@
 import { betterFetch } from "@better-fetch/fetch";
 import type { Session } from "better-auth/types";
-import { NextResponse, type NextRequest } from "next/headers";
+import { NextResponse, type NextRequest } from "next/server";
 
 export default async function authMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -24,17 +24,23 @@ export default async function authMiddleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  // Here you can check roles based on session.user.role if required.
-  // Example:
-  // if (pathname.startsWith("/settings") && session.user.role !== "MASTER_ADMIN") {
-  //   return NextResponse.redirect(new URL("/unauthorized", request.url));
-  // }
+  // Redirect UNASSIGNED users to unauthorized page
+  // @ts-ignore
+  if (session.user?.role === "UNASSIGNED" && !pathname.startsWith("/auth/unauthorized")) {
+    return NextResponse.redirect(new URL("/auth/unauthorized", request.url));
+  }
+
+  // Prevent accessing unauthorized page if user has a role
+  // @ts-ignore
+  if (session.user?.role !== "UNASSIGNED" && pathname.startsWith("/auth/unauthorized")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|public).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public|api).*)",
   ],
 };

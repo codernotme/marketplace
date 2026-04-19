@@ -50,8 +50,8 @@
   --field-radius: 0.75rem;
 
   /* Font Family */
-  /* Make sure to load Inter font in your app */
-  --font-sans: var(--font-inter);
+  /* Make sure to load Figtree font in your app */
+  --font-sans: var(--font-figtree);
 }
 
 .dark,

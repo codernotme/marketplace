@@ -1,16 +1,21 @@
 import { betterFetch } from "@better-fetch/fetch";
 import type { Session } from "better-auth/types";
-import { NextResponse, type NextRequest } from "next/headers";
+import { NextResponse, type NextRequest } from "next/server";
 
 export default async function authMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
-  // Exclude auth routes from protection
-  if (pathname.startsWith("/auth") || pathname.startsWith("/api/auth")) {
+
+  // Allow auth routes and Better Auth API routes to pass through
+  if (
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/api/auth") ||
+    pathname === "/favicon.ico" ||
+    pathname.startsWith("/_next")
+  ) {
     return NextResponse.next();
   }
 
-  // Protect dashboard routes
+  // Protect dashboard routes — require a valid session
   if (pathname.startsWith("/dashboard")) {
     const { data: session } = await betterFetch<Session>(
       "/api/auth/get-session",
@@ -33,6 +38,6 @@ export default async function authMiddleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
-    "/auth/:path*"
+    "/auth/:path*",
   ],
 };

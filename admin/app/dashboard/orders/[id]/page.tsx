@@ -75,7 +75,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                 </Chip>
               </div>
               <div className="p-6 flex flex-col gap-4">
-                {order.items.map((item) => (
+                {order.items.map((item: any) => (
                   <div key={item.id} className="flex justify-between items-center bg-muted/30 border border-divider p-4 rounded-xl">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-muted rounded-lg flex-shrink-0 flex items-center justify-center text-muted text-xs">IMG</div>
@@ -96,7 +96,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             </Card.Content>
           </Card>
 
-          <Card className="shadow-sm">
+          <Card variant="default" className="shadow-sm">
             <Card.Content className="p-0">
               <div className="flex items-center justify-between p-6 bg-surface/50 border-b border-divider">
                 <div className="flex items-center gap-2">
@@ -135,12 +135,12 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             </Card.Content>
           </Card>
 
-          <Card className="shadow-sm">
+          <Card variant="default" className="shadow-sm">
             <Card.Content className="p-6 space-y-6">
               <h3 className="font-semibold text-foreground">Order Timeline</h3>
               <Separator />
               <div className="space-y-6">
-                {order.timeline.map((event) => (
+                {order.timeline.map((event: any) => (
                   <div key={event.id} className="flex gap-4">
                     <div className="relative">
                       <div className="w-3 h-3 rounded-full bg-accent flex-shrink-0 z-10 relative" />
@@ -166,7 +166,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
         {/* Right Column - Sidebar */}
         <div className="space-y-6">
-          <Card className="shadow-sm">
+          <Card variant="default" className="shadow-sm">
             <Card.Content className="p-6 space-y-4">
               <h3 className="font-semibold text-foreground">Customer</h3>
               <Separator />
@@ -190,7 +190,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             </Card.Content>
           </Card>
 
-          <Card className="shadow-sm">
+          <Card variant="default" className="shadow-sm">
             <Card.Content className="p-6 space-y-4">
                <h3 className="font-semibold text-foreground">Shipping Address</h3>
                <Separator />
@@ -209,7 +209,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             </Card.Content>
           </Card>
 
-          <Card className="shadow-sm">
+          <Card variant="default" className="shadow-sm">
             <Card.Content className="p-6 space-y-4">
               <h3 className="font-semibold text-foreground">Contact</h3>
               <Separator />

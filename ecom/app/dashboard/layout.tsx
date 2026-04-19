@@ -72,11 +72,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
           <Button 
             className="w-full justify-start font-medium text-zinc-500" 
-            variant="light" 
-            color="danger" 
-            startContent={<LogOut className="w-4 h-4" />}
+            variant="danger-soft" 
             onPress={handleLogout}
           >
+            <LogOut className="w-4 h-4 mr-2" />
             Sign out
           </Button>
         </div>

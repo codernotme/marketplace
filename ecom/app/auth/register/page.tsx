@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { Button, Input } from "@heroui/react";
-import { Mail, Lock, User, AlertCircle } from "lucide-react";
+import { Button, Input, Label, Spinner } from "@heroui/react";
+import { Mail, Lock, User, AlertCircle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function RegisterPage() {
         email,
         password,
         name,
-        callbackURL: "/dashboard"
+        callbackURL: "/dashboard",
       });
       
       if (error) {
@@ -49,66 +50,91 @@ export default function RegisterPage() {
       className="flex flex-col space-y-6"
     >
       <div className="flex flex-col space-y-2 text-center">
-        <h2 className="text-3xl font-bold tracking-tight">Create an Account</h2>
-        <p className="text-sm text-default-500">
+        <h2 className="text-3xl font-bold tracking-tight text-foreground">Create an Account</h2>
+        <p className="text-sm text-muted">
           Join us to track orders, save items, and earn rewards.
         </p>
       </div>
 
       {error && (
-        <div className="p-3 text-sm text-danger-600 bg-danger-50 flex items-center gap-2 rounded-lg">
-          <AlertCircle className="w-4 h-4" />
+        <div className="p-3 text-sm bg-danger/10 border border-danger/20 flex items-center gap-2 rounded-lg text-danger">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           {error}
         </div>
       )}
 
       <form onSubmit={handleRegister} className="space-y-4">
-        <Input
-          isRequired
-          label="Full Name"
-          placeholder="Jane Doe"
-          variant="faded"
-          value={name}
-          onValueChange={setName}
-          startContent={<User className="w-4 h-4 text-default-400" />}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="name">Full Name</Label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+            <Input
+              id="name"
+              required
+              placeholder="Jane Doe"
+              className="pl-10 w-full"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+        </div>
 
-        <Input
-          isRequired
-          label="Email"
-          placeholder="jane@example.com"
-          type="email"
-          variant="faded"
-          value={email}
-          onValueChange={setEmail}
-          startContent={<Mail className="w-4 h-4 text-default-400" />}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+            <Input
+              id="email"
+              required
+              placeholder="jane@example.com"
+              type="email"
+              className="pl-10 w-full"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+        </div>
         
-        <Input
-          isRequired
-          label="Password"
-          placeholder="••••••••"
-          type="password"
-          variant="faded"
-          value={password}
-          onValueChange={setPassword}
-          startContent={<Lock className="w-4 h-4 text-default-400" />}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+            <Input
+              id="password"
+              required
+              placeholder="••••••••"
+              type={isVisible ? "text" : "password"}
+              className="pl-10 w-full pr-10"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground z-10"
+              onClick={() => setIsVisible(!isVisible)}
+            >
+              {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
 
-        <Button 
-          fullWidth 
-          color="primary" 
-          type="submit" 
-          isLoading={loading}
-          className="mt-4 font-medium h-12"
+        <Button
+          variant="primary"
+          type="submit"
+          isPending={loading}
+          className="w-full h-12 font-semibold mt-4"
         >
-          Create Account
+          {({ isPending }) => (
+            <>
+              {isPending ? <Spinner color="current" size="sm" /> : "Create Account"}
+            </>
+          )}
         </Button>
       </form>
       
-      <div className="text-center text-sm">
-        <span className="text-default-500">Already a customer? </span>
-        <Link href="/auth/login" className="text-primary hover:underline font-medium">
+      <div className="text-center text-sm pt-2">
+        <span className="text-muted">Already a customer? </span>
+        <Link href="/auth/login" className="text-accent hover:underline font-bold">
           Sign In
         </Link>
       </div>

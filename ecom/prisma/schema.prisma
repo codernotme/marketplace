@@ -65,7 +65,9 @@ model Customer {
   totalSpent      Decimal           @default(0) @db.Decimal(12, 2)
   ordersCount     Int               @default(0)
   ltv             Decimal           @default(0) @db.Decimal(12, 2)
+  banned          Boolean?          @default(false)
   banReason       String?
+  banExpires      DateTime?
   bannedAt        DateTime?
   lastLoginAt     DateTime?
   createdAt       DateTime          @default(now())

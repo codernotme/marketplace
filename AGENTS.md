@@ -4,7 +4,7 @@
 - **Component Library**: [shadcn/ui](https://ui.shadcn.com/) is the ONLY component library.
 - **Styling**: Tailwind CSS v3 for all custom styling. No inline styles.
 - **Responsiveness**: Fully responsive: mobile (320px+), tablet (768px+), desktop (1280px+).
-- **Style Variant**: shadcn/ui "New York" style variant with neutral base color.
+- **Style Variant**: shadcn/ui "radix-maia" style variant with neutral base color.
 - **Theme**: Dark mode support mandatory on every component/screen using `next-themes`.
 - **Icons**: [@hugeicons/react](https://hugeicons.com/) for all icons.
 - **Typography**: Inter font via `next/font`. Strict hierarchy:

@@ -1,0 +1,298 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Tenants ──────────────────────────────────────────────────────────────────
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  plan      Plan     @default(starter)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users    User[]
+  stores   Store[]
+  licenses License[]
+  customers Customer[]
+
+  @@map("tenants")
+}
+
+enum Plan {
+  starter
+  pro
+  enterprise
+}
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  tenantId     String   @map("tenant_id")
+  email        String
+  name         String
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(cashier)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+  staff         Staff?
+
+  @@unique([tenantId, email])
+  @@map("users")
+}
+
+enum UserRole {
+  owner
+  manager
+  cashier
+  staff
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+// ─── Stores ───────────────────────────────────────────────────────────────────
+
+model Store {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  name      String
+  address   String?
+  phone     String?
+  currency  String   @default("INR")
+  timezone  String   @default("Asia/Kolkata")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products  Product[]
+  inventory Inventory[]
+  sales     Sale[]
+  staff     Staff[]
+  shifts    Shift[]
+
+  @@map("stores")
+}
+
+// ─── License / Modules ───────────────────────────────────────────────────────
+
+model License {
+  id        String    @id @default(cuid())
+  tenantId  String    @map("tenant_id")
+  module    ModuleKey
+  isActive  Boolean   @default(false) @map("is_active")
+  expiresAt DateTime? @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, module])
+  @@map("licenses")
+}
+
+enum ModuleKey {
+  pos
+  inventory
+  sales
+  customers
+  staff
+  reports
+  ecommerce
+}
+
+// ─── Products ─────────────────────────────────────────────────────────────────
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  parentId String?   @map("parent_id")
+  parent   Category? @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  storeId     String    @map("store_id")
+  categoryId  String?   @map("category_id")
+  name        String
+  description String?
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  store    Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  category Category?        @relation(fields: [categoryId], references: [id])
+  variants ProductVariant[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String   @map("product_id")
+  sku       String   @unique
+  size      String?
+  color     String?
+  price     Decimal  @db.Decimal(12, 2)
+  costPrice Decimal? @map("cost_price") @db.Decimal(12, 2)
+  imageUrl  String?  @map("image_url")
+  isActive  Boolean  @default(true) @map("is_active")
+
+  product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventory Inventory[]
+  saleItems SaleItem[]
+
+  @@map("product_variants")
+}
+
+// ─── Inventory ────────────────────────────────────────────────────────────────
+
+model Inventory {
+  id          String   @id @default(cuid())
+  variantId   String   @map("variant_id")
+  storeId     String   @map("store_id")
+  quantity    Int      @default(0)
+  reservedQty Int      @default(0) @map("reserved_qty")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  store   Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([variantId, storeId])
+  @@map("inventory")
+}
+
+// ─── Sales ────────────────────────────────────────────────────────────────────
+
+model Sale {
+  id             String        @id @default(cuid())
+  storeId        String        @map("store_id")
+  customerId     String?       @map("customer_id")
+  staffId        String?       @map("staff_id")
+  status         SaleStatus    @default(pending)
+  subtotal       Decimal       @db.Decimal(12, 2)
+  discountAmount Decimal       @default(0) @map("discount_amount") @db.Decimal(12, 2)
+  taxAmount      Decimal       @default(0) @map("tax_amount") @db.Decimal(12, 2)
+  total          Decimal       @db.Decimal(12, 2)
+  paymentMethod  PaymentMethod @map("payment_method")
+  paidAt         DateTime?     @map("paid_at")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  store    Store      @relation(fields: [storeId], references: [id])
+  customer Customer?  @relation(fields: [customerId], references: [id])
+  staff    Staff?     @relation(fields: [staffId], references: [id])
+  items    SaleItem[]
+
+  @@map("sales")
+}
+
+enum SaleStatus {
+  pending
+  completed
+  refunded
+  voided
+}
+
+enum PaymentMethod {
+  cash
+  card
+  upi
+  mixed
+}
+
+model SaleItem {
+  id             String  @id @default(cuid())
+  saleId         String  @map("sale_id")
+  variantId      String  @map("variant_id")
+  quantity       Int
+  unitPrice      Decimal @map("unit_price") @db.Decimal(12, 2)
+  discountAmount Decimal @default(0) @map("discount_amount") @db.Decimal(12, 2)
+  total          Decimal @db.Decimal(12, 2)
+
+  sale    Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@map("sale_items")
+}
+
+// ─── Customers ────────────────────────────────────────────────────────────────
+
+model Customer {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  name        String
+  email       String?
+  phone       String?
+  totalSpend  Decimal  @default(0) @map("total_spend") @db.Decimal(12, 2)
+  totalOrders Int      @default(0) @map("total_orders")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sales  Sale[]
+
+  @@map("customers")
+}
+
+// ─── Staff / Shifts ───────────────────────────────────────────────────────────
+
+model Staff {
+  id           String   @id @default(cuid())
+  userId       String   @unique @map("user_id")
+  storeId      String   @map("store_id")
+  employeeCode String   @unique @map("employee_code")
+  position     String?
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store  Store   @relation(fields: [storeId], references: [id])
+  shifts Shift[]
+  sales  Sale[]
+
+  @@map("staff")
+}
+
+model Shift {
+  id          String    @id @default(cuid())
+  staffId     String    @map("staff_id")
+  storeId     String    @map("store_id")
+  startedAt   DateTime  @default(now()) @map("started_at")
+  endedAt     DateTime? @map("ended_at")
+  openingCash Decimal   @map("opening_cash") @db.Decimal(12, 2)
+  closingCash Decimal?  @map("closing_cash") @db.Decimal(12, 2)
+
+  staff Staff @relation(fields: [staffId], references: [id])
+  store Store @relation(fields: [storeId], references: [id])
+
+  @@map("shifts")
+}

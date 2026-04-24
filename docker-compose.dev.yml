@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  api:
+    volumes:
+      - ./apps/api:/app/apps/api
+      - ./packages:/app/packages
+    environment:
+      NODE_ENV: development

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { PackageIcon, ShoppingBag01Icon, UserMultipleIcon, Store01Icon, Settings01Icon, PieChartIcon, DashboardSquare01Icon, TerminalIcon } from "@hugeicons/core-free-icons"
 import { cn } from "@workspace/ui/lib/utils"
+import { LicenseBanner } from "@/modules/license/components/LicenseBanner"
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Overview", icon: DashboardSquare01Icon },
@@ -71,6 +72,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <LicenseBanner />
         <header className="h-16 border-b border-border/50 bg-card/80 backdrop-blur-md flex items-center px-6 z-10 shrink-0 md:hidden">
           <span className="text-lg font-medium tracking-tight text-primary">
             The Mrktplace
@@ -80,6 +82,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex-1 overflow-y-auto p-6 md:p-8">
           {children}
         </div>
+
+        {/* Mobile Bottom Navigation */}
+        <nav className="md:hidden h-16 bg-card border-t border-border/50 flex items-center justify-around px-2 z-20">
+          {NAV_ITEMS.filter(item => !['/settings', '/staff', '/reports'].includes(item.href)).map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link 
+                key={item.href} 
+                href={item.href}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 transition-all duration-200",
+                  isActive ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                <HugeiconsIcon icon={item.icon} className="w-5 h-5" />
+                <span className="text-[10px] font-medium">{item.label}</span>
+              </Link>
+            )
+          })}
+        </nav>
       </main>
     </div>
   )

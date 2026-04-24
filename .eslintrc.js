@@ -9,5 +9,13 @@ module.exports = {
     "**/dist/**",
     "**/.turbo/**",
     "**/coverage/**",
+    "**/public/**",
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.jpeg",
+    "**/*.gif",
+    "**/*.svg",
+    "**/*.ico",
+    "**/*.webp",
   ],
 }

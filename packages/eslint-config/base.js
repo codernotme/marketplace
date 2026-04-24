@@ -27,6 +27,19 @@ export const config = [
     },
   },
   {
-    ignores: ["dist/**", ".next/**", "**/.turbo/**", "**/coverage/**"],
+    ignores: [
+      "dist/**",
+      ".next/**",
+      "**/.turbo/**",
+      "**/coverage/**",
+      "**/public/**",
+      "**/*.png",
+      "**/*.jpg",
+      "**/*.jpeg",
+      "**/*.gif",
+      "**/*.svg",
+      "**/*.ico",
+      "**/*.webp",
+    ],
   },
 ]

@@ -20,6 +20,7 @@ export const CreateSaleSchema = z.object({
     referenceId: z.string().optional(),
   })).min(1, 'At least one payment method is required'),
   heldCartId: z.string().optional(),
+  couponCode: z.string().optional(),
 })
 
 export const RefundSaleSchema = z.object({

@@ -27,16 +27,20 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { Button } from "@workspace/ui/components/button"
 
+import { Skeleton } from "@workspace/ui/components/skeleton"
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   searchKey?: string
+  isLoading?: boolean
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
+  isLoading,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -100,7 +104,17 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <TableRow key={idx}>
+                  {columns.map((_, cIdx) => (
+                    <TableCell key={cIdx}>
+                      <Skeleton className="h-6 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row: any) => (
                 <TableRow
                   key={row.id}

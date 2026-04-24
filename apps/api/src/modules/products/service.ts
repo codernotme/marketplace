@@ -1,15 +1,10 @@
 import { randomUUID } from 'crypto'
+import { parse } from 'csv-parse/sync'
 import type { CreateProductInput, UpdateProductInput, UpdateVariantInput, CreateCategoryInput } from '@themrktplace/schema'
 import { prisma } from '@/lib/prisma.js'
 import { NotFoundError, AppError } from '@/utils/errors.js'
 
-// Mock Meilisearch Client
-const meilisearch = {
-  index: (indexName: string) => ({
-    addDocuments: async (docs: any[]) => console.log(`[Meilisearch] Added ${docs.length} docs to ${indexName}`),
-    deleteDocument: async (id: string) => console.log(`[Meilisearch] Deleted ${id} from ${indexName}`),
-  })
-}
+import { typesense } from '@/lib/typesense.js'
 
 export async function createCategory(tenantId: string, body: CreateCategoryInput) {
   return await prisma.productCategory.create({
@@ -77,8 +72,8 @@ export async function createProduct(tenantId: string, body: CreateProductInput) 
               })
               await tx.inventoryMovement.create({
                 data: {
-                  variantId: variant.id,
-                  storeId: stock.storeId,
+                  variant: { connect: { id: variant.id } },
+                  store: { connect: { id: stock.storeId } },
                   quantity: stock.quantity,
                   reason: 'MANUAL_ADJUSTMENT',
                   notes: 'Opening Stock'
@@ -113,7 +108,7 @@ export async function createProduct(tenantId: string, body: CreateProductInput) 
             })
             await tx.inventoryMovement.create({
               data: {
-                variantId: defaultVariant.id,
+                variant: { connect: { id: defaultVariant.id } },
                 storeId: stock.storeId,
                 quantity: stock.quantity,
                 reason: 'MANUAL_ADJUSTMENT',
@@ -125,15 +120,17 @@ export async function createProduct(tenantId: string, body: CreateProductInput) 
       }
     }
 
-    // Sync to Meilisearch
-    await meilisearch.index(`products_${tenantId}`).addDocuments([{
+    // Sync to Typesense
+    await typesense.collections('products').documents().upsert({
       id: product.id,
+      tenantId,
       name: product.name,
-      description: product.description,
+      description: product.description || '',
       categoryId: product.categoryId,
       basePrice: product.basePrice,
-      isActive: product.isActive
-    }])
+      isActive: product.isActive,
+      createdAt: Math.floor(product.createdAt.getTime() / 1000)
+    })
 
     return product
   })
@@ -210,6 +207,61 @@ export async function deleteProduct(tenantId: string, id: string) {
 
   await prisma.product.delete({ where: { id } })
   
-  await meilisearch.index(`products_${tenantId}`).deleteDocument(id)
+  await typesense.collections('products').documents(id).delete()
   return { message: 'Deleted successfully' }
+}
+export async function importProductsFromCSV(tenantId: string, csvBuffer: Buffer) {
+  const records = parse(csvBuffer, {
+    columns: true,
+    skip_empty_lines: true,
+    trim: true
+  })
+
+  return await prisma.$transaction(async (tx) => {
+    const products = []
+
+    for (const record of records) {
+      const name = record.name || record.Name
+      const basePrice = parseFloat(record.price || record.Price || '0')
+      const costPrice = parseFloat(record.cost || record.Cost || '0')
+      const sku = record.sku || record.SKU || `SKU-${randomUUID().slice(0, 8)}`
+      const barcode = record.barcode || record.Barcode || null
+
+      if (!name) continue
+
+      const product = await tx.product.create({
+        data: {
+          tenantId,
+          name,
+          description: record.description || record.Description || '',
+          basePrice,
+          costPrice,
+          isActive: true,
+          variants: {
+            create: {
+              sku,
+              barcode,
+              price: basePrice,
+              costPrice,
+            }
+          }
+        }
+      })
+      products.push(product)
+    }
+
+    // Sync to Typesense
+    await typesense.collections('products').documents().import(products.map(p => ({
+      id: p.id,
+      tenantId,
+      name: p.name,
+      description: p.description || '',
+      categoryId: p.categoryId,
+      basePrice: p.basePrice,
+      isActive: p.isActive,
+      createdAt: Math.floor(p.createdAt.getTime() / 1000)
+    })), { action: 'upsert' })
+
+    return { imported: products.length }
+  })
 }

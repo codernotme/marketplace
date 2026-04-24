@@ -26,18 +26,5 @@ export const UpdateStaffSchema = z.object({
   isActive: z.boolean().optional(),
 })
 
-// ─── Shifts ───────────────────────────────────────────────────────────────────
-
-export const OpenShiftSchema = z.object({
-  openingCash: z.number().nonnegative('Opening cash cannot be negative'),
-})
-
-export const CloseShiftSchema = z.object({
-  closingCash: z.number().nonnegative('Closing cash cannot be negative'),
-  notes: z.string().optional(),
-})
-
 export type CreateStaffInput = z.infer<typeof CreateStaffSchema>
 export type UpdateStaffInput = z.infer<typeof UpdateStaffSchema>
-export type OpenShiftInput = z.infer<typeof OpenShiftSchema>
-export type CloseShiftInput = z.infer<typeof CloseShiftSchema>

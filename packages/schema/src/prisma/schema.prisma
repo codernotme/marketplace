@@ -172,6 +172,7 @@ model User {
   tenant             Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   activeSessions     ActiveSession[]
   staff              Staff?
+  backupCodes        UserBackupCode[]
 
   @@unique([tenantId, email])
   @@map("users")
@@ -192,6 +193,18 @@ model ActiveSession {
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("active_sessions")
+}
+
+model UserBackupCode {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  codeHash  String   @map("code_hash")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_backup_codes")
 }
 
 // ─── Stores ───────────────────────────────────────────────────────────────────

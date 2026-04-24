@@ -9,6 +9,7 @@ import {
   verifyPhoneHandler,
   forgotPasswordHandler,
   resetPasswordHandler,
+  mfaSetupHandler,
   mfaVerifyHandler,
   pinLoginHandler
 } from './handlers.js'
@@ -25,6 +26,7 @@ export async function authRoutes(app: FastifyInstance) {
   app.post('/forgot-password', forgotPasswordHandler)
   app.post('/reset-password', resetPasswordHandler)
 
+  app.post('/mfa/setup', { preHandler: [authenticate] }, mfaSetupHandler)
   app.post('/mfa/verify', mfaVerifyHandler)
   
   // pos/auth/pin-login

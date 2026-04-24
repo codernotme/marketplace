@@ -15,6 +15,7 @@ import { customerRoutes } from '@/modules/customers/routes.js'
 import { staffRoutes } from '@/modules/staff/routes.js'
 import { reportRoutes } from '@/modules/reports/routes.js'
 import { licenseRoutes } from '@/modules/license/routes.js'
+import { shiftRoutes } from '@/modules/shifts/routes.js'
 
 export function buildApp() {
   const app = Fastify({
@@ -81,6 +82,7 @@ export function buildApp() {
   void app.register(customerRoutes, { prefix: '/api/v1/customers' })
   void app.register(staffRoutes, { prefix: '/api/v1/staff' })
   void app.register(reportRoutes, { prefix: '/api/v1/reports' })
+  void app.register(shiftRoutes, { prefix: '/api/v1/shifts' })
 
   // Health check
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))

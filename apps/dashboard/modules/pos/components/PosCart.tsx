@@ -4,18 +4,20 @@ import * as React from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Delete01Icon, UserAdd01Icon, MinusSignIcon, Add01Icon, Tag01Icon, PauseCircleIcon, DollarCircleIcon } from "@hugeicons/core-free-icons"
 import { Button } from "@workspace/ui/components/button"
+import { PaymentModal } from "./PaymentModal"
+import { usePosStore } from "../store/usePosStore"
+import { toast } from "sonner"
+import { format } from "date-fns"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@workspace/ui/components/dialog"
 
 export function PosCart() {
-  // Static mock state for UI scaffolding
-  const cartItems = [
-    { id: "1", name: "Premium Leather Jacket", price: 299.99, qty: 1 },
-    { id: "4", name: "Artisan Coffee Beans", price: 24.00, qty: 2 },
-  ]
+  const { cart, removeItem, updateQuantity, clearCart, subtotal, taxTotal, grandTotal, holdCart, heldCarts, resumeCart, deleteHeldCart } = usePosStore()
+  const [isPaymentOpen, setIsPaymentOpen] = React.useState(false)
 
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0)
-  const tax = subtotal * 0.08 // 8% tax mock
+  const currentSubtotal = subtotal()
+  const currentTax = taxTotal()
   const discount = 0
-  const total = subtotal + tax - discount
+  const total = grandTotal()
 
   return (
     <div className="flex flex-col h-full bg-card relative">
@@ -31,15 +33,19 @@ export function PosCart() {
             <p className="text-[10px] uppercase tracking-wider">For loyalty & receipts</p>
           </div>
         </button>
-        <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={clearCart}
+        >
           <HugeiconsIcon icon={Delete01Icon} className="w-4 h-4" />
         </Button>
       </div>
 
-      {/* Cart Items Area */}
       <div className="flex-1 overflow-y-auto hide-scrollbar p-4 flex flex-col gap-3">
-        {cartItems.map(item => (
-          <div key={item.id} className="bg-background/50 border border-border/40 rounded-xl p-3 flex gap-3 group relative overflow-hidden">
+        {cart.map(item => (
+          <div key={item.variantId} className="bg-background/50 border border-border/40 rounded-xl p-3 flex gap-3 group relative overflow-hidden">
             <div className="flex-1 flex flex-col justify-between">
               <div>
                 <h4 className="font-sans font-medium text-sm leading-tight pr-4">{item.name}</h4>
@@ -48,11 +54,17 @@ export function PosCart() {
               
               <div className="flex items-center gap-3 mt-3">
                 <div className="flex items-center border border-border/60 rounded-lg overflow-hidden bg-background">
-                  <button className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                  <button 
+                    className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
+                  >
                     <HugeiconsIcon icon={MinusSignIcon} className="w-3 h-3" />
                   </button>
-                  <span className="w-8 text-center text-xs font-medium font-mono">{item.qty}</span>
-                  <button className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                  <span className="w-8 text-center text-xs font-medium font-mono">{item.quantity}</span>
+                  <button 
+                    className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                    onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
+                  >
                     <HugeiconsIcon icon={Add01Icon} className="w-3 h-3" />
                   </button>
                 </div>
@@ -60,12 +72,18 @@ export function PosCart() {
             </div>
             
             <div className="flex flex-col items-end justify-between">
-              <span className="font-semibold text-lg">${(item.price * item.qty).toFixed(2)}</span>
+              <span className="font-semibold text-lg">${(item.price * item.quantity).toFixed(2)}</span>
+              <button 
+                className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
+                onClick={() => removeItem(item.variantId)}
+              >
+                <HugeiconsIcon icon={Delete01Icon} className="w-4 h-4" />
+              </button>
             </div>
           </div>
         ))}
 
-        {cartItems.length === 0 && (
+        {cart.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
             <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4">
               <HugeiconsIcon icon={Tag01Icon} className="w-10 h-10 opacity-20" />
@@ -81,7 +99,7 @@ export function PosCart() {
         <div className="space-y-3 mb-6 font-sans text-sm">
           <div className="flex justify-between text-muted-foreground">
             <span>Subtotal</span>
-            <span className="font-mono text-foreground">${subtotal.toFixed(2)}</span>
+            <span className="font-mono text-foreground">${currentSubtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-muted-foreground">
             <button className="flex items-center gap-1 text-primary hover:underline">
@@ -90,8 +108,8 @@ export function PosCart() {
             <span className="font-mono text-foreground">${discount.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-muted-foreground">
-            <span>Tax (8%)</span>
-            <span className="font-mono text-foreground">${tax.toFixed(2)}</span>
+            <span>Tax</span>
+            <span className="font-mono text-foreground">${currentTax.toFixed(2)}</span>
           </div>
           
           <div className="pt-3 border-t border-border/60 flex justify-between items-end">
@@ -101,18 +119,66 @@ export function PosCart() {
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-3">
-          <Button variant="outline" className="h-12 font-sans font-medium hover:bg-muted" onClick={() => {}}>
-            <HugeiconsIcon icon={PauseCircleIcon} className="w-4 h-4 mr-2" /> Hold Order
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="h-12 font-sans font-medium hover:bg-muted relative">
+                <HugeiconsIcon icon={PauseCircleIcon} className="w-4 h-4 mr-2" /> 
+                Hold Order
+                {heldCarts.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full text-[10px] flex items-center justify-center border-2 border-background">
+                    {heldCarts.length}
+                  </span>
+                )}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Held Carts</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-3 py-4 max-h-[60vh] overflow-y-auto pr-2">
+                {heldCarts.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-10">No held carts available</p>
+                ) : (
+                  heldCarts.map(hc => (
+                    <div key={hc.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border/40">
+                      <div className="flex flex-col">
+                        <span className="font-medium text-sm">
+                          {hc.customer?.name || "Walk-in Customer"}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {format(hc.createdAt, 'MMM d, h:mm a')} • {hc.cart.length} items
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteHeldCart(hc.id)}>
+                          <HugeiconsIcon icon={Delete01Icon} className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" onClick={() => resumeCart(hc.id)}>Resume</Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              <Button className="w-full h-12" variant="outline" onClick={() => holdCart()}>
+                Hold Current Cart
+              </Button>
+            </DialogContent>
+          </Dialog>
+          
           <Button variant="outline" className="h-12 font-sans font-medium hover:bg-muted">
             <HugeiconsIcon icon={Tag01Icon} className="w-4 h-4 mr-2" /> Coupon
           </Button>
         </div>
         
-        <Button className="w-full h-16 text-lg font-medium tracking-wide shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">
-          <HugeiconsIcon icon={DollarCircleIcon} className="w-5 h-5 mr-2" /> Pay ${total.toFixed(2)}
+        <Button 
+          className="w-full h-16 text-lg font-medium tracking-wide shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform"
+          onClick={() => setIsPaymentOpen(true)}
+          disabled={cart.length === 0}
+        >
+          <HugeiconsIcon icon={DollarCircleIcon} className="w-5 h-5 mr-2" /> Pay ₹{total.toFixed(2)}
         </Button>
         
+        <PaymentModal open={isPaymentOpen} onOpenChange={setIsPaymentOpen} />
       </div>
     </div>
   )

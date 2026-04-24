@@ -6,6 +6,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  importProductsFromCSV,
 } from './service.js'
 import { sendSuccess, sendCreated, sendPaginated } from '@/utils/response.js'
 
@@ -45,4 +46,14 @@ export async function deleteProductHandler(request: FastifyRequest, reply: Fasti
   const { id } = request.params as { id: string }
   await deleteProduct(user.tenantId, id)
   sendSuccess(reply, { message: 'Product deleted' })
+}
+
+export async function importProductsHandler(request: FastifyRequest, reply: FastifyReply) {
+  const user = request.user as { tenantId: string }
+  const file = await request.file()
+  if (!file) throw new AppError('BAD_REQUEST', 'No file uploaded')
+  
+  const buffer = await file.toBuffer()
+  const result = await importProductsFromCSV(user.tenantId, buffer)
+  sendSuccess(reply, result)
 }

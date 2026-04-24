@@ -20,7 +20,7 @@ export async function createStaff(tenantId: string, storeId: string, body: Creat
   const passwordHash = await bcrypt.hash(body.password, 12)
   const pinHash = body.pin ? await bcrypt.hash(body.pin, 12) : null
 
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async (tx: any) => {
     const user = await tx.user.create({
       data: {
         tenantId,

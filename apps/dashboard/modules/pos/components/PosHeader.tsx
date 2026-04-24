@@ -6,9 +6,12 @@ import { Clock01Icon, WifiIcon, Search01Icon, Menu01Icon, UserCircleIcon, Settin
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
+import { CloseShiftModal } from "./ShiftManager"
+import { Logout01Icon } from "@hugeicons/core-free-icons"
 
 export function PosHeader() {
   const [time, setTime] = React.useState(new Date())
+  const [isCloseShiftOpen, setIsCloseShiftOpen] = React.useState(false)
 
   React.useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000)
@@ -63,8 +66,19 @@ export function PosHeader() {
             <AvatarImage src="" />
             <AvatarFallback className="bg-primary/10 text-primary">AR</AvatarFallback>
           </Avatar>
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-destructive hover:bg-destructive/10"
+            onClick={() => setIsCloseShiftOpen(true)}
+          >
+            <HugeiconsIcon icon={Logout01Icon} className="w-5 h-5" />
+          </Button>
         </div>
       </div>
+      
+      <CloseShiftModal open={isCloseShiftOpen} onOpenChange={setIsCloseShiftOpen} />
     </header>
   )
 }

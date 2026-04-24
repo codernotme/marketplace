@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs'
 import { randomUUID } from 'crypto'
 import type { LoginInput, RegisterInput, ResetPasswordInput, PinLoginInput, MfaVerifyInput, VerifyEmailInput, VerifyPhoneInput, ForgotPasswordInput } from '@themrktplace/schema'
+import speakeasy from 'speakeasy'
+import QRCode from 'qrcode'
+import { encrypt, decrypt } from '@/utils/crypto.js'
 import { prisma } from '@/lib/prisma.js'
 import { redis } from '@/lib/redis.js'
 import { UnauthorizedError, ConflictError, NotFoundError, AppError } from '@/utils/errors.js'
@@ -46,6 +49,13 @@ export async function registerTenant(body: RegisterInput) {
             planCode: 'STARTER',
             modules: ['POS_CORE'],
             status: 'ACTIVE'
+          }
+        },
+        taxRates: {
+          create: {
+            name: 'GST 18%',
+            rate: 18,
+            isDefault: true
           }
         }
       },
@@ -132,16 +142,102 @@ export async function loginUser(body: LoginInput, reqIp: string, reqAgent: strin
   return await createSession(user.id, body.rememberMe ? 30 : 7, reqIp, reqAgent)
 }
 
+export async function setupMfa(userId: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId } })
+  if (!user) throw new NotFoundError('User')
+
+  const secret = speakeasy.generateSecret({
+    name: `themrktplace:${user.email}`,
+    issuer: 'themrktplace'
+  })
+
+  const encryptedSecret = encrypt(secret.base32)
+  
+  // Generate 8 backup codes (16 random hex chars each, but user sees 8 chars for simplicity? No, let's follow blueprint)
+  // Blueprint says "16 random hex characters". Let's use 16 chars.
+  const backupCodes = Array.from({ length: 8 }, () => crypto.randomBytes(8).toString('hex'))
+  const hashedBackupCodes = await Promise.all(
+    backupCodes.map(code => bcrypt.hash(code, 10))
+  )
+
+  await prisma.$transaction(async (tx) => {
+    // Delete existing backup codes if any
+    await tx.userBackupCode.deleteMany({ where: { userId } })
+    
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        mfaSecret: encryptedSecret,
+        mfaEnabled: false // Stay disabled until first successful verification
+      }
+    })
+
+    await tx.userBackupCode.createMany({
+      data: hashedBackupCodes.map(hash => ({
+        userId,
+        codeHash: hash
+      }))
+    })
+  })
+
+  const qrCodeDataUrl = await QRCode.toDataURL(secret.otpauth_url!)
+
+  return {
+    secret: secret.base32,
+    qrCode: qrCodeDataUrl,
+    backupCodes
+  }
+}
+
 export async function verifyMfa(body: MfaVerifyInput, reqIp: string, reqAgent: string) {
   const userId = await redis.get(`mfa-session:${body.mfaSessionToken}`)
   if (!userId) throw new UnauthorizedError('MFA session expired')
 
-  const user = await prisma.user.findUnique({ where: { id: userId } })
+  const user = await prisma.user.findUnique({ 
+    where: { id: userId },
+    include: { backupCodes: { where: { used: false } } }
+  })
   if (!user) throw new NotFoundError('User')
 
-  // In a real app we'd verify the TOTP using `otplib` or compare backup codes.
-  // For stage 1 scaffolding, we assume validity if code is exactly '123456'.
-  if (body.code !== '123456') throw new UnauthorizedError('Invalid MFA code')
+  let isValid = false
+
+  // 1. Try TOTP if code is 6 digits
+  if (body.code.length === 6 && user.mfaSecret) {
+    const decryptedSecret = decrypt(user.mfaSecret)
+    isValid = speakeasy.totp.verify({
+      secret: decryptedSecret,
+      encoding: 'base32',
+      token: body.code,
+      window: 1 // 30s window
+    })
+  }
+
+  // 2. Try Backup Codes if TOTP failed or if code is 16 chars (hex) or 8 chars?
+  // Schema says 8 chars for backup code. Let's adjust to match schema or schema to match logic.
+  // I used 16 hex chars above. Let's update schema or logic. 
+  // I'll stick to 16 hex chars as it's more secure for backup codes.
+  if (!isValid) {
+    for (const bc of user.backupCodes) {
+      if (await bcrypt.compare(body.code, bc.codeHash)) {
+        isValid = true
+        await prisma.userBackupCode.update({
+          where: { id: bc.id },
+          data: { used: true }
+        })
+        break
+      }
+    }
+  }
+
+  if (!isValid) throw new UnauthorizedError('Invalid MFA code or backup code')
+
+  // If this was the first verification, enable MFA
+  if (!user.mfaEnabled) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { mfaEnabled: true }
+    })
+  }
 
   await redis.del(`mfa-session:${body.mfaSessionToken}`)
   

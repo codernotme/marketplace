@@ -3,6 +3,7 @@
 import * as React from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Add01Icon } from "@hugeicons/core-free-icons"
+import { usePosStore } from "../store/usePosStore"
 
 interface ProductGridProps {
   category: string
@@ -21,6 +22,7 @@ const MOCK_PRODUCTS = [
 ]
 
 export function ProductGrid({ category }: ProductGridProps) {
+  const { addItem } = usePosStore()
   
   const filteredProducts = React.useMemo(() => {
     if (category === "all" || category === "hot") return MOCK_PRODUCTS
@@ -41,6 +43,15 @@ export function ProductGrid({ category }: ProductGridProps) {
           <div 
             key={product.id}
             className="group relative flex flex-col rounded-2xl bg-card border border-border/40 overflow-hidden cursor-pointer hover:shadow-xl hover:shadow-primary/5 hover:border-primary/30 transition-all duration-300"
+            onClick={() => addItem({
+              variantId: product.id,
+              productId: product.id,
+              name: product.name,
+              sku: `SKU-${product.id}`,
+              price: product.price,
+              taxRate: 18,
+              imageUrl: product.image
+            })}
           >
             <div className="aspect-square relative overflow-hidden bg-muted">
               <img 
@@ -50,7 +61,21 @@ export function ProductGrid({ category }: ProductGridProps) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
-              <button className="absolute bottom-3 right-3 bg-primary text-primary-foreground w-8 h-8 rounded-full flex items-center justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+              <button 
+                className="absolute bottom-3 right-3 bg-primary text-primary-foreground w-8 h-8 rounded-full flex items-center justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-lg"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  addItem({
+                    variantId: product.id, // Using product id as variantId for mock
+                    productId: product.id,
+                    name: product.name,
+                    sku: `SKU-${product.id}`,
+                    price: product.price,
+                    taxRate: 18,
+                    imageUrl: product.image
+                  })
+                }}
+              >
                 <HugeiconsIcon icon={Add01Icon} className="w-4 h-4" />
               </button>
             </div>

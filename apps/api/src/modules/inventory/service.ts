@@ -1,5 +1,6 @@
 import type { AdjustInventoryInput, CreatePurchaseOrderInput, ReceivePurchaseOrderInput } from '@themrktplace/schema'
 import { prisma } from '@/lib/prisma.js'
+import { addNotificationJob } from '@/lib/queue.js'
 import { NotFoundError, AppError } from '@/utils/errors.js'
 
 export async function adjustInventory(tenantId: string, staffId: string, body: AdjustInventoryInput) {
@@ -34,7 +35,7 @@ export async function adjustInventory(tenantId: string, staffId: string, body: A
 
     const move = await tx.inventoryMovement.create({
       data: {
-        variantId: body.variantId,
+        variant: { connect: { id: body.variantId } },
         storeId: body.storeId,
         staffId,
         quantity: body.quantity,
@@ -50,7 +51,11 @@ export async function adjustInventory(tenantId: string, staffId: string, body: A
     })
     
     if (variant && updatedLevel.quantity <= variant.product.lowStockAlert) {
-      console.log(`[BullMQ] Triggered Low Stock Alert for ${variant.product.name} (Qty: ${updatedLevel.quantity})`)
+      await addNotificationJob('LOW_STOCK', {
+        variantId: variant.id,
+        storeId: body.storeId,
+        quantity: updatedLevel.quantity
+      })
     }
 
     return updatedLevel

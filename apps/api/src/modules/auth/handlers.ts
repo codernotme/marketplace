@@ -1,6 +1,6 @@
 import type { FastifyRequest, FastifyReply } from 'fastify'
 import { LoginSchema, RegisterSchema, VerifyEmailSchema, VerifyPhoneSchema, ForgotPasswordSchema, ResetPasswordSchema, MfaVerifySchema, PinLoginSchema } from '@themrktplace/schema'
-import { loginUser, registerTenant, verifyEmail, verifyPhone, forgotPassword, resetPassword, verifyMfa, pinLogin, refreshAccessToken, logoutUser } from './service.js'
+import { loginUser, registerTenant, verifyEmail, verifyPhone, forgotPassword, resetPassword, setupMfa, verifyMfa, pinLogin, refreshAccessToken, logoutUser } from './service.js'
 import { sendSuccess, sendCreated } from '@/utils/response.js'
 
 export async function registerHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -59,6 +59,12 @@ export async function loginHandler(request: FastifyRequest, reply: FastifyReply)
       tenantId: result.user.tenantId,
     },
   })
+}
+
+export async function mfaSetupHandler(request: FastifyRequest, reply: FastifyReply) {
+  const user = request.user as { sub: string }
+  const result = await setupMfa(user.sub)
+  sendSuccess(reply, result)
 }
 
 export async function mfaVerifyHandler(request: FastifyRequest, reply: FastifyReply) {

@@ -1,19 +1,14 @@
 import type { FastifyInstance } from 'fastify'
 import { authenticate } from '@/middleware/authenticate.js'
 import { authorize } from '@/middleware/authorize.js'
+import { listSalesHandler, getSaleHandler, createSaleHandler, refundSaleHandler, getInvoiceHandler } from './handlers.js'
 
 export async function saleRoutes(app: FastifyInstance) {
   app.addHook('onRequest', authenticate)
 
-  app.get('/', async (request, reply) => {
-    void reply.send({ success: true, data: [] }) // TODO: implement
-  })
-
-  app.post('/', async (request, reply) => {
-    void reply.code(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming soon' } })
-  })
-
-  app.post('/:id/refund', { onRequest: [authorize('MANAGER', 'OWNER')] }, async (request, reply) => {
-    void reply.code(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming soon' } })
-  })
+  app.get('/', listSalesHandler)
+  app.get('/:id', getSaleHandler)
+  app.get('/:id/invoice', getInvoiceHandler)
+  app.post('/', createSaleHandler)
+  app.post('/:id/refund', { onRequest: [authorize('MANAGER', 'OWNER')] }, refundSaleHandler)
 }

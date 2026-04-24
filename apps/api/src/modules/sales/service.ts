@@ -9,7 +9,7 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
   const store = await prisma.store.findFirst({ where: { id: storeId, tenantId } })
   if (!store) throw new NotFoundError('Store')
 
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async (tx: { productVariant: { findUnique: (arg0: { where: { id: string }; include: { product: { include: { taxRate: boolean } } } }) => any }; inventoryLevel: { findUnique: (arg0: { where: { variantId_storeId: { variantId: string; storeId: string } } }) => any; update: (arg0: { where: { variantId_storeId: { variantId: string; storeId: string } }; data: { quantity: { decrement: number } } }) => any }; inventoryMovement: { create: (arg0: { data: { variantId: string; storeId: string; staffId: string; quantity: number; reason: string } }) => any }; couponCode: { findUnique: (arg0: { where: { code: string }; include: { promotion: { include: { rules: boolean } } } }) => any; update: (arg0: { where: { id: any }; data: { usedCount: { increment: number } } }) => any }; sale: { create: (arg0: { data: { tenantId: string; storeId: string; staffId: string; customerId: string | undefined; invoiceNumber: string; status: string; subtotal: number; discountAmount: number; taxAmount: number; grandTotal: number; items: { create: { variantId: any; quantity: number; unitPrice: any; discountAmount: number; taxRate: number; taxAmount: number; total: number }[] }; payments: { create: { method: "CASH" | "CARD" | "UPI" | "STORE_CREDIT" | "LOYALTY_POINTS"; amount: number; referenceId: string | undefined }[] } }; include: { items: boolean; payments: boolean } }) => any }; customer: { update: (arg0: { where: { id: string }; data: { totalSpend: { increment: number }; totalOrders: { increment: number }; loyaltyPoints: { increment: number } } }) => any }; loyaltyPointLog: { create: (arg0: { data: { customerId: string; points: number; reason: string; referenceId: any } }) => any } }) => {
     // 1. Calculate subtotals and deduct inventory
     let subtotal = 0
     let totalTaxAmount = 0
@@ -40,7 +40,7 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
 
       await tx.inventoryMovement.create({
         data: {
-          variantId: item.variantId,
+          variant: { connect: { id: item.variantId } },
           storeId,
           staffId,
           quantity: -item.quantity,
@@ -76,6 +76,41 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
     // Additional global discount (e.g. promo code)
     if (body.discountAmount) {
       totalDiscountAmount += body.discountAmount
+    }
+
+    if (body.couponCode) {
+      const coupon = await tx.couponCode.findUnique({
+        where: { code: body.couponCode },
+        include: { promotion: { include: { rules: true } } }
+      })
+
+      if (coupon && coupon.promotion.isActive) {
+        const promo = coupon.promotion
+        const now = new Date()
+        if (now >= promo.startsAt && (!promo.endsAt || now <= promo.endsAt)) {
+          if (!coupon.usageLimit || coupon.usedCount < coupon.usageLimit) {
+            // Apply rules
+            for (const rule of promo.rules) {
+              if (!rule.minOrderValue || subtotal >= Number(rule.minOrderValue)) {
+                let promoDiscount = 0
+                if (rule.discountType === 'PERCENTAGE') {
+                  promoDiscount = (subtotal * Number(rule.discountValue)) / 100
+                } else {
+                  promoDiscount = Number(rule.discountValue)
+                }
+                totalDiscountAmount += promoDiscount
+                
+                // Increment usage
+                await tx.couponCode.update({
+                  where: { id: coupon.id },
+                  data: { usedCount: { increment: 1 } }
+                })
+                break // Only apply first matching rule for simplicity
+              }
+            }
+          }
+        }
+      }
     }
 
     const grandTotal = subtotal - totalDiscountAmount + totalTaxAmount
@@ -118,6 +153,21 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
       }
     })
 
+    // 3. Staff Commission
+    if (staffId) {
+      const staff = await tx.staff.findUnique({ where: { id: staffId } })
+      if (staff && Number(staff.commissionRate) > 0) {
+        const commissionAmount = grandTotal * (Number(staff.commissionRate) / 100)
+        await tx.staffCommission.create({
+          data: {
+            staffId,
+            saleId: sale.id,
+            commissionAmount
+          }
+        })
+      }
+    }
+
     // Loyalty Points Logic
     if (body.customerId) {
       const earnRate = 0.1 // 1 point per 10 rupees
@@ -152,7 +202,7 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
 }
 
 export async function processReturn(tenantId: string, saleId: string, staffId: string, body: ProcessReturnInput) {
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async (tx: { sale: { findUnique: (arg0: { where: { id: string; tenantId: string }; include: { items: boolean } }) => any; update: (arg0: { where: { id: any }; data: { status: string } }) => any }; inventoryLevel: { update: (arg0: { where: { variantId_storeId: { variantId: any; storeId: any } }; data: { quantity: { increment: number } } }) => any }; inventoryMovement: { create: (arg0: { data: { variantId: any; storeId: any; staffId: string; quantity: number; reason: string; referenceId: any } }) => any }; return: { create: (arg0: { data: { saleId: any; storeId: any; staffId: string; refundAmount: number; refundMethod: "CASH" | "CARD" | "UPI" | "STORE_CREDIT"; reason: string | undefined; items: { create: { variantId: any; quantity: number; refundAmount: number }[] } } }) => any }; customer: { update: (arg0: { where: { id: any }; data: { storeCredit: { increment: number } } }) => any }; storeCreditLog: { create: (arg0: { data: { customerId: any; amount: number; reason: string; referenceId: any } }) => any } }) => {
     const sale = await tx.sale.findUnique({
       where: { id: saleId, tenantId },
       include: { items: true }
@@ -164,7 +214,7 @@ export async function processReturn(tenantId: string, saleId: string, staffId: s
     const returnItemsData = []
 
     for (const retItem of body.items) {
-      const saleItem = sale.items.find(i => i.id === retItem.saleItemId)
+      const saleItem = sale.items.find((i: { id: string }) => i.id === retItem.saleItemId)
       if (!saleItem) throw new AppError('INVALID_ITEM', 'Item not found in sale')
 
       // Calculate proportionate refund based on unit price and any discounts applied
@@ -234,6 +284,47 @@ export async function processReturn(tenantId: string, saleId: string, staffId: s
 
     return returnRec
   })
+}
+
+export async function listSales(tenantId: string, options: { page: number; pageSize: number; search?: string }) {
+  const skip = (options.page - 1) * options.pageSize
+  const where: any = { tenantId }
+
+  if (options.search) {
+    where.OR = [
+      { invoiceNumber: { contains: options.search, mode: 'insensitive' } },
+      { customer: { name: { contains: options.search, mode: 'insensitive' } } }
+    ]
+  }
+
+  const [items, total] = await Promise.all([
+    prisma.sale.findMany({
+      where,
+      skip,
+      take: options.pageSize,
+      orderBy: { createdAt: 'desc' },
+      include: { customer: true, staff: { include: { user: true } }, items: { include: { variant: { include: { product: true } } } } }
+    }),
+    prisma.sale.count({ where })
+  ])
+
+  return { items, total }
+}
+
+export async function getSale(tenantId: string, id: string) {
+  const sale = await prisma.sale.findFirst({
+    where: { id, tenantId },
+    include: {
+      customer: true,
+      staff: { include: { user: true } },
+      store: true,
+      items: { include: { variant: { include: { product: true } } } },
+      payments: true,
+      returns: { include: { items: true } }
+    }
+  })
+  if (!sale) throw new NotFoundError('Sale')
+  return sale
 }
 
 // ─── Held Carts ──────────────────────────────────────────────────────────────

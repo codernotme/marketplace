@@ -1,18 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "@tanstack/react-form"
 import { VerifyEmailSchema, type VerifyEmailInput } from "@themrktplace/schema"
 import { Button } from "@workspace/ui/components/button"
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@workspace/ui/components/form"
+  Field,
+  FieldLabel,
+  FieldError,
+} from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Loading03Icon } from "@hugeicons/core-free-icons"
@@ -38,16 +34,17 @@ export function VerifyEmailComponent({ token }: { token?: string }) {
     }
   })
 
-  const form = useForm<VerifyEmailInput>({
-    resolver: zodResolver(VerifyEmailSchema),
+  const form = useForm({
     defaultValues: {
       token: token || "",
+    } as VerifyEmailInput,
+    validators: {
+      onChange: VerifyEmailSchema,
+    },
+    onSubmit: async ({ value }) => {
+      verifyEmail(value)
     },
   })
-
-  function onSubmit(values: VerifyEmailInput) {
-    verifyEmail(values)
-  }
 
   // Auto-submit if token is provided in URL
   React.useEffect(() => {
@@ -64,28 +61,56 @@ export function VerifyEmailComponent({ token }: { token?: string }) {
           <p className="text-sm text-muted-foreground animate-pulse">Verifying your secure token...</p>
         </div>
       ) : (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="token"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Verification Token</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter token manually" disabled={isPending} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <Button className="w-full" type="submit" disabled={isPending}>
-              {isPending && <HugeiconsIcon icon={Loading03Icon} className="mr-2 h-4 w-4 animate-spin" />}
-              Verify Now
-            </Button>
-          </form>
-        </Form>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            form.handleSubmit()
+          }}
+          className="space-y-4"
+        >
+          <form.Field
+            name="token"
+            children={(field) => {
+              const isInvalid = field.state.meta.isTouched && field.state.meta.errors.length > 0
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Verification Token</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Enter token manually"
+                    disabled={isPending}
+                    aria-invalid={isInvalid}
+                  />
+                  <FieldError errors={field.state.meta.errors} />
+                </Field>
+              )
+            }}
+          />
+
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+            children={([canSubmit, isSubmitting]) => (
+              <Button
+                className="w-full"
+                type="submit"
+                disabled={!canSubmit || isSubmitting || isPending}
+              >
+                {(isSubmitting || isPending) && (
+                  <HugeiconsIcon
+                    icon={Loading03Icon}
+                    className="mr-2 h-4 w-4 animate-spin"
+                  />
+                )}
+                Verify Now
+              </Button>
+            )}
+          />
+        </form>
       )}
     </div>
   )

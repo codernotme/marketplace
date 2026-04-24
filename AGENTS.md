@@ -17,7 +17,7 @@
   - Section Gap: `gap-6`
   - Card Padding: `p-4 md:p-6`
 - **Data Tables**: shadcn/ui Table + TanStack Table with sorting, pagination, and search.
-- **Forms**: React Hook Form + Zod + shadcn/ui Form components. Every field must have a label, placeholder, and error message.
+- **Forms**: TanStack Form + Zod + `@workspace/ui/components/field`. Every field must use the `Field`, `FieldLabel`, and `FieldError` components for consistency.
 - **Loading States**: Use shadcn/ui Skeleton or `Loader2` (Lucide) with `animate-spin`. No blank screens.
 - **Empty States**: Centered with icon, heading, description, and CTA button.
 - **Notifications**: shadcn/ui Sonner (toaster) for all messages.

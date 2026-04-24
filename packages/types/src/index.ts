@@ -23,7 +23,7 @@ export interface Store {
 
 // ─── Users / Auth ─────────────────────────────────────────────────────────────
 
-export type UserRole = 'owner' | 'manager' | 'cashier' | 'staff'
+export type UserRole = 'OWNER' | 'MANAGER' | 'CASHIER'
 
 export interface User {
   id: string
@@ -104,8 +104,8 @@ export interface InventoryRecord {
 
 // ─── Sales ───────────────────────────────────────────────────────────────────
 
-export type SaleStatus = 'pending' | 'completed' | 'refunded' | 'voided'
-export type PaymentMethod = 'cash' | 'card' | 'upi' | 'mixed'
+export type SaleStatus = 'COMPLETED' | 'REFUNDED' | 'VOIDED'
+export type PaymentMethod = 'CASH' | 'CARD' | 'UPI' | 'STORE_CREDIT' | 'LOYALTY_POINTS' | 'MIXED'
 
 export interface Sale {
   id: string

@@ -14,7 +14,12 @@ export const CreateSaleSchema = z.object({
   staffId: z.string().optional(),
   items: z.array(SaleItemSchema).min(1, 'Sale must have at least one item'),
   discountAmount: z.number().nonnegative().default(0),
-  paymentMethod: z.enum(['cash', 'card', 'upi', 'mixed']),
+  payments: z.array(z.object({
+    method: z.enum(['CASH', 'CARD', 'UPI', 'STORE_CREDIT', 'LOYALTY_POINTS']),
+    amount: z.number().positive(),
+    referenceId: z.string().optional(),
+  })).min(1, 'At least one payment method is required'),
+  heldCartId: z.string().optional(),
 })
 
 export const RefundSaleSchema = z.object({
@@ -22,6 +27,17 @@ export const RefundSaleSchema = z.object({
   itemIds: z.array(z.string()).optional(), // partial refund support
 })
 
+export const ProcessReturnSchema = z.object({
+  items: z.array(z.object({
+    saleItemId: z.string().min(1),
+    quantity: z.number().int().positive(),
+  })).min(1),
+  refundMethod: z.enum(['CASH', 'CARD', 'UPI', 'STORE_CREDIT']),
+  reason: z.string().optional(),
+  restock: z.boolean().default(true),
+})
+
 export type SaleItemInput = z.infer<typeof SaleItemSchema>
 export type CreateSaleInput = z.infer<typeof CreateSaleSchema>
 export type RefundSaleInput = z.infer<typeof RefundSaleSchema>
+export type ProcessReturnInput = z.infer<typeof ProcessReturnSchema>

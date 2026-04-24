@@ -9,7 +9,7 @@ export async function productRoutes(app: FastifyInstance) {
 
   app.get('/', listProductsHandler)
   app.get('/:id', getProductHandler)
-  app.post('/', { onRequest: [authorize('manager', 'owner')] }, createProductHandler)
-  app.patch('/:id', { onRequest: [authorize('manager', 'owner')] }, updateProductHandler)
-  app.delete('/:id', { onRequest: [authorize('owner')] }, deleteProductHandler)
+  app.post('/', { onRequest: [authorize('MANAGER', 'OWNER')] }, createProductHandler)
+  app.patch('/:id', { onRequest: [authorize('MANAGER', 'OWNER')] }, updateProductHandler)
+  app.delete('/:id', { onRequest: [authorize('OWNER')] }, deleteProductHandler)
 }

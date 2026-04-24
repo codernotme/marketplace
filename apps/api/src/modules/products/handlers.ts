@@ -21,14 +21,14 @@ export async function listProductsHandler(request: FastifyRequest, reply: Fastif
 export async function getProductHandler(request: FastifyRequest, reply: FastifyReply) {
   const user = request.user as { tenantId: string }
   const { id } = request.params as { id: string }
-  const product = await getProduct(id, user.tenantId)
+  const product = await getProduct(user.tenantId, id)
   sendSuccess(reply, product)
 }
 
 export async function createProductHandler(request: FastifyRequest, reply: FastifyReply) {
   const user = request.user as { tenantId: string }
   const body = CreateProductSchema.parse(request.body)
-  const product = await createProduct(body, user.tenantId)
+  const product = await createProduct(user.tenantId, body)
   sendCreated(reply, product)
 }
 
@@ -36,13 +36,13 @@ export async function updateProductHandler(request: FastifyRequest, reply: Fasti
   const user = request.user as { tenantId: string }
   const { id } = request.params as { id: string }
   const body = UpdateProductSchema.parse(request.body)
-  const product = await updateProduct(id, body, user.tenantId)
+  const product = await updateProduct(user.tenantId, id, body)
   sendSuccess(reply, product)
 }
 
 export async function deleteProductHandler(request: FastifyRequest, reply: FastifyReply) {
   const user = request.user as { tenantId: string }
   const { id } = request.params as { id: string }
-  await deleteProduct(id, user.tenantId)
+  await deleteProduct(user.tenantId, id)
   sendSuccess(reply, { message: 'Product deleted' })
 }

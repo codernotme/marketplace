@@ -1,21 +1,40 @@
 import Dexie, { type Table } from 'dexie'
 
-export interface LocalCache {
+export interface LocalOrder {
   id?: number
-  key: string
-  value: any
-  expiresAt: number
+  orderId: string
+  items: any[]
+  total: number
+  customer?: string
+  createdAt: number
+  synced: boolean
 }
 
-export class AppDatabase extends Dexie {
-  cache!: Table<LocalCache>
+export class PosDatabase extends Dexie {
+  orders!: Table<LocalOrder>
 
   constructor() {
-    super('TheMrktPlaceDB')
+    super('PosDatabase')
     this.version(1).stores({
-      cache: '++id, key, expiresAt',
+      orders: '++id, orderId, synced, createdAt'
     })
+  }
+
+  async saveOrder(order: Omit<LocalOrder, 'id' | 'synced' | 'createdAt'>) {
+    return await this.orders.add({
+      ...order,
+      createdAt: Date.now(),
+      synced: false
+    })
+  }
+
+  async getUnsyncedOrders() {
+    return await this.orders.where('synced').equals(0).toArray() // 0 for false in IndexedDB index
+  }
+
+  async markAsSynced(id: number) {
+    return await this.orders.update(id, { synced: true })
   }
 }
 
-export const db = new AppDatabase()
+export const db = new PosDatabase()

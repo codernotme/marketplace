@@ -3,10 +3,9 @@ import type { UserRole } from '@themrktplace/types'
 import { ForbiddenError } from '@/utils/errors.js'
 
 const ROLE_HIERARCHY: Record<UserRole, number> = {
-  owner: 4,
-  manager: 3,
-  cashier: 2,
-  staff: 1,
+  OWNER: 3,
+  MANAGER: 2,
+  CASHIER: 1,
 }
 
 export function authorize(...allowedRoles: UserRole[]) {

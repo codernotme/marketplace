@@ -13,14 +13,14 @@ export async function licenseRoutes(app: FastifyInstance) {
     void reply.send({ success: true, data: licenses })
   })
 
-  // Admin: toggle a module license
-  app.patch('/:module', { onRequest: [authorize('owner')] }, async (request, reply) => {
+  // Admin: update license status
+  app.patch('/:id', { onRequest: [authorize('OWNER')] }, async (request, reply) => {
     const user = request.user as { tenantId: string }
-    const { module } = request.params as { module: string }
-    const { isActive } = request.body as { isActive: boolean }
+    const { id } = request.params as { id: string }
+    const { status } = request.body as { status: string }
     const license = await prisma.license.update({
-      where: { tenantId_module: { tenantId: user.tenantId, module: module as any } },
-      data: { isActive },
+      where: { id, tenantId: user.tenantId },
+      data: { status: status as any },
     })
     void reply.send({ success: true, data: license })
   })

@@ -13,7 +13,7 @@ export async function saleRoutes(app: FastifyInstance) {
     void reply.code(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming soon' } })
   })
 
-  app.post('/:id/refund', { onRequest: [authorize('manager', 'owner')] }, async (request, reply) => {
+  app.post('/:id/refund', { onRequest: [authorize('MANAGER', 'OWNER')] }, async (request, reply) => {
     void reply.code(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming soon' } })
   })
 }

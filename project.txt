@@ -1,0 +1,234 @@
+# Stage-by-Stage Development Plan — POS + Ecommerce + SaaS Platform
+
+---
+
+## MY SUGGESTION FIRST
+
+Before diving into stages, here is my honest recommendation on the order and why.
+
+Most people want to build everything at once and end up with nothing production-ready. The smarter approach is to go vertical — build one thing completely, get it in the hands of real merchants, collect money, then expand. Here is the order I recommend:
+
+Stage 1 — Build the core POS and get it working perfectly in a real clothing store. This alone is a sellable product.
+
+Stage 2 — Add the merchant admin panel (web dashboard) on top of the POS backend. Same backend, new frontend. Not much extra work but massively increases the value.
+
+Stage 3 — Add the ecommerce storefront as a paid add-on module. Now you have a reason to charge more per customer.
+
+Stage 4 — Build the SaaS layer — license management, self-serve billing, onboarding, and the multi-tenant control panel. This is what turns your software into a business.
+
+Stage 5 — Add marketplace, WhatsApp commerce, and advanced analytics. Growth features for established customers.
+
+This order is important because each stage generates revenue that funds the next one. You are not burning months building a SaaS dashboard before you have a single paying customer.
+
+---
+
+## STAGE 1 — CORE POS APPLICATION
+
+### Goal
+A fully working POS application that a clothing store can use daily to run their business. Nothing more, nothing less.
+
+### Duration
+3 to 4 months for a small team of 2 to 3 developers.
+
+### What You Build in This Stage
+
+#### 1.1 Project Foundation
+Set up the monorepo structure using Turborepo or Nx. This means one Git repository with separate packages for the POS frontend, backend API, and shared TypeScript types. Set up Docker Compose for local development with PostgreSQL and Redis running in containers. Set up ESLint, Prettier, and TypeScript across the entire project. Set up GitHub Actions for CI (run tests and linting on every pull request). Define the database schema for all Stage 1 modules and run initial migrations using Prisma.
+
+#### 1.2 Authentication System
+Build staff login with email and password. Implement JWT access tokens (15 minute expiry) and refresh tokens (30 day expiry). Build role-based access control with three default roles: Owner, Manager, and Cashier. Each role has a defined set of permissions stored in the database. Build a PIN-based quick login for the POS terminal so cashiers do not have to type a full password during a shift.
+
+#### 1.3 Product & Inventory Module
+Build the product catalog with support for variants. A product (e.g. a shirt) has multiple variants defined by combinations of attributes (size S/M/L/XL, color Red/Blue/Black). Each variant has its own SKU, barcode, price, and stock level. Build stock level tracking per variant per store location. Build stock movement history — every change in stock quantity is recorded as a movement with a reason (sale, return, manual adjustment, purchase received). Build low stock alerts — configurable threshold per product that triggers a notification. Build purchase order creation and receiving — raise a PO to a supplier, then mark items as received which automatically updates stock levels. Build bulk product import via CSV with a template download.
+
+#### 1.4 Sales & Billing Module
+Build the billing screen — the main POS interface. Cashier searches or scans a product, adds it to the cart, applies discounts, selects payment method, and completes the sale. Support multiple payment methods in a single transaction (split payment — e.g. part cash part card). Support basic discount types: flat amount off, percentage off, and item-level discounts. Build the receipt — display on screen, print to thermal printer via browser print API or a local print server, and send via SMS or email. Build the returns and exchange flow — look up a past transaction, select items to return, process refund to original payment method or as store credit. Build the hold transaction feature — park a cart and start a new one, then resume the held cart.
+
+#### 1.5 Customer Module (Basic CRM)
+Build customer creation and lookup at the billing screen. Store name, phone, email, and address. Show purchase history when a customer is selected. Basic loyalty points — earn points on every purchase, redeem points as discount on future purchases. Store credit balance — when a return is processed as store credit, it is stored here and can be used on the next purchase.
+
+#### 1.6 Staff & Shift Management
+Build staff management — add, edit, deactivate staff members and assign roles. Build shift opening and closing — cashier opens a shift by entering the opening cash amount, and closes a shift by counting cash and reconciling. The system calculates expected cash based on sales and shows the difference. Build sales commission tracking — configurable commission percentage per staff member, calculated on every sale they process.
+
+#### 1.7 Basic Reporting
+Build an end-of-day report — total sales, total transactions, payment method breakdown, top selling products, and staff performance. Build a simple inventory report — current stock levels, low stock items, and stock movement history. These reports are simple tabular views at this stage, not fancy dashboards. That comes in Stage 2.
+
+#### 1.8 Tax & Billing Compliance
+Build GST configuration — set up tax rates, HSN codes per product category, and choose inclusive or exclusive tax display. All bills show the correct tax breakdown. Generate GST-compliant invoices. Export GSTR-1 summary data as CSV for the accountant.
+
+#### 1.9 Offline Mode
+Implement the local-first architecture using IndexedDB (Dexie.js). The POS caches the product catalog, price list, customer list, and active promotions locally. When offline, sales are stored in a local sync queue. When connectivity returns, the sync engine pushes all pending transactions to the server. Show a clear online/offline indicator in the UI.
+
+#### 1.10 Hardware Integration
+Support thermal receipt printing via the browser's print API with a receipt-sized CSS layout. Support barcode scanning via USB HID scanners (they work as keyboard input, no driver needed). Support Bluetooth scanners on Android tablets. Do not build cash drawer or label printer integration in Stage 1 — keep it simple.
+
+### Stage 1 Deliverable
+A deployable POS web application (PWA) that works on Android tablets and Windows laptops. One store, multiple cashiers, full billing and inventory. This can be sold as a standalone product for Rs. 500 to Rs. 1500 per month.
+
+### Stage 1 Tech Stack
+Backend: NestJS + TypeScript + PostgreSQL + Redis + Prisma. Frontend POS: React PWA + Zustand + Dexie.js + Tailwind CSS. Deployment: Docker on a single VPS (Hetzner or DigitalOcean), Cloudflare for DNS and SSL.
+
+---
+
+## STAGE 2 — MERCHANT ADMIN PANEL + ADVANCED POS FEATURES
+
+### Goal
+Give the store owner a proper web dashboard to manage everything from any browser without needing to be at the POS terminal. Also complete the remaining POS features that were deferred from Stage 1.
+
+### Duration
+2 to 3 months.
+
+### What You Build in This Stage
+
+#### 2.1 Merchant Admin Panel (Web Dashboard)
+Build a separate React SPA that connects to the same backend as the POS. The admin panel is designed for the store owner and manager to use on a laptop or desktop. It includes a home dashboard with key metrics (today's revenue, transactions, top products, low stock alerts), full product and inventory management (add/edit products, manage variants, adjust stock, view movements), order and sales history with filters and search, customer management (view profiles, purchase history, loyalty balance, send promotions), staff management (add/edit staff, view commissions, shift history), promotions management (create discount rules, coupon codes, loyalty programs), and all reports.
+
+#### 2.2 Advanced Reporting Dashboard
+Build a proper analytics dashboard with charts using Recharts or Chart.js. Include revenue trend chart (daily/weekly/monthly toggle), sales by category and product, sales by staff member, inventory turnover report, customer retention metrics, and payment method breakdown. At this stage, add TimescaleDB for time-series data or use PostgreSQL materialized views refreshed every hour.
+
+#### 2.3 Multi-Store Support
+Build the ability to add multiple store locations under one account. Inventory is tracked per store. Staff are assigned to specific stores. Reports can be viewed per store or consolidated across all stores. Stock transfer between stores — raise a transfer request, the sending store marks items as dispatched, the receiving store confirms receipt. Store-specific pricing — different selling prices at different locations if needed.
+
+#### 2.4 Advanced Promotions Engine
+Build a flexible promotion rule engine. Rules can be: buy X quantity get Y% off, spend above Rs. X get flat discount, category-wide sale percentage, time-limited flash sale (start and end datetime), and first-purchase discount. Promotions can be applied automatically at billing or require a coupon code. Stacking rules — define whether multiple promotions can combine or only the best one applies.
+
+#### 2.5 Advanced Customer Features
+Customer segmentation — group customers by purchase frequency, total spend, last visit date, or product category preference. Bulk SMS and WhatsApp campaigns to a segment (e.g. send a discount to all customers who have not visited in 60 days). Birthday and anniversary automated messages. Loyalty tier upgrades — automatically move customers between Silver, Gold, and Platinum tiers based on annual spend.
+
+#### 2.6 Notifications System
+Build an in-app notification center and email/SMS notifications for: low stock alerts, daily sales summary (sent to owner every evening), new purchase order received, staff shift start/end reminders, and loyalty tier upgrade for customers.
+
+#### 2.7 Complete Hardware Support
+Add cash drawer support via receipt printer trigger (most cash drawers open via the printer). Add label printer support for printing barcode/price labels. Add customer-facing display support (second screen showing cart total to the customer).
+
+### Stage 2 Deliverable
+The store owner now has a full web dashboard alongside the POS terminal. This significantly increases the product's value and justifies a higher subscription price — Rs. 1500 to Rs. 4000 per month.
+
+---
+
+## STAGE 3 — ECOMMERCE ADD-ON MODULE
+
+### Goal
+Allow merchants to launch an online store that shares the same inventory, customers, and promotions as their physical POS. This is sold as a paid add-on on top of the existing subscription.
+
+### Duration
+3 to 4 months.
+
+### What You Build in This Stage
+
+#### 3.1 Ecommerce Backend APIs
+Extend your existing backend with a new NestJS EcommerceModule. Build public APIs for the storefront: product listing with filters and sorting, product detail with variants and availability, cart management, checkout flow, order placement, order status tracking, and customer account management.
+
+#### 3.2 Online Storefront
+Build a separate Next.js application that acts as the customer-facing online store. It fetches data from your backend APIs. Include a homepage with banner and featured products, category and collection pages, product detail page with image gallery, size guide, variant selector and reviews, cart and wishlist, checkout with address, shipping, and payment, customer account portal (order history, returns, saved addresses), and a blog/style guide section.
+
+The storefront is customizable by the merchant from the admin panel — they can change the banner images, featured products, and color scheme without touching code.
+
+#### 3.3 Online Order Management
+Add order management to the merchant admin panel. Merchants can see all online orders, update order status (confirm, pack, ship, deliver), generate and print packing slips and shipping labels, process online returns and refunds, and view orders from all channels (POS + online) in one place.
+
+Build the click and collect feature — customer orders online and picks up from the store. The POS terminal shows a pending pickup list.
+
+#### 3.4 Shipping Integration
+Integrate with Shiprocket or Delhivery API (major Indian shipping aggregators). Merchant can auto-generate shipments, book courier pickups, print shipping labels, and track shipments — all from the admin panel. Customers get automated tracking updates via email and SMS.
+
+#### 3.5 Online Payments
+Integrate Razorpay payment gateway for the ecommerce checkout. Support UPI, credit/debit cards, net banking, wallets, and EMI. Also support Cash on Delivery (COD) as a payment option. Configure free shipping thresholds and shipping charges by pincode zone.
+
+#### 3.6 Inventory Sync
+When a product is sold online, stock is automatically deducted from the designated online fulfillment warehouse. If the same product is sold at the POS terminal at the same time, the stock is updated in real time. Build stock reservation — when an order is placed, the stock is reserved immediately even before it is packed, so the same item cannot be oversold.
+
+#### 3.7 SEO and Marketing Tools
+Add SEO fields to products — meta title, meta description, and URL slug. Generate a sitemap.xml automatically. Build an abandoned cart recovery system — if a customer adds items to cart and leaves without buying, send them an automated email or WhatsApp message after 1 hour with a reminder and optionally a discount code. Integrate Google Analytics 4 and Meta Pixel tracking on the storefront.
+
+#### 3.8 Customer Reviews
+Allow customers to leave star ratings and text reviews on products after a confirmed purchase. Merchant can moderate (approve/reject) reviews from the admin panel. Reviews are displayed on the product page.
+
+### Stage 3 Deliverable
+Merchants now have a complete omnichannel solution. Online store + physical store with unified inventory and customers. This justifies a much higher price — Rs. 4000 to Rs. 12000 per month depending on order volume. This is also your main upsell opportunity.
+
+---
+
+## STAGE 4 — SAAS PLATFORM LAYER
+
+### Goal
+Stop managing customers manually. Build the infrastructure that allows merchants to discover your product, sign up, choose a plan, pay online, get onboarded automatically, and manage their subscription — all without you being involved. This is what makes it a real SaaS business.
+
+### Duration
+2 to 3 months.
+
+### What You Build in This Stage
+
+#### 4.1 Public Marketing Website
+Build a public website (Next.js or Webflow) that explains your product, shows pricing plans, has a demo video, customer testimonials, and a call to action to sign up or request a demo. This is separate from your app. SEO optimized. This is your top of funnel.
+
+#### 4.2 Self-Serve Onboarding Flow
+When a new merchant signs up, walk them through a guided onboarding: enter business name and GST number, choose their plan (Starter, Professional, Enterprise), enter payment details, and automatically provision their account. After signup, the system automatically creates their tenant in the database, generates their license key, assigns the modules for their chosen plan, sends a welcome email with their login credentials and getting started guide, and optionally triggers a WhatsApp message from your team for a welcome call.
+
+#### 4.3 Subscription and Billing Management
+Integrate Razorpay Subscriptions or Stripe for recurring billing. Merchants pay monthly or annually. Build a self-serve billing portal where merchants can view their current plan, upgrade or downgrade, add or remove the ecommerce add-on, view and download past invoices, and update their payment method. When a merchant upgrades, their license permissions update automatically and they immediately get access to new modules. When a merchant's payment fails, send reminder emails, show a banner in their dashboard, and after a grace period restrict their account to read-only mode.
+
+#### 4.4 License Management System (Your Internal Admin)
+Build your internal admin panel (completely separate from the merchant-facing app). This is where your team manages everything. Features include: view all active merchants and their plan details, create custom licenses for enterprise deals with manually selected modules, view and revoke any license, see license expiry dates and send renewal reminders, view usage statistics per merchant (number of transactions, products, staff), manually override plan limits for specific merchants, and view all support issues linked to a merchant account.
+
+#### 4.5 Multi-Tenant Architecture Hardening
+At this stage you should audit and harden the multi-tenant isolation. Every database query must be scoped to the correct tenant. Add automated tests that verify a tenant cannot access another tenant's data. Add tenant-level resource limits — a Starter plan merchant cannot make more API calls or store more than a certain amount of data. Implement tenant-level database connection pooling to prevent one high-traffic merchant from starving others.
+
+#### 4.6 Merchant Health Dashboard (Your Internal View)
+Build internal metrics for your business: monthly recurring revenue (MRR), churn rate, new signups per week, plan distribution (how many merchants on each plan), feature usage per plan (which modules are most used), and merchants approaching their expiry date. This helps you understand your business and make decisions.
+
+#### 4.7 Automated Communications
+Build a communication engine for automated lifecycle emails: welcome email on signup, onboarding checklist reminders (did they add their first product, did they make their first sale), license expiry warnings (30, 15, 7, 1 days before), payment failure notifications, feature announcement emails when you release something new, and win-back emails for merchants who have been inactive.
+
+### Stage 4 Deliverable
+Your product is now a proper SaaS platform. Merchants can find you, sign up, pay, and get started without any manual intervention from your team. Your MRR is predictable and your churn is visible. This is the stage where you can start scaling marketing and sales.
+
+---
+
+## STAGE 5 — GROWTH FEATURES & MARKETPLACE
+
+### Goal
+Add the advanced features that enterprise merchants and growing businesses need. These justify higher plan prices and reduce churn by making your product deeply embedded in their operations.
+
+### Duration
+Ongoing — build based on what merchants are asking for.
+
+### What You Build in This Stage
+
+#### 5.1 Marketplace Integration
+Sync product catalog and inventory to Amazon, Flipkart, and Myntra via their seller APIs. Orders from marketplaces appear in the merchant admin panel alongside POS and online orders. Inventory is deducted from a common pool across all channels. This is a major feature that large clothing brands need badly.
+
+#### 5.2 WhatsApp Commerce
+Allow customers to browse products, add to cart, and complete purchase via WhatsApp using the WhatsApp Business API. Orders appear in the admin panel like any other online order. Send order confirmations, shipping updates, and delivery notifications via WhatsApp automatically.
+
+#### 5.3 Advanced Analytics
+Upgrade the reporting to a full analytics suite. Add cohort analysis (how do customers who joined in January 2024 behave over time), product performance analysis (which sizes and colors sell fastest in which cities), demand forecasting (predict when a product will go out of stock based on sales velocity), and customer lifetime value prediction. At this stage you may need to move to ClickHouse for the analytics database.
+
+#### 5.4 API Access for Enterprise Clients
+Build a public REST API that enterprise merchants can use to connect your platform to their own internal tools — their ERP, their custom website, or their warehouse management system. This is gated behind the API_ACCESS license module. Provide API documentation, API keys management, and usage logs.
+
+#### 5.5 Mobile App for Merchants
+Build a React Native mobile app for merchants to monitor their business on the go. Not for billing — just for viewing dashboards, approving purchase orders, checking stock levels, and responding to customer reviews. This is a nice-to-have that reduces churn by keeping merchants engaged with your product daily.
+
+#### 5.6 Franchise and Chain Support
+For large clothing chains with 50+ stores, add advanced features: corporate vs store-level pricing, centralized buying (head office raises POs for all stores), store performance benchmarking, regional manager dashboards, and custom reporting by zone or region.
+
+---
+
+## SUMMARY OF ALL STAGES
+
+Stage 1 is the core POS — billing, inventory, staff, basic CRM, offline mode, GST compliance. Duration 3 to 4 months. This is your first sellable product.
+
+Stage 2 is the merchant admin panel plus advanced POS features — web dashboard, analytics, multi-store, advanced promotions, campaign tools. Duration 2 to 3 months. Higher ticket price, more value.
+
+Stage 3 is the ecommerce add-on — online storefront, order management, shipping integration, abandoned cart, online payments, inventory sync. Duration 3 to 4 months. Sold as a paid add-on.
+
+Stage 4 is the SaaS platform layer — self-serve signup, subscription billing, license management, internal admin, automated communications. Duration 2 to 3 months. This is what makes it a real scalable business.
+
+Stage 5 is growth features — marketplace sync, WhatsApp commerce, advanced analytics, API access, mobile app, franchise support. Ongoing based on market demand.
+
+Total estimated timeline with a team of 3 developers is 12 to 18 months to reach Stage 4. Stage 5 is continuous.
+
+---
+
+Would you like me to now break down Stage 1 into detailed sprint-by-sprint tasks, define the database schema for Stage 1, or create the NestJS module structure for the backend?

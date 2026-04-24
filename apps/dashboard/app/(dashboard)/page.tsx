@@ -8,6 +8,7 @@ import {
   UserGroupIcon, 
   PresentationBarChart01Icon 
 } from '@hugeicons/core-free-icons'
+import { OnboardingProgressWidget } from '@modules/onboarding/components/OnboardingProgressWidget'
 
 export default function DashboardPage() {
   return (
@@ -16,6 +17,10 @@ export default function DashboardPage() {
         title="Dashboard" 
         description="Overview of your business performance"
       />
+
+      <div className="max-w-4xl">
+        <OnboardingProgressWidget />
+      </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard

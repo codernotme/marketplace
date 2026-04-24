@@ -4,7 +4,11 @@ import { nextJsConfig } from "@workspace/eslint-config/next-js"
 export default [
   {
     ignores: [
+      "**/node_modules/**",
+      "**/.next/**",
       "**/public/**",
+      "**/dist/**",
+      "**/coverage/**",
       "**/*.png",
       "**/*.jpg",
       "**/*.jpeg",
@@ -12,8 +16,11 @@ export default [
       "**/*.svg",
       "**/*.ico",
       "**/*.webp",
-      "**/.next/**",
-      "**/node_modules/**",
+      "**/*.woff",
+      "**/*.woff2",
+      "**/*.ttf",
+      "**/*.otf",
+      "**/*.node",
     ],
   },
   ...nextJsConfig,

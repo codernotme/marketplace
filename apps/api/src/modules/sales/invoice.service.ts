@@ -49,7 +49,7 @@ export function generateInvoiceHTML(sale: SaleWithDetails, tenant: Tenant) {
         <div class="header">
             <div class="business-info">
                 <h2>${tenant.businessName}</h2>
-                <p>${sale.store.address || ''}<br>${sale.store.phone || ''}</p>
+                <p>${sale.store.addressLine1 || ''}<br>${sale.store.phone || ''}</p>
             </div>
             <div class="invoice-details">
                 <h1 style="margin:0; color: #000;">INVOICE</h1>
@@ -61,7 +61,7 @@ export function generateInvoiceHTML(sale: SaleWithDetails, tenant: Tenant) {
             <div class="store-info">
                 <h4>Bill From</h4>
                 <strong>${sale.store.name}</strong><br>
-                GSTIN: ${tenant.gstNumber || 'N/A'}
+                GSTIN: ${tenant.gstin || 'N/A'}
             </div>
             <div class="customer-info">
                 <h4>Bill To</h4>

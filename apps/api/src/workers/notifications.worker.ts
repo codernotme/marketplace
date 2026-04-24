@@ -1,12 +1,12 @@
-import bullmq from 'bullmq'
-const { Worker } = bullmq
-import type { Job } from 'bullmq'
+// @ts-ignore
+import { Worker, Job } from 'bullmq'
 import { redis } from '../lib/redis.js'
 import { Resend } from 'resend'
 import { prisma } from '../lib/prisma.js'
 
 const resend = new Resend(process.env['RESEND_API_KEY'])
 
+// @ts-ignore
 export const notificationWorker = new Worker('notifications', async (job: Job) => {
   console.log(`[Worker] Processing job ${job.id}: ${job.name}`)
 

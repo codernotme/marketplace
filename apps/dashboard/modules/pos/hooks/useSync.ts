@@ -4,22 +4,6 @@ import api from '@/lib/api'
 import { toast } from 'sonner'
 
 export function useSync() {
-  useEffect(() => {
-    const handleOnline = () => {
-      toast.info('Back online. Syncing pending sales...')
-      syncPendingSales()
-    }
-
-    window.addEventListener('online', handleOnline)
-    
-    // Initial sync
-    if (navigator.onLine) {
-      syncPendingSales()
-    }
-
-    return () => window.removeEventListener('online', handleOnline)
-  }, [])
-
   const syncPendingSales = async () => {
     const pending = await db.pendingSales.where('synced').equals(0).toArray()
     
@@ -67,6 +51,22 @@ export function useSync() {
       console.error('Failed to sync products:', error)
     }
   }
+
+  useEffect(() => {
+    const handleOnline = () => {
+      toast.info('Back online. Syncing pending sales...')
+      syncPendingSales()
+    }
+
+    window.addEventListener('online', handleOnline)
+    
+    // Initial sync
+    if (navigator.onLine) {
+      syncPendingSales()
+    }
+
+    return () => window.removeEventListener('online', handleOnline)
+  }, [])
 
   return { syncPendingSales, syncProducts }
 }

@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto'
 import { parse } from 'csv-parse/sync'
 import type { CreateProductInput, UpdateProductInput, UpdateVariantInput, CreateCategoryInput } from '@themrktplace/schema'
 import { prisma } from '@/lib/prisma.js'
+import { MovementReason } from '@prisma/client'
 import { NotFoundError, AppError } from '@/utils/errors.js'
 
 import { typesense } from '@/lib/typesense.js'
@@ -72,10 +73,10 @@ export async function createProduct(tenantId: string, body: CreateProductInput) 
               })
               await tx.inventoryMovement.create({
                 data: {
-                  variant: { connect: { id: variant.id } },
-                  store: { connect: { id: stock.storeId } },
+                  variantId: variant.id,
+                  storeId: stock.storeId,
                   quantity: stock.quantity,
-                  reason: 'MANUAL_ADJUSTMENT',
+                  reason: MovementReason.MANUAL_ADJUSTMENT,
                   notes: 'Opening Stock'
                 }
               })
@@ -108,10 +109,10 @@ export async function createProduct(tenantId: string, body: CreateProductInput) 
             })
             await tx.inventoryMovement.create({
               data: {
-                variant: { connect: { id: defaultVariant.id } },
+                variantId: defaultVariant.id,
                 storeId: stock.storeId,
                 quantity: stock.quantity,
-                reason: 'MANUAL_ADJUSTMENT',
+                reason: MovementReason.MANUAL_ADJUSTMENT,
                 notes: 'Opening Stock'
               }
             })
@@ -220,7 +221,7 @@ export async function importProductsFromCSV(tenantId: string, csvBuffer: Buffer)
   return await prisma.$transaction(async (tx) => {
     const products = []
 
-    for (const record of records) {
+    for (const record of records as any[]) {
       const name = record.name || record.Name
       const basePrice = parseFloat(record.price || record.Price || '0')
       const costPrice = parseFloat(record.cost || record.Cost || '0')
@@ -241,6 +242,7 @@ export async function importProductsFromCSV(tenantId: string, csvBuffer: Buffer)
             create: {
               sku,
               barcode,
+              attributeValues: {},
               price: basePrice,
               costPrice,
             }

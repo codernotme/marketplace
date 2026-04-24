@@ -1,5 +1,6 @@
 import type { AdjustInventoryInput, CreatePurchaseOrderInput, ReceivePurchaseOrderInput } from '@themrktplace/schema'
 import { prisma } from '@/lib/prisma.js'
+import { MovementReason } from '@prisma/client'
 import { addNotificationJob } from '@/lib/queue.js'
 import { NotFoundError, AppError } from '@/utils/errors.js'
 
@@ -35,7 +36,7 @@ export async function adjustInventory(tenantId: string, staffId: string, body: A
 
     const move = await tx.inventoryMovement.create({
       data: {
-        variant: { connect: { id: body.variantId } },
+        variantId: body.variantId,
         storeId: body.storeId,
         staffId,
         quantity: body.quantity,
@@ -132,7 +133,7 @@ export async function receivePurchaseOrder(tenantId: string, poId: string, staff
             storeId: po.storeId,
             staffId,
             quantity: receivedItem.quantityReceived,
-            reason: 'PURCHASE_RECEIPT',
+            reason: MovementReason.PURCHASE_RECEIPT,
             referenceId: po.id
           }
         })

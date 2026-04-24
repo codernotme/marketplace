@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto'
 import { prisma } from '@/lib/prisma.js'
 import { redis } from '@/lib/redis.js'
+import { MovementReason } from '@prisma/client'
 import { NotFoundError, AppError } from '@/utils/errors.js'
 import { CreateSaleInput, ProcessReturnInput } from '@themrktplace/schema'
 
@@ -9,7 +10,7 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
   const store = await prisma.store.findFirst({ where: { id: storeId, tenantId } })
   if (!store) throw new NotFoundError('Store')
 
-  return await prisma.$transaction(async (tx: { productVariant: { findUnique: (arg0: { where: { id: string }; include: { product: { include: { taxRate: boolean } } } }) => any }; inventoryLevel: { findUnique: (arg0: { where: { variantId_storeId: { variantId: string; storeId: string } } }) => any; update: (arg0: { where: { variantId_storeId: { variantId: string; storeId: string } }; data: { quantity: { decrement: number } } }) => any }; inventoryMovement: { create: (arg0: { data: { variantId: string; storeId: string; staffId: string; quantity: number; reason: string } }) => any }; couponCode: { findUnique: (arg0: { where: { code: string }; include: { promotion: { include: { rules: boolean } } } }) => any; update: (arg0: { where: { id: any }; data: { usedCount: { increment: number } } }) => any }; sale: { create: (arg0: { data: { tenantId: string; storeId: string; staffId: string; customerId: string | undefined; invoiceNumber: string; status: string; subtotal: number; discountAmount: number; taxAmount: number; grandTotal: number; items: { create: { variantId: any; quantity: number; unitPrice: any; discountAmount: number; taxRate: number; taxAmount: number; total: number }[] }; payments: { create: { method: "CASH" | "CARD" | "UPI" | "STORE_CREDIT" | "LOYALTY_POINTS"; amount: number; referenceId: string | undefined }[] } }; include: { items: boolean; payments: boolean } }) => any }; customer: { update: (arg0: { where: { id: string }; data: { totalSpend: { increment: number }; totalOrders: { increment: number }; loyaltyPoints: { increment: number } } }) => any }; loyaltyPointLog: { create: (arg0: { data: { customerId: string; points: number; reason: string; referenceId: any } }) => any } }) => {
+  return await prisma.$transaction(async (tx: any) => {
     // 1. Calculate subtotals and deduct inventory
     let subtotal = 0
     let totalTaxAmount = 0
@@ -40,11 +41,11 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
 
       await tx.inventoryMovement.create({
         data: {
-          variant: { connect: { id: item.variantId } },
+          variantId: item.variantId,
           storeId,
           staffId,
           quantity: -item.quantity,
-          reason: 'SALE'
+          reason: MovementReason.SALE
         }
       })
 
@@ -202,7 +203,7 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
 }
 
 export async function processReturn(tenantId: string, saleId: string, staffId: string, body: ProcessReturnInput) {
-  return await prisma.$transaction(async (tx: { sale: { findUnique: (arg0: { where: { id: string; tenantId: string }; include: { items: boolean } }) => any; update: (arg0: { where: { id: any }; data: { status: string } }) => any }; inventoryLevel: { update: (arg0: { where: { variantId_storeId: { variantId: any; storeId: any } }; data: { quantity: { increment: number } } }) => any }; inventoryMovement: { create: (arg0: { data: { variantId: any; storeId: any; staffId: string; quantity: number; reason: string; referenceId: any } }) => any }; return: { create: (arg0: { data: { saleId: any; storeId: any; staffId: string; refundAmount: number; refundMethod: "CASH" | "CARD" | "UPI" | "STORE_CREDIT"; reason: string | undefined; items: { create: { variantId: any; quantity: number; refundAmount: number }[] } } }) => any }; customer: { update: (arg0: { where: { id: any }; data: { storeCredit: { increment: number } } }) => any }; storeCreditLog: { create: (arg0: { data: { customerId: any; amount: number; reason: string; referenceId: any } }) => any } }) => {
+  return await prisma.$transaction(async (tx: any) => {
     const sale = await tx.sale.findUnique({
       where: { id: saleId, tenantId },
       include: { items: true }
@@ -240,7 +241,7 @@ export async function processReturn(tenantId: string, saleId: string, staffId: s
             storeId: sale.storeId,
             staffId,
             quantity: retItem.quantity,
-            reason: 'RETURN',
+            reason: MovementReason.RETURN,
             referenceId: sale.id
           }
         })

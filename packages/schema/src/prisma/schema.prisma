@@ -194,6 +194,7 @@ model ActiveSession {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([refreshTokenHash])
   @@map("active_sessions")
 }
 

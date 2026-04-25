@@ -47,6 +47,8 @@ npx prisma migrate dev --schema=packages/schema/src/prisma/schema.prisma
 The monorepo contains multiple workspaces that need to run concurrently:
 1. `apps/api` - The Fastify Backend (Port 3001)
 2. `apps/dashboard` - The Next.js Frontend (Port 3000)
+3. `apps/storefront` - The Storefront Frontend (Port 3002)
+4. `apps/internal-admin` - The Internal Admin Panel (Port 3003)
 
 Start both in development mode from the root directory:
 

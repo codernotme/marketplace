@@ -27,18 +27,23 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
       try {
-        const refreshToken = localStorage.getItem('refreshToken')
-        const { data } = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {
-          refreshToken,
+        // Refresh token is handled by HTTP-only cookie
+        const { data } = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {}, {
+          withCredentials: true
         })
-        localStorage.setItem('accessToken', data.data.accessToken)
-        originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`
+        const newToken = data.data.accessToken
+        localStorage.setItem('accessToken', newToken)
+        originalRequest.headers.Authorization = `Bearer ${newToken}`
         return api(originalRequest)
       } catch (refreshError) {
-        // Redirect to login or clear state
+        // Clear auth state and redirect to login
         localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-        if (typeof window !== 'undefined') {
+        try {
+          const { useAuthStore } = await import('../modules/auth/store/authStore')
+          useAuthStore.getState().clearAuth()
+        } catch (e) {}
+
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
           window.location.href = '/login'
         }
         return Promise.reject(refreshError)

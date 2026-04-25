@@ -1,9 +1,9 @@
 // Barrel export for all Zod schemas and types
 
-export * from './zod/auth.js'
-export * from './zod/product.js'
-export * from './zod/sale.js'
-export * from './zod/customer.js'
-export * from './zod/staff.js'
-export * from './zod/shift.js'
-export * from './zod/tenant.js'
+export * from './zod/auth'
+export * from './zod/product'
+export * from './zod/sale'
+export * from './zod/customer'
+export * from './zod/staff'
+export * from './zod/shift'
+export * from './zod/tenant'

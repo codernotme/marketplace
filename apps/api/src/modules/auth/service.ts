@@ -3,10 +3,15 @@ import { randomUUID } from 'crypto'
 import type { LoginInput, RegisterInput, ResetPasswordInput, PinLoginInput, MfaVerifyInput, VerifyEmailInput, VerifyPhoneInput, ForgotPasswordInput } from '@themrktplace/schema'
 import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
+import { createHash, randomUUID } from 'node:crypto'
 import { encrypt, decrypt } from '@/utils/crypto.js'
 import { prisma } from '@/lib/prisma.js'
 import { redis } from '@/lib/redis.js'
 import { UnauthorizedError, ConflictError, NotFoundError, AppError } from '@/utils/errors.js'
+
+function hashToken(token: string) {
+  return createHash('sha256').update(token).digest('hex')
+}
 
 export async function registerTenant(body: RegisterInput) {
   const existingUser = await prisma.user.findFirst({
@@ -302,26 +307,21 @@ export async function pinLogin(body: PinLoginInput) {
 }
 
 export async function refreshAccessToken(token: string) {
-  const tokenHash = await bcrypt.hash(token, 10) // Simplified for scaffolding, usually we'd search and verify
-  const record = await prisma.activeSession.findFirst({
-    where: { refreshTokenHash: tokenHash, revokedAt: null }
+  const tokenHash = hashToken(token)
+  const session = await prisma.activeSession.findFirst({
+    where: { refreshTokenHash: tokenHash, revokedAt: null },
+    include: { user: true }
   })
-
-  // Hacky check for scaffolding without bcrypting the whole db:
-  // Usually we'd search by token itself or have it in a JWT payload to get session ID
-  const allSessions = await prisma.activeSession.findMany({ where: { revokedAt: null }})
-  const session = allSessions.find(s => bcrypt.compareSync(token, s.refreshTokenHash))
 
   if (!session || session.expiresAt < new Date()) {
     throw new UnauthorizedError('Refresh token expired or invalid')
   }
 
-  const user = await prisma.user.findUnique({ where: { id: session.userId }})
-  if (!user) throw new NotFoundError('User')
+  const user = session.user
 
   // Rotate refresh token
   const newRefreshToken = randomUUID()
-  const newRefreshTokenHash = await bcrypt.hash(newRefreshToken, 10)
+  const newRefreshTokenHash = hashToken(newRefreshToken)
 
   await prisma.activeSession.update({
     where: { id: session.id },
@@ -335,12 +335,10 @@ export async function refreshAccessToken(token: string) {
 }
 
 export async function logoutUser(token: string) {
-  const allSessions = await prisma.activeSession.findMany({ where: { revokedAt: null }})
-  const session = allSessions.find(s => bcrypt.compareSync(token, s.refreshTokenHash))
-
-  if (session) {
-    await prisma.activeSession.delete({ where: { id: session.id } })
-  }
+  const tokenHash = hashToken(token)
+  await prisma.activeSession.deleteMany({
+    where: { refreshTokenHash: tokenHash }
+  })
 }
 
 async function createSession(userId: string, days: number, ip: string, userAgent: string) {
@@ -348,7 +346,7 @@ async function createSession(userId: string, days: number, ip: string, userAgent
   if (!user) throw new NotFoundError('User')
 
   const refreshToken = randomUUID()
-  const refreshTokenHash = await bcrypt.hash(refreshToken, 10)
+  const refreshTokenHash = hashToken(refreshToken)
 
   const session = await prisma.activeSession.create({
     data: {

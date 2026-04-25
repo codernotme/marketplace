@@ -44,9 +44,9 @@ export async function loginHandler(request: FastifyRequest, reply: FastifyReply)
   
   reply.setCookie('refreshToken', result.refreshToken, {
     httpOnly: true,
-    secure: process.env['NODE_ENV'] === 'production',
-    sameSite: 'lax',
-    path: '/api/v1/auth/refresh'
+    secure: true,
+    sameSite: 'none',
+    path: '/'
   })
 
   sendSuccess(reply, {
@@ -84,9 +84,9 @@ export async function mfaVerifyHandler(request: FastifyRequest, reply: FastifyRe
   
   reply.setCookie('refreshToken', result.refreshToken, {
     httpOnly: true,
-    secure: process.env['NODE_ENV'] === 'production',
-    sameSite: 'lax',
-    path: '/api/v1/auth/refresh'
+    secure: true,
+    sameSite: 'none',
+    path: '/'
   })
 
   sendSuccess(reply, {
@@ -137,6 +137,7 @@ export async function pinLoginHandler(request: FastifyRequest, reply: FastifyRep
 
 export async function refreshHandler(request: FastifyRequest, reply: FastifyReply) {
   const refreshToken = request.cookies.refreshToken
+  console.log(`[Auth] Refresh attempt. Token present: ${!!refreshToken}`)
   if (!refreshToken) {
     reply.code(401).send({ success: false, error: { code: 'UNAUTHORIZED', message: 'No refresh token provided' } })
     return
@@ -154,9 +155,9 @@ export async function refreshHandler(request: FastifyRequest, reply: FastifyRepl
 
   reply.setCookie('refreshToken', result.newRefreshToken, {
     httpOnly: true,
-    secure: process.env['NODE_ENV'] === 'production',
-    sameSite: 'lax',
-    path: '/api/v1/auth/refresh'
+    secure: true,
+    sameSite: 'none',
+    path: '/'
   })
 
   sendSuccess(reply, { accessToken })
@@ -168,6 +169,6 @@ export async function logoutHandler(request: FastifyRequest, reply: FastifyReply
     await logoutUser(refreshToken)
   }
   
-  reply.clearCookie('refreshToken', { path: '/api/v1/auth/refresh' })
+  reply.clearCookie('refreshToken', { path: '/', sameSite: 'none', secure: true })
   sendSuccess(reply, { message: 'Logged out successfully' })
 }

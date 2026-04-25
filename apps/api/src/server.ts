@@ -10,6 +10,6 @@ app.listen({ port: PORT, host: HOST }, (err) => {
     app.log.error(err)
     process.exit(1)
   }
-  console.log(`[API] Server listening on http://${HOST}:${PORT}`)
-  console.log(`[API] Docs available at http://${HOST}:${PORT}/docs`)
+  console.log(`[API] Server listening on http://localhost:${PORT}`)
+  console.log(`[API] Docs available at http://localhost:${PORT}/docs`)
 })

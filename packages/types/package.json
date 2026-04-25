@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@workspace/typescript-config": "workspace:*",
+    "@workspace/typescript-config": "*",
     "typescript": "^5.9.3"
   }
 }

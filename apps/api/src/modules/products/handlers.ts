@@ -9,6 +9,7 @@ import {
   importProductsFromCSV,
 } from './service.js'
 import { sendSuccess, sendCreated, sendPaginated } from '@/utils/response.js'
+import { AppError } from '@/utils/errors.js'
 
 export async function listProductsHandler(request: FastifyRequest, reply: FastifyReply) {
   const user = request.user as { tenantId: string }

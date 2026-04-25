@@ -4,7 +4,7 @@ This guide covers everything required to start the full `themrktplace` monorepo 
 
 ## Prerequisites
 - Node.js v20+
-- pnpm v9+
+- npm v10+ (using workspaces)
 - Docker & Docker Compose
 - Redis (via Docker)
 - PostgreSQL (via Docker)
@@ -37,8 +37,8 @@ docker ps
 Once Postgres is running, you need to push the Prisma schema and run seed scripts (if available):
 
 ```bash
-pnpm install
-pnpm --filter @themrktplace/schema run db:push
+npm install
+npx turbo run db:push --filter=@themrktplace/schema
 # or
 npx prisma migrate dev --schema=packages/schema/src/prisma/schema.prisma
 ```
@@ -51,7 +51,7 @@ The monorepo contains multiple workspaces that need to run concurrently:
 Start both in development mode from the root directory:
 
 ```bash
-pnpm run dev
+npm run dev
 ```
 
 This command uses Turbo to spin up both the API and the Dashboard concurrently.
@@ -74,6 +74,6 @@ docker-compose up --build -d
 The Next.js dashboard is optimized for Vercel deployment. Connect the `apps/dashboard` folder to your Vercel project and set the corresponding environment variables.
 
 ## Troubleshooting
-- **Type Errors**: If you encounter type errors, run `pnpm typecheck` at the root. The Prisma schema is the source of truth, ensure it is generated via `pnpm --filter @themrktplace/schema run build`.
+- **Type Errors**: If you encounter type errors, run `npm run typecheck` at the root. The Prisma schema is the source of truth, ensure it is generated via `npx turbo run build --filter=@themrktplace/schema`.
 - **Worker Imports**: The BullMQ library relies on ESM. Ensure your Node environment fully supports ESM module resolution.
 - **Search Not Syncing**: If Typesense isn't syncing, check the API console for connection refused errors, and ensure `TYPESENSE_HOST` is correctly mapped.

@@ -1,5 +1,15 @@
 # themrktplace - Coding & Design Standards
 
+> **CRITICAL RULE FOR ALL AI AGENTS & CONTRIBUTORS**:
+> You **MUST** consult and adhere to the master documentation in [`docs/`](file:///d:/Personal/marketplace/docs/README.md) and [`docs/ai-agent-guidelines.md`](file:///d:/Personal/marketplace/docs/ai-agent-guidelines.md).
+> Before answering or editing any code, refer to the following canonical documents:
+> - Architecture: [`docs/system-architecture.md`](file:///d:/Personal/marketplace/docs/system-architecture.md)
+> - Design & Tokens: [`docs/design-scheme.md`](file:///d:/Personal/marketplace/docs/design-scheme.md)
+> - Database & Zod Schemas: [`docs/schema-documentation.md`](file:///d:/Personal/marketplace/docs/schema-documentation.md)
+> - Roadmap & Active Tasks: [`docs/todos-and-roadmap.md`](file:///d:/Personal/marketplace/docs/todos-and-roadmap.md)
+> - Upgrades & Enhancements: [`docs/improvisations-and-enhancements.md`](file:///d:/Personal/marketplace/docs/improvisations-and-enhancements.md)
+> - Operational Ledger: [`.agents/project/status.md`](file:///d:/Personal/marketplace/.agents/project/status.md)
+
 ## DESIGN & UI RULES
 - **Component Library**: [shadcn/ui](https://ui.shadcn.com/) is the ONLY component library.
 - **Styling**: Tailwind CSS v3 for all custom styling. No inline styles.

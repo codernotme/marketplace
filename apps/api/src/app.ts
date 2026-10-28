@@ -14,7 +14,6 @@ import { saleRoutes } from '@/modules/sales/routes.js'
 import { customerRoutes } from '@/modules/customers/routes.js'
 import { staffRoutes } from '@/modules/staff/routes.js'
 import { reportRoutes } from '@/modules/reports/routes.js'
-import { licenseRoutes } from '@/modules/license/routes.js'
 import { shiftRoutes } from '@/modules/shifts/routes.js'
 import { tenantRoutes } from '@/modules/tenants/routes.js'
 
@@ -76,7 +75,6 @@ export function buildApp() {
   // ─── Routes ─────────────────────────────────────────────────────────────────
 
   void app.register(authRoutes, { prefix: '/api/v1/auth' })
-  void app.register(licenseRoutes, { prefix: '/api/v1/licenses' })
   void app.register(productRoutes, { prefix: '/api/v1/products' })
   void app.register(inventoryRoutes, { prefix: '/api/v1/inventory' })
   void app.register(saleRoutes, { prefix: '/api/v1/sales' })
@@ -84,7 +82,7 @@ export function buildApp() {
   void app.register(staffRoutes, { prefix: '/api/v1/staff' })
   void app.register(reportRoutes, { prefix: '/api/v1/reports' })
   void app.register(shiftRoutes, { prefix: '/api/v1/shifts' })
-  void app.register(tenantRoutes, { prefix: '/api/v1/tenants' })
+  void app.register(tenantRoutes, { prefix: '/api/v1/business' })
 
   // Health check
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))

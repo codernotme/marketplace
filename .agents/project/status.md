@@ -37,6 +37,7 @@ Owner approvals needed: Deployment, production secrets, payments
 | structure.md | structure | locked | Monorepo folder tree, path aliases, and module encapsulation rules. |
 | antislop.md | tsz-antislop | locked | Zero tells, zero smells, full-pass anti-slop verification. |
 | docs/README.md | orchestrator | locked | Central master documentation portal with architecture diagrams. |
+| docs/apps-breakdown.md | orchestrator | locked | Exhaustive breakdown of each individual app, module, and package. |
 | docs/design-scheme.md | tsz-design-system | locked | Exhaustive design scheme, OKLCH tokens, and component standards. |
 | docs/schema-documentation.md | data | locked | Exhaustive Prisma models, Zod validation, and ER diagrams. |
 | docs/system-architecture.md | structure | locked | Technical topology, Fastify pipeline, and state flow diagrams. |

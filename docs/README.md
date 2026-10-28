@@ -10,7 +10,8 @@ Welcome to **The Mrktplace**, an enterprise-grade, multi-tenant omnichannel POS 
 
 ```mermaid
 graph TD
-    README["docs/README.md<br/>This file: Central index"]
+    README["docs/README.md<br/>Central Index"]
+    APPS["apps-breakdown.md<br/>Individual Apps & Features"]
     ARCH["system-architecture.md<br/>Topology, APIs, sync engine"]
     DESIGN["design-scheme.md<br/>Tokens, typography, components"]
     SCHEMA["schema-documentation.md<br/>Database models, Zod contracts"]
@@ -19,6 +20,7 @@ graph TD
     AI["ai-agent-guidelines.md<br/>Rules for AI/human contributors"]
     LEDGER[".agents/project/status.md<br/>TSZ operational ledger"]
 
+    README --> APPS
     README --> ARCH
     README --> DESIGN
     README --> SCHEMA
@@ -30,6 +32,7 @@ graph TD
 
 | Document | Description | Primary Audience |
 | --- | --- | --- |
+| [Apps Architecture & Features](apps-breakdown.md) | Exhaustive breakdown of each individual app (`api`, `dashboard`, `storefront`, `internal-admin`) and shared packages. | All Engineers & Contributors |
 | [System Architecture](system-architecture.md) | High-level topology, monorepo packages, Fastify API pipeline, Next.js apps, offline-first sync engine, licensing guard, BullMQ workers, and data flows. | Backend / Fullstack / DevOps |
 | [Design Scheme & Tokens](design-scheme.md) | Complete TSZ design system: luxury obsidian palette, OKLCH tokens, typography scale, spacing grid, component lifecycle states, and icon conventions. | UI / Frontend / Design |
 | [Schema Documentation](schema-documentation.md) | Exhaustive reference of all PostgreSQL Prisma tables, field types, indexes, relational constraints, Zod validation contracts, and offline IndexedDB schema. | Fullstack / Backend / DBA |

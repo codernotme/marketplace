@@ -1,6 +1,6 @@
 # The Mrktplace: Master Engineering Documentation
 
-Welcome to **The Mrktplace**, an enterprise-grade, multi-tenant omnichannel POS and ecommerce SaaS platform purpose-built for modern clothing and retail businesses.
+Welcome to **The Mrktplace**, an enterprise-grade standalone omnichannel POS and ecommerce retail suite purpose-built for modern clothing and apparel brands.
 
 ---
 
@@ -32,48 +32,42 @@ graph TD
 
 | Document | Description | Primary Audience |
 | --- | --- | --- |
-| [Apps Architecture & Features](apps-breakdown.md) | Exhaustive breakdown of each individual app (`api`, `dashboard`, `storefront`, `internal-admin`) and shared packages. | All Engineers & Contributors |
-| [System Architecture](system-architecture.md) | High-level topology, monorepo packages, Fastify API pipeline, Next.js apps, offline-first sync engine, licensing guard, BullMQ workers, and data flows. | Backend / Fullstack / DevOps |
-| [Design Scheme & Tokens](design-scheme.md) | Complete TSZ design system: luxury obsidian palette, OKLCH tokens, typography scale, spacing grid, component lifecycle states, and icon conventions. | UI / Frontend / Design |
-| [Schema Documentation](schema-documentation.md) | Exhaustive reference of all PostgreSQL Prisma tables, field types, indexes, relational constraints, Zod validation contracts, and offline IndexedDB schema. | Fullstack / Backend / DBA |
-| [TODOs & Roadmap](todos-and-roadmap.md) | Five-stage implementation plan (Stages 1 to 5), tracking completed milestones, active work items, and upcoming deliverables with granular checklists. | Project Lead / Contributors |
-| [Enhancements & Upgrades](improvisations-and-enhancements.md) | Modernized libraries, technical terms, architectural upgrades, hardware integration (WebUSB, ESC/POS, dual-screen), and AI-powered search. | Architects / Engineers |
-| [AI Agent Guidelines](ai-agent-guidelines.md) | Mandatory operational protocol and reference rules for AI assistants (Antigravity, Claude, Copilot) and new human contributors joining the project. | AI Agents / New Contributors |
+| [Apps Architecture & Features](apps-breakdown.md) | Exhaustive breakdown of each individual app (`pos` Flutter, `storefront` Next.js, `api` Fastify) and shared packages. | All Engineers & Contributors |
+| [System Architecture](system-architecture.md) | High-level standalone topology, Fastify API pipeline, Flutter POS engine, Next.js storefront, and data flows. | Backend / Fullstack / Mobile |
+| [Design Scheme & Tokens](design-scheme.md) | Complete TSZ design system: luxury obsidian palette, OKLCH tokens, typography scale, spacing grid, and component states. | UI / Frontend / Design |
+| [Schema Documentation](schema-documentation.md) | Reference of all PostgreSQL Prisma tables, field types, indexes, relational constraints, Zod validation contracts, and offline schema. | Fullstack / Backend / DBA |
+| [TODOs & Roadmap](todos-and-roadmap.md) | Implementation plan tracking completed milestones, active work items, and upcoming deliverables with granular checklists. | Project Lead / Contributors |
+| [Enhancements & Upgrades](improvisations-and-enhancements.md) | Modernized libraries, technical terms, hardware integration (WebUSB/Bluetooth, ESC/POS, dual-screen), and AI search. | Architects / Engineers |
+| [AI Agent Guidelines](ai-agent-guidelines.md) | Mandatory operational protocol and reference rules for AI assistants and contributors joining the project. | AI Agents / New Contributors |
 | [Project Ledger](../.agents/project/status.md) | Current operational ledger following the Tacklestudioz (TSZ) Orchestrator protocol. | All contributors |
 
 ---
 
-## Platform Architecture at a Glance
+## Standalone Platform Architecture at a Glance
 
 ```mermaid
 flowchart TD
-    subgraph Edge["Edge & Security"]
-        CLIENT["Client Devices<br/>(POS Terminals, Laptops, Mobile)"]
-        CF["Cloudflare<br/>(WAF + SSL + CDN + DDoS)"]
+    subgraph Clients["Applications & Terminals"]
+        FLUTTER_POS["apps/pos<br/>Native POS & Management Terminal (Flutter)<br/>Dual-Density Register & Store Backoffice"]
+        NEXT_STORE["apps/storefront<br/>Customer D2C Web Storefront (Next.js :3002)<br/>Customer-Facing Shopping & Account Login"]
     end
 
-    subgraph Frontends["Next.js Frontend Applications"]
-        DASH["apps/dashboard<br/>Merchant Admin + POS :3000"]
-        STORE["apps/storefront<br/>Customer Ecommerce :3002"]
-        IADMIN["apps/internal-admin<br/>SaaS Control Panel :3003"]
-    end
-
-    subgraph Backend["Fastify v4 API Gateway"]
+    subgraph Backend["Fastify v4 API Gateway (Port 3001)"]
         API["apps/api :3001"]
-        MW["Middleware Stack<br/>CORS > Rate Limit > JWT Auth<br/>> Role Guard > License Guard<br/>> Schema Validation"]
+        MW["Middleware Stack<br/>CORS > Rate Limit > JWT Auth<br/>> Role Guard > Schema Validation"]
         WORKERS["BullMQ Workers<br/>Notifications, Stock Alerts,<br/>Search Sync"]
     end
 
     subgraph Data["Persistence Layer"]
-        PG["PostgreSQL 16<br/>(Prisma ORM)"]
+        PG["PostgreSQL 16<br/>(Prisma ORM - Multi-Store)"]
         RD["Redis 7<br/>(Cache, Sessions, Queues)"]
         TS["Typesense<br/>(Product Search)"]
         R2["Cloudflare R2<br/>(File Storage)"]
     end
 
-    CLIENT --> CF
-    CF --> DASH & STORE & IADMIN
-    CF --> API
+    FLUTTER_POS -->|"POS Sales & Shifts"| API
+    NEXT_DASH -->|"Catalog & Store Management"| API
+    NEXT_STORE -->|"Online Orders & Browsing"| API
     API --> MW --> WORKERS
     MW --> PG & RD & TS
     WORKERS --> PG & RD & R2
@@ -86,25 +80,23 @@ flowchart TD
 ```
 marketplace/
 ├── apps/
-│   ├── api/                    Fastify v4 REST API + BullMQ workers     :3001
-│   │   ├── src/middleware/     Authentication, authorization, license guard
-│   │   ├── src/modules/       Domain modules (auth, products, sales, inventory...)
-│   │   ├── src/workers/       Background job processors
-│   │   └── src/lib/           Prisma client, Redis, BullMQ, Typesense, R2
+│   ├── pos/                    Native Retail POS & Management Terminal (Flutter 3.x)
+│   │   ├── lib/main.dart      App entry, terminal shell, and management mode
+│   │   └── lib/src/           Core (network, database, hardware), POS features, & Store/Web Management
 │   │
-│   ├── dashboard/              Merchant Admin + POS Terminal (Next.js)   :3000
-│   │   ├── app/(auth)/        Login, register, verify-email
-│   │   ├── app/(dashboard)/   Inventory, sales, customers, staff, reports, settings
-│   │   ├── app/(pos)/         Full-screen POS billing terminal
-│   │   └── modules/           Domain modules (pos, inventory, sales, auth, onboarding...)
+│   ├── storefront/             Customer D2C Web Storefront (Next.js 14)  :3002
+│   │   └── app/               Customer catalog, shopping bag, checkout, and customer login
 │   │
-│   ├── storefront/             Customer Ecommerce Storefront (Next.js)  :3002
-│   └── internal-admin/         SaaS Control Panel (Next.js)             :3003
+│   └── api/                    Fastify v4 REST API + BullMQ workers     :3001
+│       ├── src/middleware/     Authentication, authorization, rate limiting
+│       ├── src/modules/       Domain modules (auth, products, sales, inventory, shifts, website...)
+│       ├── src/workers/       Background job processors (notifications, search sync)
+│       └── src/lib/           Prisma client, Redis, BullMQ, Typesense, R2
 │
 ├── packages/
 │   ├── schema/                 Prisma schema, migrations, Zod validation schemas
 │   ├── types/                  Shared TypeScript interfaces and DTOs
-│   ├── ui/                     shadcn/ui "radix-maia" component library (60+ components)
+│   ├── ui/                     shadcn/ui "radix-maia" component library
 │   ├── eslint-config/          Shared ESLint configuration
 │   └── typescript-config/      Shared tsconfig base files
 │
@@ -121,6 +113,7 @@ marketplace/
 ### Prerequisites
 - Node.js version 22 LTS or higher
 - npm version 10 or higher
+- Flutter SDK (for POS application)
 - Docker Desktop (for PostgreSQL, Redis, Typesense)
 
 ### Setup Commands
@@ -131,28 +124,23 @@ cp .env.example .env
 # 2. Start infrastructure services
 docker-compose up -d postgres redis typesense
 
-# 3. Install dependencies and generate Prisma client
+# 3. Install web dependencies
 npm install
-npx prisma migrate dev --schema=packages/schema/src/prisma/schema.prisma
 
-# 4. Launch all applications
+# 4. Generate Prisma database client
+npx prisma generate --schema=packages/schema/src/prisma/schema.prisma
+
+# 5. Launch web services (API and Storefront)
 npm run dev
+
+# 6. Launch Flutter POS & Management Terminal
+cd apps/pos
+flutter run
 ```
 
-### Application URLs
-| App | URL | Description |
+### Application URLs & Ports
+| App | Target / URL | Description |
 |---|---|---|
-| Dashboard + POS | http://localhost:3000 | Merchant admin and full-screen billing terminal |
-| API Server | http://localhost:3001 | REST API and background workers |
-| Storefront | http://localhost:3002 | Customer-facing online shop |
-| Internal Admin | http://localhost:3003 | Platform control panel and licensing |
-
----
-
-## Core Operating Principles
-
-1. **Think Before Building**: No code until the requirements, schemas, and slice plans in `docs/` are locked.
-2. **Strict Module Architecture**: Features must be encapsulated in modular boundaries (`modules/{domain}/components`, `hooks`, `store`, `types`, `utils`).
-3. **Type Parity**: Strict TypeScript across all apps. Every form and API route shares validated Zod schemas from `packages/schema`.
-4. **Docs are the Source of Truth**: When in doubt, the answer is in `docs/`. If not, add it.
-5. **Human-Grade Code**: Everything written must look and feel like work from an experienced senior engineer and a tasteful product designer.
+| POS & Management Terminal | Native App / Tablet / Desktop | Native Flutter POS billing & store management |
+| Fastify API Server | http://localhost:3001 | REST API and background workers |
+| Ecommerce Storefront | http://localhost:3002 | Customer-facing online brand shop |

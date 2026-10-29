@@ -3,11 +3,9 @@ import type { CreateStaffInput, OpenShiftInput, CloseShiftInput } from '@themrkt
 import { prisma } from '@/lib/prisma.js'
 import { NotFoundError, ConflictError, AppError } from '@/utils/errors.js'
 
-export async function createStaff(tenantId: string, storeId: string, body: CreateStaffInput) {
-  // Staff are just users tied to a specific store
+export async function createStaff(storeId: string, body: CreateStaffInput) {
   const existingUser = await prisma.user.findFirst({
     where: {
-      tenantId,
       OR: [
         { email: body.email },
         { phone: body.phone }
@@ -23,12 +21,11 @@ export async function createStaff(tenantId: string, storeId: string, body: Creat
   return await prisma.$transaction(async (tx: any) => {
     const user = await tx.user.create({
       data: {
-        tenantId,
         name: body.name,
         email: body.email,
         phone: body.phone,
         passwordHash,
-        role: body.role // 'MANAGER' | 'CASHIER'
+        role: body.role
       }
     })
 
@@ -68,7 +65,6 @@ export async function closeShift(shiftId: string, body: CloseShiftInput) {
   if (!shift) throw new NotFoundError('Shift')
   if (shift.closedAt) throw new AppError('SHIFT_CLOSED', 'This shift is already closed')
 
-  // Calculate expected cash based on cash sales during this shift time
   const cashSales = await prisma.salePayment.aggregate({
     _sum: { amount: true },
     where: {
@@ -93,9 +89,12 @@ export async function closeShift(shiftId: string, body: CloseShiftInput) {
   })
 }
 
-export async function getStaffList(tenantId: string, storeId: string) {
+export async function getStaffList(storeId?: string) {
+  const where: any = {}
+  if (storeId) where.storeId = storeId
+
   return await prisma.staff.findMany({
-    where: { storeId, user: { tenantId } },
-    include: { user: true }
+    where,
+    include: { user: true, store: true }
   })
 }

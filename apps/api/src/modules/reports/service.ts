@@ -1,13 +1,12 @@
 import { prisma } from '@/lib/prisma.js'
+import { stringify } from 'csv-stringify/sync'
 
-export async function getEndOfDayReport(tenantId: string, storeId: string, dateStr: string) {
-  // dateStr in YYYY-MM-DD
+export async function getEndOfDayReport(storeId: string, dateStr: string) {
   const startOfDay = new Date(`${dateStr}T00:00:00.000Z`)
   const endOfDay = new Date(`${dateStr}T23:59:59.999Z`)
 
   const sales = await prisma.sale.findMany({
     where: {
-      tenantId,
       storeId,
       createdAt: { gte: startOfDay, lte: endOfDay },
       status: 'COMPLETED'
@@ -42,9 +41,9 @@ export async function getEndOfDayReport(tenantId: string, storeId: string, dateS
   }
 }
 
-export async function getInventoryReport(tenantId: string, storeId: string) {
+export async function getInventoryReport(storeId: string) {
   const levels = await prisma.inventoryLevel.findMany({
-    where: { storeId, variant: { product: { tenantId } } },
+    where: { storeId },
     include: { variant: { include: { product: true } } }
   })
 
@@ -63,15 +62,12 @@ export async function getInventoryReport(tenantId: string, storeId: string) {
   }
 }
 
-import { stringify } from 'csv-stringify/sync'
-
-export async function getGstr1Report(tenantId: string, startDateStr: string, endDateStr: string) {
+export async function getGstr1Report(startDateStr: string, endDateStr: string) {
   const start = new Date(`${startDateStr}T00:00:00.000Z`)
   const end = new Date(`${endDateStr}T23:59:59.999Z`)
 
   const sales = await prisma.sale.findMany({
     where: {
-      tenantId,
       createdAt: { gte: start, lte: end },
       status: 'COMPLETED'
     },
@@ -102,8 +98,8 @@ export async function getGstr1Report(tenantId: string, startDateStr: string, end
   }
 }
 
-export async function exportGstr1ToCSV(tenantId: string, startDateStr: string, endDateStr: string) {
-  const report = await getGstr1Report(tenantId, startDateStr, endDateStr)
+export async function exportGstr1ToCSV(startDateStr: string, endDateStr: string) {
+  const report = await getGstr1Report(startDateStr, endDateStr)
   
   const records = Object.entries(report.totalB2CSales).map(([key, val]) => {
     const [hsn, rate] = key.split('-')
@@ -121,9 +117,9 @@ export async function exportGstr1ToCSV(tenantId: string, startDateStr: string, e
   return stringify(records, { header: true })
 }
 
-export async function getStaffPerformanceReport(tenantId: string) {
+export async function getStaffPerformanceReport() {
   const staffPerformance = await prisma.staff.findMany({
-    where: { isActive: true, user: { tenantId } },
+    where: { isActive: true },
     include: {
       user: { select: { name: true } },
       sales: {

@@ -3,11 +3,11 @@ import { prisma } from '@/lib/prisma.js'
 import { redis } from '@/lib/redis.js'
 import { MovementReason } from '@prisma/client'
 import { NotFoundError, AppError } from '@/utils/errors.js'
-import { CreateSaleInput, ProcessReturnInput } from '@themrktplace/schema'
+import type { CreateSaleInput, ProcessReturnInput } from '@themrktplace/schema'
 
-export async function createSale(tenantId: string, storeId: string, staffId: string, body: CreateSaleInput) {
+export async function createSale(storeId: string, staffId: string, body: CreateSaleInput) {
   // Validate Store
-  const store = await prisma.store.findFirst({ where: { id: storeId, tenantId } })
+  const store = await prisma.store.findUnique({ where: { id: storeId } })
   if (!store) throw new NotFoundError('Store')
 
   return await prisma.$transaction(async (tx: any) => {
@@ -74,7 +74,7 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
       })
     }
 
-    // Additional global discount (e.g. promo code)
+    // Additional global discount
     if (body.discountAmount) {
       totalDiscountAmount += body.discountAmount
     }
@@ -90,7 +90,6 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
         const now = new Date()
         if (now >= promo.startsAt && (!promo.endsAt || now <= promo.endsAt)) {
           if (!coupon.usageLimit || coupon.usedCount < coupon.usageLimit) {
-            // Apply rules
             for (const rule of promo.rules) {
               if (!rule.minOrderValue || subtotal >= Number(rule.minOrderValue)) {
                 let promoDiscount = 0
@@ -101,12 +100,11 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
                 }
                 totalDiscountAmount += promoDiscount
                 
-                // Increment usage
                 await tx.couponCode.update({
                   where: { id: coupon.id },
                   data: { usedCount: { increment: 1 } }
                 })
-                break // Only apply first matching rule for simplicity
+                break
               }
             }
           }
@@ -127,7 +125,6 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
     
     const sale = await tx.sale.create({
       data: {
-        tenantId,
         storeId,
         staffId,
         customerId: body.customerId,
@@ -169,9 +166,9 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
       }
     }
 
-    // Loyalty Points Logic
+    // 4. Loyalty Points Logic
     if (body.customerId) {
-      const earnRate = 0.1 // 1 point per 10 rupees
+      const earnRate = 0.1
       const earnedPoints = Math.floor(grandTotal * earnRate)
 
       await tx.customer.update({
@@ -195,17 +192,17 @@ export async function createSale(tenantId: string, storeId: string, staffId: str
 
     // Delete held cart if exists
     if (body.heldCartId) {
-      await redis.del(`cart:${tenantId}:${body.heldCartId}`)
+      await redis.del(`cart:${body.heldCartId}`)
     }
 
     return sale
   })
 }
 
-export async function processReturn(tenantId: string, saleId: string, staffId: string, body: ProcessReturnInput) {
+export async function processReturn(saleId: string, staffId: string, body: ProcessReturnInput) {
   return await prisma.$transaction(async (tx: any) => {
     const sale = await tx.sale.findUnique({
-      where: { id: saleId, tenantId },
+      where: { id: saleId },
       include: { items: true }
     })
     
@@ -218,8 +215,6 @@ export async function processReturn(tenantId: string, saleId: string, staffId: s
       const saleItem = sale.items.find((i: { id: string }) => i.id === retItem.saleItemId)
       if (!saleItem) throw new AppError('INVALID_ITEM', 'Item not found in sale')
 
-      // Calculate proportionate refund based on unit price and any discounts applied
-      // Simplified here: Unit Price * Quantity
       const refundAmt = Number(saleItem.unitPrice) * retItem.quantity
       totalRefundAmount += refundAmt
 
@@ -287,9 +282,9 @@ export async function processReturn(tenantId: string, saleId: string, staffId: s
   })
 }
 
-export async function listSales(tenantId: string, options: { page: number; pageSize: number; search?: string }) {
+export async function listSales(options: { page: number; pageSize: number; search?: string }) {
   const skip = (options.page - 1) * options.pageSize
-  const where: any = { tenantId }
+  const where: any = {}
 
   if (options.search) {
     where.OR = [
@@ -312,9 +307,9 @@ export async function listSales(tenantId: string, options: { page: number; pageS
   return { items, total }
 }
 
-export async function getSale(tenantId: string, id: string) {
+export async function getSale(id: string) {
   const sale = await prisma.sale.findFirst({
-    where: { id, tenantId },
+    where: { id },
     include: {
       customer: true,
       staff: { include: { user: true } },
@@ -328,17 +323,16 @@ export async function getSale(tenantId: string, id: string) {
   return sale
 }
 
-// ─── Held Carts ──────────────────────────────────────────────────────────────
-
-export async function holdCart(tenantId: string, deviceId: string, cartState: any) {
+// Held Carts
+export async function holdCart(deviceId: string, cartState: any) {
   const cartId = randomUUID()
-  const key = `cart:${tenantId}:${deviceId}:${cartId}`
+  const key = `cart:${deviceId}:${cartId}`
   await redis.setex(key, 86400, JSON.stringify(cartState)) // 24 hours
   return { cartId }
 }
 
-export async function getHeldCarts(tenantId: string, deviceId: string) {
-  const keys = await redis.keys(`cart:${tenantId}:${deviceId}:*`)
+export async function getHeldCarts(deviceId: string) {
+  const keys = await redis.keys(`cart:${deviceId}:*`)
   const carts = []
   for (const key of keys) {
     const data = await redis.get(key)

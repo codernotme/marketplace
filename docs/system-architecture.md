@@ -1,6 +1,6 @@
 # System Architecture & Technical Topology
 
-The Mrktplace is structured as a distributed, multi-tenant cloud platform with an offline-resilient edge terminal.
+themrktplace is structured as a high performance Standalone Omnichannel Retail Suite tailored for modern retail and fashion brands. It unites physical store point-of-sale terminals, a central operations backoffice, and customer-facing ecommerce into a unified real-time inventory engine.
 
 ---
 
@@ -8,338 +8,143 @@ The Mrktplace is structured as a distributed, multi-tenant cloud platform with a
 
 ```mermaid
 flowchart TD
+    subgraph Clients["Client Terminals & Touchpoints"]
+        POS["Flutter Native POS & Management Terminal<br/>apps/pos<br/>(Android, iOS, Windows, macOS)"]
+        STORE["Next.js 14 D2C Website<br/>apps/storefront<br/>(Customer Ecommerce & Account Portal)"]
+    end
+
     subgraph Edge["Edge & Security Layer"]
-        DEVICES["Client Devices<br/>(POS Tablets, Laptops, Mobile)"]
-        CF["Cloudflare<br/>WAF + SSL + CDN + DDoS Shield"]
+        CF["Cloudflare WAF + SSL + Global CDN"]
     end
 
-    subgraph Hosting["Application Hosting"]
-        direction LR
-        VERCEL["Vercel Edge<br/>Dashboard, Storefront, Admin"]
-        HETZNER["Hetzner VPS x2<br/>Fastify API (Load Balanced)"]
-    end
-
-    subgraph API_LAYER["Fastify v4 API Gateway"]
+    subgraph API_GATEWAY["Fastify v4 API Gateway (apps/api)"]
         CORS["CORS + Helmet"]
-        RATE["Rate Limiter"]
+        RATE["Rate Limiter (Redis)"]
         AUTH["JWT Auth Guard"]
-        ROLE["Role Authorization"]
-        LIC["License Guard"]
-        VALIDATE["Schema Validation"]
-        HANDLER["Route Handler"]
+        ROLE["Role Authorization (OWNER, MANAGER, CASHIER, CUSTOMER)"]
+        VALIDATE["Zod Schema Contract Validation"]
+        HANDLER["Modular Route Handlers"]
     end
 
-    subgraph Workers["Background Workers (BullMQ)"]
-        W_NOTIF["Notifications<br/>(Email via Resend, SMS via MSG91)"]
-        W_STOCK["Low Stock<br/>Alerting Engine"]
-        W_SEARCH["Search Sync<br/>(Typesense Index)"]
-        W_REPORT["Report<br/>Generation"]
+    subgraph Workers["Background Asynchronous Workers (BullMQ)"]
+        W_NOTIF["Notifications Engine<br/>(Email via Resend, SMS via MSG91)"]
+        W_STOCK["Low Stock Alerting"]
+        W_SEARCH["Search Engine Sync<br/>(Typesense Indexer)"]
+        W_REPORTS["Financial & GST Reports Generator"]
     end
 
-    subgraph DataLayer["Persistence Layer"]
-        PG["PostgreSQL 16<br/>Prisma ORM<br/>Multi-tenant Isolation"]
-        RD["Redis 7<br/>Cache, Sessions, Queues,<br/>Rate Limits, Pub/Sub"]
-        TS["Typesense<br/>Typo-tolerant<br/>Product Search"]
-        R2["Cloudflare R2<br/>Images, PDFs,<br/>Shipping Labels"]
+    subgraph DataLayer["Persistence & Storage Layer"]
+        PG["PostgreSQL 16<br/>Prisma ORM<br/>Single-Brand Multi-Store Architecture"]
+        RD["Redis 7<br/>Cache, Sessions, BullMQ Queues,<br/>Rate Limits, Held Carts"]
+        TS["Typesense<br/>Typo-tolerant Instant Search"]
+        R2["Cloudflare R2 / S3<br/>Product Imagery & Invoices"]
     end
 
-    DEVICES --> CF
-    CF --> VERCEL
-    CF --> HETZNER
+    POS --> CF
+    STORE --> CF
+    CF --> API_GATEWAY
 
-    HETZNER --> CORS --> RATE --> AUTH --> ROLE --> LIC --> VALIDATE --> HANDLER
-    HANDLER --> PG & RD & TS
+    API_GATEWAY --> CORS --> RATE --> AUTH --> ROLE --> VALIDATE --> HANDLER
+    HANDLER --> PG
+    HANDLER --> RD
+    HANDLER --> TS
     HANDLER --> Workers
-    Workers --> PG & RD & R2
+    Workers --> PG
+    Workers --> RD
+    Workers --> R2
 ```
 
 ---
 
-## 2. API Request Lifecycle
+## 2. Omnichannel Architecture & Application Matrix
 
-Every HTTP request to the Fastify API undergoes a strict sequential middleware pipeline before reaching the route handler.
+```mermaid
+graph LR
+    subgraph CorePlatform["Unified Core Platform"]
+        API["Fastify API Engine<br/>apps/api"]
+        DB["PostgreSQL (Prisma)<br/>Unified Inventory"]
+    end
+
+    POS_APP["Flutter POS & Management<br/>Register Mode + Backoffice Mode<br/>Full Catalog, Stock & Web Settings"] -->|REST / JWT| API
+    STORE_APP["Customer Website<br/>D2C Brand Commerce<br/>Shopper Account & Orders"] -->|REST / Public API| API
+
+    API --> DB
+```
+
+| Application | Technology | Primary Audience | Key Responsibilities |
+|---|---|---|---|
+| **POS & Management Terminal** (`apps/pos`) | Flutter 3.13+ (Dart 3) | Store Owners, Managers & Cashiers | Register billing mode (tenders, ESC/POS printing, shifts) + Management mode (products, stock, web order fulfillment, reports, staff, website banner). |
+| **Customer Storefront** (`apps/storefront`) | Next.js 14, Tailwind CSS, shadcn/ui | Direct-to-Consumer Shoppers | Fast browse, faceted filter, shopping bag, checkout, BOPIS store pickup, customer account login. |
+| **Backend API** (`apps/api`) | Fastify v4, TypeScript, BullMQ | Internal & Client Applications | High throughput REST endpoints, staff & customer authentication, inventory locking, transaction safety, audit trail. |
+
+---
+
+## 3. Database Schema & Architecture Shift
+
+The architecture has eliminated all multi-tenant isolation overhead (`tenantId` columns, `Tenant` tables, SaaS license validation) in favor of a direct **Single-Brand Omnichannel Model**:
+
+1. **Brand Configuration**: Stored in `BusinessSettings` table (`id: "default"`), holding company legal identity, GSTIN, and global retail defaults.
+2. **Multi-Store Capability**: The brand can operate multiple physical store locations (`Store` table) such as Retail Stores, Outlets, and Warehouses.
+3. **Inventory Isolation per Store**: Stock levels (`InventoryLevel`) and stock adjustments (`InventoryMovement`) are tracked strictly per store variant pair (`variantId`, `storeId`).
+4. **Unified Product Catalog**: Products and categories are managed brand-wide, allowing instantaneous visibility across both physical POS terminals and web storefronts.
+
+```mermaid
+erDiagram
+    BusinessSettings ||--o{ Store : operates
+    Store ||--o{ Staff : employs
+    Store ||--o{ StaffShift : registers
+    Store ||--o{ InventoryLevel : holds
+    Store ||--o{ Sale : processes
+    Product ||--|{ ProductVariant : defines
+    ProductVariant ||--o{ InventoryLevel : tracks
+    ProductVariant ||--o{ SaleItem : sold_in
+    Sale ||--|{ SaleItem : includes
+    Sale ||--|{ SalePayment : settles
+    Sale ||--o{ Return : returns
+    Customer ||--o{ Sale : purchases
+```
+
+---
+
+## 4. Edge and Offline Resilience Strategy
 
 ```mermaid
 sequenceDiagram
-    participant C as Client
-    participant CF as Cloudflare WAF
-    participant F as Fastify API
-    participant R as Redis
-    participant DB as PostgreSQL
-    participant Q as BullMQ
+    autonumber
+    actor Cashier
+    participant POS as Flutter POS App
+    participant LocalDB as SQLite Offline Cache
+    participant API as Fastify API (apps/api)
+    participant Redis as Redis Queue
 
-    C->>CF: HTTPS Request
-    CF->>F: Forwarded (WAF + SSL terminated)
-
-    Note over F: 1. CORS & Security Headers
-    F->>R: 2. Rate Limit Check
-    R-->>F: Under limit
-
-    Note over F: 3. JWT Authentication
-    F->>R: Verify session (cache hit)
-    R-->>F: Session valid, inject req.user
-
-    Note over F: 4. Role Authorization
-    F->>F: Check role permissions (OWNER/MANAGER/CASHIER)
-
-    Note over F: 5. License Guard
-    F->>R: Lookup license:{tenant_id}
-    R-->>F: Modules: [POS_CORE, MULTISTORE, ...]
-
-    Note over F: 6. Schema Validation (Zod/JSON Schema)
-    F->>DB: 7. Prisma $transaction
-    DB-->>F: Result
-
-    F->>Q: 8. Queue async jobs (email, search sync)
-    F-->>C: 9. JSON Response Envelope
-```
-
-### Middleware Stack Details
-
-| Order | Middleware | Source File | Purpose |
-|---|---|---|---|
-| 1 | CORS + Security | `@fastify/cors`, `@fastify/helmet` | Cross-origin policy, security headers, CSP |
-| 2 | Rate Limiter | `@fastify/rate-limit` | Redis-backed request throttling per IP and tenant |
-| 3 | Authentication | `middleware/authenticate.ts` | JWT signature verification, session state check, injects `req.user` |
-| 4 | Authorization | `middleware/authorize.ts` | Role-based access control (`OWNER`, `MANAGER`, `CASHIER`) |
-| 5 | License Guard | `middleware/license-guard.ts` | Module flag check against tenant license, Redis cache with DB fallback |
-| 6 | Validation | Fastify JSON Schema + Zod | Request params, query, and body validated before handler |
-| 7 | Handler | Route-specific service | Prisma transactional operations |
-| 8 | Async Queue | BullMQ | Side effects dispatched to background workers |
-
----
-
-## 3. Background Workers (BullMQ)
-
-Heavy operations and asynchronous events are decoupled from the HTTP thread:
-
-```mermaid
-flowchart LR
-    subgraph Triggers["Event Triggers"]
-        SALE["Sale Completed"]
-        STOCK_CHANGE["Stock Changed"]
-        PRODUCT_UPDATE["Product Updated"]
-        AUTH_EVENT["Auth Event"]
+    Cashier->>POS: Scans Barcode / Adds Item to Cart
+    POS->>POS: Recalculates subtotal, discounts, and taxes locally
+    Cashier->>POS: Confirms Payment (Cash / UPI / Card)
+    
+    alt Network Online
+        POS->>API: POST /api/v1/sales (Transactional)
+        API->>Redis: Deduct inventory & enqueue notifications
+        API-->>POS: 201 Created (Invoice Generated)
+        POS->>Cashier: Print 80mm ESC/POS Thermal Receipt
+    else Network Offline
+        POS->>LocalDB: Store Sale in Local SQLite Queue
+        POS->>POS: Optimistically deduct local stock cache
+        POS->>Cashier: Print Offline Receipt with Local Sequential Sequence
+        Note over POS,API: Background Worker monitors network connection
+        POS->>API: Sync queued sales via POST /api/v1/sales/bulk-sync
+        API-->>POS: Confirm sync & update sync state
     end
-
-    subgraph Queue["Redis BullMQ Queues"]
-        Q_NOTIF["notifications"]
-        Q_STOCK["stock-alerts"]
-        Q_SEARCH["search-sync"]
-    end
-
-    subgraph Workers["Worker Processes"]
-        W_NOTIF["Notifications Worker<br/>Resend (email) + MSG91 (SMS)"]
-        W_STOCK["Stock Alert Worker<br/>Low stock threshold check"]
-        W_SEARCH["Search Sync Worker<br/>Typesense index update"]
-    end
-
-    SALE --> Q_NOTIF
-    AUTH_EVENT --> Q_NOTIF
-    STOCK_CHANGE --> Q_STOCK
-    PRODUCT_UPDATE --> Q_SEARCH
-
-    Q_NOTIF --> W_NOTIF
-    Q_STOCK --> W_STOCK
-    Q_SEARCH --> W_SEARCH
 ```
 
 ---
 
-## 4. Frontend Architecture
+## 5. Security & Cryptographic Standards
 
-### 4.1 Dashboard Route Map
-
-```mermaid
-graph TD
-    ROOT["/ (Root)"]
-
-    subgraph AuthGroup["(auth) Group - Unauthenticated"]
-        LOGIN["/login"]
-        REGISTER["/register"]
-        VERIFY["/verify-email"]
-    end
-
-    subgraph DashGroup["(dashboard) Group - Authenticated"]
-        HOME["/ Home<br/>Business intelligence overview"]
-        ONBOARD["/onboarding<br/>6-step setup wizard"]
-        INVENTORY["/inventory<br/>Products, variants, stock"]
-        SALES["/sales<br/>History, returns, invoices"]
-        CUSTOMERS["/customers<br/>CRM, loyalty, credit"]
-        STAFF["/staff<br/>Employees, PINs, commissions"]
-        REPORTS["/reports<br/>Day-end, GST, analytics"]
-        SETTINGS["/settings<br/>Store config, tax, modules"]
-    end
-
-    subgraph POSGroup["(pos) Group - Full-screen Terminal"]
-        POS["/pos<br/>Rapid checkout interface"]
-    end
-
-    ROOT --> AuthGroup
-    ROOT --> DashGroup
-    ROOT --> POSGroup
-```
-
-### 4.2 State Management Architecture
-
-Frontend state is deliberately separated by lifecycle and source of truth to prevent cross-contamination and enable offline resilience:
-
-```mermaid
-flowchart TD
-    subgraph Zustand["Zustand v5 (Client State)"]
-        CART["Active POS Cart"]
-        SHIFT["Current Shift"]
-        PIN["Cashier Session"]
-        ACTIVE_STORE["Active Store Selection"]
-        HELD["Held/Parked Carts"]
-    end
-
-    subgraph TanStack["TanStack Query v5 (Server State)"]
-        PRODUCTS["Products & Variants"]
-        SALES_DATA["Sales History"]
-        CUSTOMERS_DATA["Customer Profiles"]
-        STAFF_DATA["Staff & Shifts"]
-        REPORTS_DATA["Report Aggregates"]
-    end
-
-    subgraph Dexie["Dexie.js / IndexedDB (Offline)"]
-        LOCAL_CATALOG["Cached Product Catalog"]
-        LOCAL_CUSTOMERS["Cached Customer Balances"]
-        PENDING["Pending Unsynced Sales"]
-        LOCAL_LICENSE["Cached License State"]
-    end
-
-    CART --> |"Checkout"| TanStack
-    TanStack --> |"Background sync"| Dexie
-    Dexie --> |"Offline fallback"| Zustand
-```
-
-| Layer | Library | What it holds | Persistence |
-|---|---|---|---|
-| Client UI State | Zustand v5 | Active cart, current shift, cashier PIN, held carts, active store | In-memory (lost on refresh) |
-| Server State | TanStack Query v5 | Products, sales, customers, staff, reports | Auto-cached with stale-while-revalidate |
-| Offline Persistence | Dexie.js (IndexedDB) | Product catalog, customer balances, pending sales, license cache | Persistent across sessions |
-
----
-
-## 5. Offline-First POS Sync Engine
-
-The POS terminal is engineered to function continuously even during internet outages.
-
-```mermaid
-stateDiagram-v2
-    [*] --> Online: Terminal boots
-
-    Online --> Selling: Cashier opens shift
-    Selling --> Selling: Sale completed (saved to server)
-
-    Selling --> Offline: Network connection lost
-    state Offline {
-        [*] --> LocalSale: Customer checks out
-        LocalSale --> IndexedDB: Save with synced=false
-        IndexedDB --> Receipt: Print via local printer
-        Receipt --> [*]: Ready for next customer
-    }
-
-    Offline --> Syncing: Network restored
-    state Syncing {
-        [*] --> Dequeue: Read oldest unsynced sale
-        Dequeue --> Push: POST /api/v1/sales
-        Push --> Confirm: Server acknowledges
-        Confirm --> MarkSynced: Set synced=true
-        MarkSynced --> CheckMore: More pending?
-        CheckMore --> Dequeue: Yes
-        CheckMore --> [*]: No, all clear
-    }
-
-    Syncing --> Online: Sync complete
-```
-
-### Sync Rules
-1. **Catalog pull**: Every 15 minutes (and on manual trigger), the terminal pulls updated products and customer balances into IndexedDB.
-2. **Offline sales**: If network drops, sales are saved to IndexedDB with `synced: false`. Receipts print via local USB/Bluetooth thermal printer.
-3. **FIFO sync**: On reconnection, pending sales are pushed in chronological order. Each sale is confirmed before the next is sent.
-4. **Conflict resolution**: Server-side timestamp comparison prevents duplicate invoice numbers.
-
----
-
-## 6. Licensing & Feature-Flag Security
-
-Modules are licensed individually. A store owner cannot access premium features unless their tenant license includes the respective module code.
-
-```mermaid
-flowchart TD
-    REQ["Incoming Request<br/>/api/v1/promotions"]
-    GUARD["license-guard middleware"]
-    REDIS["Redis Cache<br/>license:{tenant_id}"]
-    DB["PostgreSQL Fallback"]
-
-    REQ --> GUARD
-    GUARD --> REDIS
-    REDIS -->|"Cache HIT"| CHECK
-    REDIS -->|"Cache MISS"| DB
-    DB --> REPOPULATE["Repopulate Redis<br/>TTL: 1 hour"]
-    REPOPULATE --> CHECK
-
-    CHECK{"Has PROMO_PRO?"}
-    CHECK -->|"Yes"| ALLOW["Proceed to Handler"]
-    CHECK -->|"No"| DENY["403 MODULE_NOT_ACTIVE<br/>{module, upgradeUrl}"]
-```
-
-**Frontend enforcement**: The `useLicense` hook gates UI sections client-side:
-```tsx
-const { hasModule } = useLicense();
-
-if (!hasModule("PROMO_PRO")) {
-  return <UpgradePrompt module="PROMO_PRO" />;
-}
-```
-
----
-
-## 7. Monorepo Package Dependency Graph
-
-```mermaid
-graph TD
-    API["apps/api"] --> SCHEMA["packages/schema<br/>(Prisma + Zod)"]
-    DASH["apps/dashboard"] --> SCHEMA
-    STORE["apps/storefront"] --> SCHEMA
-    IADMIN["apps/internal-admin"] --> SCHEMA
-
-    DASH --> UI["packages/ui<br/>(shadcn radix-maia)"]
-    STORE --> UI
-    IADMIN --> UI
-
-    API --> TYPES["packages/types"]
-    DASH --> TYPES
-    STORE --> TYPES
-    IADMIN --> TYPES
-
-    subgraph Config["Shared Configuration"]
-        ESL["packages/eslint-config"]
-        TSC["packages/typescript-config"]
-    end
-
-    API --> ESL & TSC
-    DASH --> ESL & TSC
-    STORE --> ESL & TSC
-    IADMIN --> ESL & TSC
-    SCHEMA --> TSC
-    UI --> TSC
-```
-
-### Build Pipeline (Turborepo)
-
-```mermaid
-flowchart LR
-    LINT["lint"] --> BUILD["build"]
-    TYPE["typecheck"] --> BUILD
-    BUILD --> DEPLOY["deploy"]
-
-    subgraph Parallel["Parallel Tasks"]
-        LINT
-        TYPE
-    end
-```
-
-Turborepo caches build outputs and only rebuilds packages whose source files (or dependencies) have changed.
+- **Password Storage**: Passwords hashed using bcrypt with cost factor 12.
+- **PIN Storage**: Cashier staff PINs hashed using bcrypt with cost factor 12.
+- **Session Tokens**: Short-lived stateless JWT access tokens (15 minute expiration) paired with cryptographically secure, SHA-256 hashed refresh tokens persisted in Redis/PostgreSQL.
+- **MFA Security**: TOTP standards (RFC 6238) with AES-256 encrypted server secrets and 8 emergency single-use backup recovery codes.
+- **Strict Role-Based Access Control**:
+  - `OWNER`: Full business authority, tax settings, staff compensation, and financial exports.
+  - `MANAGER`: Store branch management, inventory adjustments, purchase order receipt, and shift approvals.
+  - `CASHIER`: Point of sale checkout, held carts, and register shift drawer balancing.

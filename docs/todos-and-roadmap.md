@@ -1,6 +1,6 @@
 # Master Roadmap & Actionable TODOs
 
-This document maintains the canonical status of all development stages and granular module TODOs.
+This document maintains the canonical status of all development stages and granular module TODOs for themrktplace Standalone Omnichannel Retail Suite.
 
 ---
 
@@ -8,281 +8,209 @@ This document maintains the canonical status of all development stages and granu
 
 ```mermaid
 graph LR
-    S1["Stage 1<br/>Core POS Engine<br/>✅ Complete"]
-    S2["Stage 2<br/>Merchant Admin<br/>& Reports<br/>🚧 Active"]
-    S3["Stage 3<br/>Omnichannel<br/>Ecommerce<br/>⏳ Planned"]
-    S4["Stage 4<br/>SaaS Platform<br/>& Billing<br/>⏳ Planned"]
-    S5["Stage 5<br/>Ecosystem<br/>& Growth<br/>⏳ Planned"]
+    S1["Stage 1<br/>Core Engine & REST API<br/>✅ Complete"]
+    S2["Stage 2<br/>Flutter POS & Management<br/>✅ Complete"]
+    S3["Stage 3<br/>Customer Web Storefront<br/>✅ Complete"]
+    S4["Stage 4<br/>Logistics & Stock Transfers<br/>🚧 Active"]
+    S5["Stage 5<br/>Omnichannel Growth<br/>& Marketplace Sync<br/>⏳ Planned"]
 
     S1 --> S2 --> S3 --> S4 --> S5
 ```
 
-| Stage | Name | Revenue Target | Status |
+| Stage | Name | Target Capabilities | Status |
 |---|---|---|---|
-| **1** | Core POS Application | ₹500-1,500/mo per merchant | **100% Complete** |
-| **2** | Merchant Admin & Advanced POS | ₹1,500-4,000/mo per merchant | **Active Development** |
-| **3** | Omnichannel Ecommerce | ₹4,000-12,000/mo per merchant | **Planned** |
-| **4** | SaaS Control Panel & Billing | Internal operations | **Planned** |
-| **5** | Enterprise & Ecosystem | ₹12,000+/mo per merchant | **Planned** |
-
-Each stage generates revenue that funds the next. No stage is built until the previous one is stable and validated with real merchants.
+| **1** | Core Engine & REST API | Fastify REST API, PostgreSQL, Redis, Typesense, Standalone Schema | **100% Complete** |
+| **2** | Flutter POS & Management Terminal | Dual-mode terminal: Register Mode (checkout, printer, shifts) and Management Mode (catalog, inventory, web orders, CRM, reports, settings) | **100% Complete** |
+| **3** | Customer Web Storefront | Next.js 14 luxury apparel storefront, customer auth, account portal, bag, BOPIS and courier checkout | **100% Complete** |
+| **4** | Logistics, Transfers & Carrier Sync | Store-to-store stock transfers, Shiprocket AWB generation, automated SMS/WhatsApp alerts | **Active Development** |
+| **5** | Omnichannel Growth & Marketplace Sync | Amazon, Flipkart, Myntra catalog sync, WhatsApp Commerce bot | **Planned** |
 
 ---
 
-## Stage 1: Core POS Application (Complete)
+## Stage 1: Core Engine & Flutter POS Terminal (Complete)
 
 ### Completion Summary
 
 ```mermaid
 graph TD
-    subgraph Foundation["1.1 Foundation"]
+    subgraph Foundation["1.1 Monorepo Foundation"]
         MONO["Turborepo monorepo ✅"]
         TS["TypeScript 5 strict ✅"]
-        DOCKER["Docker Compose ✅"]
-        CI["ESLint + Prettier ✅"]
-        PRISMA["Prisma schema + migrations ✅"]
+        DOCKER["Docker Compose (Postgres, Redis, Typesense) ✅"]
+        PRISMA["Prisma standalone schema ✅"]
     end
 
-    subgraph Auth["1.2 Auth System"]
-        JWT["JWT access + refresh ✅"]
-        RBAC["Role-based access ✅"]
-        PIN["PIN quick login ✅"]
-        MFA["MFA (TOTP) structure ✅"]
+    subgraph Auth["1.2 Authentication & Security"]
+        JWT["JWT access + refresh tokens ✅"]
+        RBAC["Role-based authorization (OWNER, MANAGER, CASHIER) ✅"]
+        PIN["Fast cashier 4-6 digit PIN login ✅"]
+        MFA["TOTP MFA + 8 backup codes ✅"]
     end
 
-    subgraph Catalog["1.3 Catalog & Inventory"]
-        PRODUCTS["Product + variants ✅"]
-        STOCK["Stock levels per store ✅"]
-        MOVEMENTS["Movement audit log ✅"]
-        ALERTS["Low stock alerts ✅"]
-        PO["Purchase orders ✅"]
+    subgraph FlutterPOS["1.3 Flutter POS Terminal (apps/pos)"]
+        UI["Dual-density obsidian luxury interface ✅"]
+        GRID["Touch product grid + category chips ✅"]
+        CART["Riverpod reactive cart & discount manager ✅"]
+        TENDER["Split payment dialog (Cash, UPI, Card, Credit) ✅"]
+        PRINTER["Raw ESC/POS 80mm thermal receipt builder ✅"]
+        SHIFTS["Shift cash reconciliation & discrepancy modal ✅"]
+        OFFLINE["Local SQLite offline sale queue & sync engine ✅"]
     end
 
-    subgraph Sales["1.4 Sales & Billing"]
-        BILLING["POS billing screen ✅"]
-        SPLIT["Split payments ✅"]
-        RECEIPT["Receipt generation ✅"]
-        RETURNS["Returns + exchanges ✅"]
-        HOLD["Hold/park carts ✅"]
-    end
-
-    subgraph CRM["1.5 Customer CRM"]
-        LOOKUP["Customer lookup ✅"]
-        LOYALTY["Loyalty points ✅"]
-        CREDIT["Store credit ✅"]
-    end
-
-    subgraph Staff["1.6 Staff & Shifts"]
-        MGMT["Staff management ✅"]
-        SHIFTS["Shift open/close ✅"]
-        COMMISSION["Commission tracking ✅"]
-    end
-
-    subgraph Offline["1.9 Offline Mode"]
-        DEXIE["Dexie.js cache ✅"]
-        SYNC["Background sync ✅"]
-        INDICATOR["Online/offline indicator ✅"]
+    subgraph Backend["1.4 Fastify REST API (apps/api)"]
+        PRODUCTS["Product & variant CRUD ✅"]
+        STOCK["Multi-store inventory levels & movements ✅"]
+        SALES["Transactional checkout & returns ✅"]
+        REPORTS["End-of-day & inventory reports ✅"]
     end
 ```
 
 ### Detailed Checklist
-- [x] Turborepo monorepo with apps (api, dashboard, storefront, internal-admin) and packages (schema, ui, types).
-- [x] Prisma database schema with PostgreSQL 16.
+- [x] Turborepo monorepo with apps (`api`, `storefront`, `pos`) and packages (`schema`, `ui`, `types`). Web admin dashboard consolidated into `apps/pos`.
+- [x] Standalone Prisma schema with PostgreSQL 16 (removed all `tenantId` columns and multi-tenant overhead).
 - [x] Docker Compose for local development (PostgreSQL, Redis, Typesense).
-- [x] ESLint, Prettier, and TypeScript strict mode configured.
-- [x] Fastify v4 API with JWT auth, rate limiting, and license validation middleware.
-- [x] Variant matrix (Size/Color/SKU/Barcode/Cost/Selling Price).
-- [x] Append-only inventory movements ledger.
+- [x] Fastify v4 API with JWT auth, rate limiting, and BullMQ worker queue.
+- [x] Apparel variant matrix (Size, Color, SKU, Barcode, Cost, Selling Price).
+- [x] Multi-store inventory levels and append-only inventory movement audit trail.
 - [x] Split payment billing engine (Cash, Card, UPI, Store Credit, Loyalty Points).
-- [x] Offline-first local billing queue using Dexie.js with auto-sync on reconnect.
-- [x] Thermal receipt layout for browser printing and barcode scanner HID listeners.
-- [x] Customer CRM with loyalty points calculation and store credit logs.
-- [x] Staff shift management (openingCash, closingCash, discrepancy).
-- [x] Commission tracking per sale.
+- [x] Native Flutter cross-platform POS application (`apps/pos`) for Android, iOS, Windows, and macOS.
+- [x] Touch-optimized product grid with live stock status chips and barcode search.
+- [x] Raw ESC/POS thermal printing byte stream builder (80mm) with paper cut and cash drawer kick.
+- [x] Cashier register shift opening and closing with cash denomination count and discrepancy tracking.
+- [x] Customer CRM with loyalty points calculation and store credit balance management.
 
 ---
 
-## Stage 2: Merchant Admin & Advanced POS (Active)
+## Stage 2: Flutter POS & Operations Management (Complete)
+
+All store, catalog, customer, and website management has been unified into the native Flutter POS terminal (`apps/pos`), eliminating the need for a separate browser admin dashboard.
 
 ### Module Progress
 
 ```mermaid
 graph TD
-    subgraph Analytics["2.1 Analytics & Reporting"]
-        CARDS["Summary cards ✅"]
-        TRENDS["Revenue trend charts ❌"]
-        TOP_PRODUCTS["Top-selling products ❌"]
-        STAFF_PERF["Staff leaderboard ❌"]
-        TURNOVER["Inventory turnover ❌"]
-        GST["GSTR-1 export ❌"]
-        HSN["HSN summary report ❌"]
+    subgraph PosRegister["2.1 Register Mode (Cashier Checkout)"]
+        TOUCH_GRID["Touch product grid + category chips ✅"]
+        RIVERPOD_CART["Riverpod reactive cart & discount manager ✅"]
+        SPLIT_TENDER["Split tender (Cash, UPI, Card, Store Credit) ✅"]
+        THERMAL_PRINT["Raw 80mm ESC/POS thermal receipt builder ✅"]
+        SHIFT_COUNT["Cash float & register reconciliation modal ✅"]
+        PIN_LOCK["Fast cashier PIN lock & authorization ✅"]
     end
 
-    subgraph MultiStore["2.2 Multi-Store"]
-        SWITCH["Store switching UI ❌"]
-        TRANSFER["Stock transfer workflow ❌"]
-        PRICING["Store-specific pricing ❌"]
-    end
-
-    subgraph Promos["2.3 Promotions Engine"]
-        BUILDER["Rule builder UI ❌"]
-        BOGO["Buy X Get Y logic ❌"]
-        FLASH["Flash sale timestamps ❌"]
-        EVAL["Cart evaluation hook ❌"]
-    end
-
-    subgraph CRM_ADV["2.4 Customer Segmentation"]
-        RFM["RFM filtering ❌"]
-        SEGMENTS["Dynamic segments ❌"]
-        BIRTHDAY["Birthday campaigns ❌"]
-        WHATSAPP["WhatsApp campaigns ❌"]
-    end
-
-    subgraph Hardware["2.5 Hardware"]
-        WEBUSB["WebUSB ESC/POS printing ❌"]
-        DRAWER["Cash drawer kick ❌"]
-        LABELS["Barcode label printing ❌"]
+    subgraph PosManagement["2.2 Management Mode (Store Backoffice)"]
+        OVERVIEW["Daily sales metrics & cashier float overview ✅"]
+        PRODUCTS_MGT["Product & variant catalog + website toggle ✅"]
+        INVENTORY_MGT["Stock levels & physical adjustment dialog ✅"]
+        WEB_ORDERS["Web order tracker (PENDING to DELIVERED) ✅"]
+        CRM["Customer CRM, loyalty points & store credit ✅"]
+        REPORTS["Day-end Z-Report, GST liability & GSTR-1 export ✅"]
+        STAFF_ROSTER["Staff roster & 4-digit PIN configuration ✅"]
+        WEB_SETTINGS["Website announcement, BOPIS & COD controls ✅"]
     end
 ```
 
 ### Detailed Checklist
 
-#### 2.1 Analytics & Reporting Dashboard
-- [x] Total revenue, order count, and AOV summary cards.
-- [ ] Daily/Weekly/Monthly revenue trend charts with date range picker.
-- [ ] Top-selling apparel items and variant heatmaps.
-- [ ] Staff commission and sales performance leaderboard.
-- [ ] Inventory turnover and days-of-inventory-remaining calculations.
-- [ ] GSTR-1 compliant CSV export for accountants.
-- [ ] HSN code summary report with tax liability breakdown.
+#### 2.1 Register Mode
+- [x] Dual-density luxury Obsidian UI for compact touchscreens and wide desktop terminals.
+- [x] Touch-optimized product grid with category chips and live stock indicators.
+- [x] Riverpod reactive cart state with line item discounts and customer tagging.
+- [x] Split tender payment modal supporting Cash, UPI QR, Card, and Store Credit.
+- [x] Raw ESC/POS thermal printer byte stream generator for 80mm receipts.
+- [x] Cashier shift opening, closing, cash denomination counting, and discrepancy logging.
+- [x] Cashier PIN lock screen for rapid cashier handoffs.
 
-#### 2.2 Multi-Store Management
-- [ ] Multi-store switching UI in dashboard topbar.
-- [ ] Store-to-store stock transfer workflow (dispatch, in-transit, receive, reconcile).
-- [ ] Store-specific pricing overrides for apparel variants.
-
-#### 2.3 Advanced Promotions Engine
-- [ ] Visual discount rule builder in merchant admin.
-- [ ] Buy X Get Y Free / Buy X Get Y at Z% Off.
-- [ ] Flat discount on cart subtotal exceeding threshold.
-- [ ] Category-specific flash discounts with start/end timestamps.
-- [ ] Real-time promotion evaluation hook in POS checkout cart.
-
-#### 2.4 Customer Segmentation & Campaigns
-- [ ] RFM (Recency, Frequency, Monetary) customer filtering.
-- [ ] Dynamic segment creation ("Inactive 60+ Days", "VIP Spenders > ₹20,000").
-- [ ] Birthday and anniversary automated greetings with discount coupons.
-- [ ] WhatsApp campaign dispatch via Interakt/Meta WABA.
-
-#### 2.5 Hardware & Terminal
-- [ ] WebUSB / Web Serial API ESC/POS thermal printer driver.
-- [ ] Automated cash drawer kick on receipt print.
-- [ ] Barcode label generator (50x25mm garment tag, 38x25mm compact sticker).
+#### 2.2 Management Mode (Unified Backoffice in POS)
+- [x] Store Overview view with today's revenue, active online orders, and cashier float status.
+- [x] Product Catalog view with apparel variant matrix and publish-to-website switch.
+- [x] Inventory Management view with stock count by store, low-stock flags, and adjustment dialog.
+- [x] Website Orders view for omnichannel order fulfillment (`PENDING`, `PACKED`, `SHIPPED`, `DELIVERED`).
+- [x] Customer CRM view with purchase history, loyalty point rewards, and store credit balance.
+- [x] Reports view with EOD Z-Report, GST tax liability, tender breakdown, and GSTR-1 export.
+- [x] Staff Management view with staff roster, roles (`OWNER`, `MANAGER`, `CASHIER`), and PIN setup.
+- [x] Website Settings view with announcement banner editor, BOPIS toggle, and COD controls.
 
 ---
 
-## Stage 3: Omnichannel Ecommerce (Planned)
+## Stage 3: Customer Web Storefront & Omnichannel (Complete)
 
-### Scope
+The web application (`apps/storefront`) is strictly customer-facing. It handles public catalog browsing, customer accounts, and order placement with zero admin or merchant overhead.
+
+### Module Progress
 
 ```mermaid
-flowchart TD
-    subgraph Storefront["3.1 Storefront App"]
-        SUBDOMAIN["Multi-tenant subdomain routing"]
-        CATALOG["Faceted product catalog"]
-        PDP["Product detail page"]
-        CART_WISH["Cart + Wishlist"]
-        CHECKOUT["Secure checkout"]
-        ACCOUNT["Customer account portal"]
+graph TD
+    subgraph CustomerPortal["3.1 Customer Shopping Experience"]
+        HEADER["Announcement banner, search & bag badge ✅"]
+        CATALOG["Luxury apparel catalog & category filters ✅"]
+        VARIANTS["Size & color selector with store stock chips ✅"]
+        BAG["Persistent shopping cart with quantity controls ✅"]
+        CHECKOUT["Checkout with BOPIS Store Pickup or Delivery ✅"]
+        PAYMENT["Razorpay online payment or Cash on Delivery ✅"]
     end
 
-    subgraph Sync["3.2 Inventory Sync"]
-        RESERVE["Redis TTL stock reservation"]
-        NOTIFY["POS terminal order notification"]
-        BOPIS["Click & Collect workflow"]
-    end
-
-    subgraph Logistics["3.3 Logistics & Payments"]
-        SHIPROCKET["Shiprocket/Delhivery integration"]
-        RAZORPAY["Razorpay payment gateway"]
-        COD["Cash on Delivery + OTP verify"]
-    end
-
-    subgraph Marketing["3.4 SEO & Marketing"]
-        SEO["Meta tags, sitemap, slugs"]
-        ABANDONED["Abandoned cart recovery"]
-        GA["Google Analytics 4 + Meta Pixel"]
-        REVIEWS["Customer product reviews"]
+    subgraph CustomerAuth["3.2 Customer CRM Integration"]
+        REGISTER["Customer registration with 100 bonus points ✅"]
+        LOGIN["Customer password sign-in & instant demo access ✅"]
+        ACCOUNT["Account portal: points, store credit & orders ✅"]
+        ORDER_TRACK["Real-time fulfillment tracking (PENDING to DELIVERED) ✅"]
     end
 ```
 
-#### Detailed Checklist
-- [ ] Next.js 14 storefront with multi-tenant subdomain routing (`slug.mrktplace.com`).
-- [ ] Brandable themes (banner, featured collections, color scheme).
-- [ ] Faceted product filtering (Size, Color, Price, Category).
-- [ ] Product detail with gallery, size chart, variant selector, reviews.
-- [ ] Customer wishlist and cart drawer.
-- [ ] Secure checkout with address autocomplete and pincode serviceability.
-- [ ] Redis TTL stock reservation to prevent overselling during flash sales.
-- [ ] POS terminal notification sound for online order in-store fulfillment.
-- [ ] Click & Collect (BOPIS) workflow on POS billing screen.
-- [ ] Shiprocket/Delhivery courier integration (rate calc, booking, AWB tracking, label PDF).
-- [ ] Razorpay payment gateway (UPI, cards, net banking, wallets, EMI).
-- [ ] COD with OTP verification for high-risk orders.
-- [ ] SEO fields on products (meta title, description, slug).
-- [ ] Auto-generated sitemap.xml.
-- [ ] Abandoned cart recovery (email + WhatsApp after 1 hour).
-- [ ] Google Analytics 4 and Meta Pixel tracking.
-- [ ] Customer product reviews with merchant moderation.
+### Detailed Checklist
+
+#### 3.1 Customer Storefront (apps/storefront)
+- [x] Next.js 14 App Router customer shopping portal with shadcn/ui "radix-maia" variant.
+- [x] Global header with live announcement banner, brand mark, category nav, and cart counter.
+- [x] Apparel catalog homepage with faceted category filtering and live store availability indicators.
+- [x] Persistent shopping bag powered by Zustand with quantity selectors and line item removal.
+- [x] Delivery mode switcher: BOPIS (Free Store Pickup at Indiranagar Flagship) vs Courier Home Delivery.
+- [x] Streamlined checkout flow with shipping address input, GST calculation, and payment selection.
+- [x] Order confirmation view with tracking ID and omnichannel store routing.
+
+#### 3.2 Customer Authentication & Loyalty Portal
+- [x] Customer sign-in page with email/password authentication via Fastify `/api/v1/website/customer/login`.
+- [x] Customer registration page with automatic 100 loyalty points welcome credit.
+- [x] Dedicated Customer Account dashboard displaying loyalty points, store credit balance, and past orders.
+- [x] Live fulfillment status tracking (`PENDING`, `PACKED`, `SHIPPED`, `DELIVERED`) synced with POS actions.
 
 ---
 
-## Stage 4: SaaS Control Panel & Billing (Planned)
+## Stage 4: Logistics, Stock Transfers & Carrier Sync (Active)
 
 #### Detailed Checklist
-- [ ] Superadmin dashboard (total tenants, MRR, churn, system health).
-- [ ] Tenant management table (inspect, suspend, reactivate).
-- [ ] Cryptographic license key generator with plan and module toggles.
-- [ ] Global audit log browser (license activations, device bindings).
-- [ ] Razorpay Subscriptions for recurring monthly/annual billing.
-- [ ] Self-serve plan upgrade and add-on module purchasing.
-- [ ] Webhook handlers (`subscription.charged`, `payment.failed`, `subscription.cancelled`).
-- [ ] Automated grace period enforcement (Day 0-7 warning, Day 8-30 read-only, Day 30+ hard lock).
+- [ ] Store-to-store stock transfer manifests and in-transit tracking (`StockTransfer` model).
+- [ ] Shiprocket / Delhivery courier API integration for automated AWB generation.
+- [ ] Automated SMS and WhatsApp order tracking updates via MSG91 / Meta Cloud API.
+- [ ] Barcode verification during web order packing inside the POS terminal.
+- [ ] Self-serve customer return portal on website with store credit refund option.
 
 ---
 
-## Stage 5: Enterprise & Ecosystem (Planned)
+## Stage 5: Omnichannel Growth & Marketplace Sync (Planned)
 
 #### Detailed Checklist
-- [ ] Amazon India, Flipkart, Myntra two-way catalog and inventory sync.
-- [ ] Unified multi-channel order ingestion pipeline.
-- [ ] WhatsApp catalog sync with Meta Commerce Manager.
-- [ ] Interactive WhatsApp bot for conversational ordering and tracking.
-- [ ] Public REST API with API key auth and rate limiting.
-- [ ] Interactive OpenAPI / Swagger documentation.
+- [ ] Two-way catalog and inventory synchronization with Amazon India, Flipkart, and Myntra.
+- [ ] Meta Commerce Manager integration for Instagram and Facebook Shop catalogs.
+- [ ] Interactive WhatsApp shopping bot for order status queries and automated reordering.
+- [ ] Public developer REST API with API key authentication and OpenAPI specification.
 
 ---
 
-## Immediate Priority Queue
+## Immediate Next Slices
 
 ```mermaid
 flowchart LR
-    P1A["P1: Analytics Endpoints<br/>(apps/api)"]
-    P1B["P1: Reports Dashboard UI<br/>(apps/dashboard)"]
-    P2A["P2: Store Transfers<br/>(packages/schema + apps/api)"]
-    P2B["P2: Promotions Rule UI<br/>(apps/dashboard)"]
-    P3["P3: ESC/POS WebUSB<br/>(apps/dashboard)"]
+    S1["Slice 1<br/>Stock Transfer Engine<br/>(apps/api + schema)"]
+    S2["Slice 2<br/>Carrier Logistics & AWB<br/>(Shiprocket / Delhivery)"]
+    S3["Slice 3<br/>Offline Sync Queue<br/>(apps/pos SQLite)"]
 
-    P1A --> P2A
-    P1B --> P2B
-    P2A --> P3
-    P2B --> P3
+    S1 --> S2 --> S3
 ```
 
-| Priority | Slice | Description | App / Package |
+| Slice | Module | Description | Impact |
 |---|---|---|---|
-| **P1** | Analytics Endpoints | Fastify aggregate endpoints for sales reports, top products, hourly charts | `apps/api` |
-| **P1** | Reports Dashboard UI | Bind TanStack Query hooks to Recharts visualization cards in `/reports` | `apps/dashboard` |
-| **P2** | Store Transfers | `StockTransfer` Prisma model and dispatch/receive UI in `/inventory` | `packages/schema`, `apps/api` |
-| **P2** | Promotions Rule UI | Promotion builder modal in `/settings` and cart discount evaluator in `/pos` | `apps/dashboard` |
-| **P3** | ESC/POS WebUSB | Direct USB receipt printer communication for thermal printing | `apps/dashboard` |
+| **Slice 1** | Stock Transfer Engine | Add `StockTransfer` Prisma model and dispatch/receive workflow in POS | Enables seamless inventory balancing between warehouse and retail stores |
+| **Slice 2** | Carrier Logistics & AWB | Integrate Shiprocket API for courier pickup and automated AWB generation | Speeds up online order dispatch directly from store floor |
+| **Slice 3** | POS Offline Sync Queue | Persist offline checkout transactions to local SQLite and sync with retry worker | Guarantees continuous billing during internet interruptions |

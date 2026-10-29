@@ -10,7 +10,12 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate --schema=src/prisma/schema.prisma",
-    "prisma:migrate": "prisma migrate dev --schema=src/prisma/schema.prisma"
+    "prisma:migrate": "prisma migrate dev --schema=src/prisma/schema.prisma",
+    "db:push": "prisma db push --schema=src/prisma/schema.prisma",
+    "db:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "tsx src/prisma/seed.ts"
   },
   "dependencies": {
     "zod": "^3.25.76",
@@ -19,6 +24,7 @@
   "devDependencies": {
     "@workspace/typescript-config": "*",
     "prisma": "^6.7.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }

@@ -17,7 +17,6 @@ export async function initTypesense() {
     name: 'products',
     fields: [
       { name: 'id', type: 'string' as const },
-      { name: 'tenantId', type: 'string' as const, facet: true },
       { name: 'name', type: 'string' as const },
       { name: 'description', type: 'string' as const },
       { name: 'basePrice', type: 'float' as const },

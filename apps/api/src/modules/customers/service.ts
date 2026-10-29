@@ -2,13 +2,12 @@ import type { CreateCustomerInput } from '@themrktplace/schema'
 import { prisma } from '@/lib/prisma.js'
 import { NotFoundError, ConflictError } from '@/utils/errors.js'
 
-export async function createCustomer(tenantId: string, body: CreateCustomerInput) {
+export async function createCustomer(body: CreateCustomerInput) {
   const existing = await prisma.customer.findFirst({
     where: {
-      tenantId,
       OR: [
         { phone: body.phone },
-        { email: body.email }
+        ...(body.email ? [{ email: body.email }] : [])
       ]
     }
   })
@@ -19,7 +18,6 @@ export async function createCustomer(tenantId: string, body: CreateCustomerInput
 
   return await prisma.customer.create({
     data: {
-      tenantId,
       name: body.name,
       phone: body.phone,
       email: body.email,
@@ -28,16 +26,15 @@ export async function createCustomer(tenantId: string, body: CreateCustomerInput
   })
 }
 
-export async function getCustomers(tenantId: string) {
+export async function getCustomers() {
   return await prisma.customer.findMany({
-    where: { tenantId },
     orderBy: { createdAt: 'desc' }
   })
 }
 
-export async function getCustomer(tenantId: string, customerId: string) {
+export async function getCustomer(customerId: string) {
   const customer = await prisma.customer.findFirst({
-    where: { id: customerId, tenantId },
+    where: { id: customerId },
     include: {
       loyaltyLogs: { orderBy: { createdAt: 'desc' }, take: 10 },
       storeCreditLogs: { orderBy: { createdAt: 'desc' }, take: 10 }
@@ -48,9 +45,9 @@ export async function getCustomer(tenantId: string, customerId: string) {
   return customer
 }
 
-export async function getCustomerPurchaseHistory(tenantId: string, customerId: string) {
+export async function getCustomerPurchaseHistory(customerId: string) {
   return await prisma.sale.findMany({
-    where: { tenantId, customerId },
+    where: { customerId },
     include: { items: { include: { variant: true } } },
     orderBy: { createdAt: 'desc' }
   })

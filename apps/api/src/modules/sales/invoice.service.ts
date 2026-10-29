@@ -1,4 +1,4 @@
-import type { Sale, SaleItem, SalePayment, Store, Tenant, Customer, ProductVariant, Product } from '@prisma/client'
+import type { Sale, SaleItem, SalePayment, Store, Customer, ProductVariant, Product } from '@prisma/client'
 
 type SaleWithDetails = Sale & {
   items: (SaleItem & { variant: ProductVariant & { product: Product } })[]
@@ -7,7 +7,7 @@ type SaleWithDetails = Sale & {
   customer: Customer | null
 }
 
-export function generateInvoiceHTML(sale: SaleWithDetails, tenant: Tenant) {
+export function generateInvoiceHTML(sale: SaleWithDetails, business: { businessName: string; gstin?: string | null }) {
   const itemsHTML = sale.items.map(item => `
     <tr>
       <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.variant.product.name}</td>
@@ -48,7 +48,7 @@ export function generateInvoiceHTML(sale: SaleWithDetails, tenant: Tenant) {
     <div class="invoice-box">
         <div class="header">
             <div class="business-info">
-                <h2>${tenant.businessName}</h2>
+                <h2>${business.businessName}</h2>
                 <p>${sale.store.addressLine1 || ''}<br>${sale.store.phone || ''}</p>
             </div>
             <div class="invoice-details">
@@ -61,7 +61,7 @@ export function generateInvoiceHTML(sale: SaleWithDetails, tenant: Tenant) {
             <div class="store-info">
                 <h4>Bill From</h4>
                 <strong>${sale.store.name}</strong><br>
-                GSTIN: ${tenant.gstin || 'N/A'}
+                GSTIN: ${business.gstin || 'N/A'}
             </div>
             <div class="customer-info">
                 <h4>Bill To</h4>

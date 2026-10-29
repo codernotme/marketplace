@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto'
 import type { LoginInput, RegisterInput, ResetPasswordInput, PinLoginInput, MfaVerifyInput, VerifyEmailInput, VerifyPhoneInput, ForgotPasswordInput } from '@themrktplace/schema'
 import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
-import { createHash, randomUUID } from 'node:crypto'
+import { createHash } from 'node:crypto'
 import { encrypt, decrypt } from '@/utils/crypto.js'
 import { prisma } from '@/lib/prisma.js'
 import { redis } from '@/lib/redis.js'
@@ -28,49 +28,50 @@ export async function registerTenant(body: RegisterInput) {
   const passwordHash = await bcrypt.hash(body.password, 12)
 
   return await prisma.$transaction(async (tx) => {
-    const tenant = await tx.tenant.create({
+    // 1. Create root admin user
+    const user = await tx.user.create({
       data: {
-        businessName: body.businessName,
-        businessEmail: body.businessEmail,
-        businessPhone: body.phoneNumber,
-        users: {
-          create: {
-            name: body.fullName,
-            email: body.businessEmail,
-            phone: body.phoneNumber,
-            passwordHash,
-            role: 'OWNER',
-          }
-        },
-        stores: {
-          create: {
-            name: 'Default Store',
-            phone: body.phoneNumber,
-            storeType: 'Retail Store'
-          }
-        },
-        licenses: {
-          create: {
-            planCode: 'STARTER',
-            modules: ['POS_CORE'],
-            status: 'ACTIVE'
-          }
-        },
-        taxRates: {
-          create: {
-            name: 'GST 18%',
-            rate: 18,
-            isDefault: true
-          }
-        }
-      },
-      include: {
-        users: true
+        name: body.fullName,
+        email: body.businessEmail,
+        phone: body.phoneNumber,
+        passwordHash,
+        role: 'OWNER',
       }
     })
 
-    const user = tenant.users[0]
-    if (!user) throw new AppError('REGISTRATION_FAILED', 'Failed to create user during registration')
+    // 2. Initialize business settings
+    await tx.businessSettings.upsert({
+      where: { id: 'default' },
+      update: {
+        businessName: body.businessName,
+        businessEmail: body.businessEmail,
+        businessPhone: body.phoneNumber,
+      },
+      create: {
+        id: 'default',
+        businessName: body.businessName,
+        businessEmail: body.businessEmail,
+        businessPhone: body.phoneNumber,
+      }
+    })
+
+    // 3. Initialize default primary store
+    await tx.store.create({
+      data: {
+        name: 'Default Store',
+        phone: body.phoneNumber,
+        storeType: 'Retail Store'
+      }
+    })
+
+    // 4. Initialize default GST tax rate
+    await tx.taxRate.create({
+      data: {
+        name: 'GST 18%',
+        rate: 18,
+        isDefault: true
+      }
+    })
 
     // Generate Verification Tokens
     const emailToken = randomUUID()
@@ -83,7 +84,7 @@ export async function registerTenant(body: RegisterInput) {
     console.log(`[Resend] Sent verification email to ${user.email} with token: ${emailToken}`)
     console.log(`[MSG91] Sent OTP to ${user.phone}: ${phoneOtp}`)
 
-    return { tenantId: tenant.id, userId: user.id, message: 'Registration successful. Please verify email and phone.' }
+    return { userId: user.id, emailToken, message: 'Registration successful. Please verify email and phone.' }
   })
 }
 
@@ -128,7 +129,6 @@ export async function loginUser(body: LoginInput, reqIp: string, reqAgent: strin
 
   const user = await prisma.user.findFirst({
     where: { email: body.email },
-    include: { tenant: true },
   })
 
   if (!user || !user.isActive) throw new UnauthorizedError('Invalid email or password')
@@ -158,9 +158,7 @@ export async function setupMfa(userId: string) {
 
   const encryptedSecret = encrypt(secret.base32)
   
-  // Generate 8 backup codes (16 random hex chars each, but user sees 8 chars for simplicity? No, let's follow blueprint)
-  // Blueprint says "16 random hex characters". Let's use 16 chars.
-  const backupCodes = Array.from({ length: 8 }, () => crypto.randomBytes(8).toString('hex'))
+  const backupCodes = Array.from({ length: 8 }, () => randomUUID().replace(/-/g, '').slice(0, 16))
   const hashedBackupCodes = await Promise.all(
     backupCodes.map(code => bcrypt.hash(code, 10))
   )
@@ -217,10 +215,7 @@ export async function verifyMfa(body: MfaVerifyInput, reqIp: string, reqAgent: s
     })
   }
 
-  // 2. Try Backup Codes if TOTP failed or if code is 16 chars (hex) or 8 chars?
-  // Schema says 8 chars for backup code. Let's adjust to match schema or schema to match logic.
-  // I used 16 hex chars above. Let's update schema or logic. 
-  // I'll stick to 16 hex chars as it's more secure for backup codes.
+  // 2. Try Backup Codes
   if (!isValid) {
     for (const bc of user.backupCodes) {
       if (await bcrypt.compare(body.code, bc.codeHash)) {
@@ -264,7 +259,6 @@ export async function forgotPassword(body: ForgotPasswordInput) {
 }
 
 export async function resetPassword(_: string, body: ResetPasswordInput) {
-  // We need to find which user has this token. We can store token -> userId in redis
   const userId = await redis.get(`reset-token-map:${body.token}`)
   if (!userId) throw new UnauthorizedError('Invalid or expired reset token')
 

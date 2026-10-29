@@ -15,7 +15,8 @@ import { customerRoutes } from '@/modules/customers/routes.js'
 import { staffRoutes } from '@/modules/staff/routes.js'
 import { reportRoutes } from '@/modules/reports/routes.js'
 import { shiftRoutes } from '@/modules/shifts/routes.js'
-import { tenantRoutes } from '@/modules/tenants/routes.js'
+import { businessRoutes } from '@/modules/business/routes.js'
+import { websiteRoutes } from '@/modules/website/routes.js'
 
 export function buildApp() {
   const app = Fastify({
@@ -28,8 +29,8 @@ export function buildApp() {
 
   void app.register(cors, {
     origin: [
-      process.env['DASHBOARD_URL'] ?? 'http://localhost:3000',
-      process.env['STOREFRONT_URL'] ?? 'http://localhost:3002',
+      process.env['STOREFRONT_URL'] ?? 'http://localhost:3000',
+      'http://localhost:3002',
     ],
     credentials: true,
   })
@@ -82,7 +83,10 @@ export function buildApp() {
   void app.register(staffRoutes, { prefix: '/api/v1/staff' })
   void app.register(reportRoutes, { prefix: '/api/v1/reports' })
   void app.register(shiftRoutes, { prefix: '/api/v1/shifts' })
-  void app.register(tenantRoutes, { prefix: '/api/v1/business' })
+  void app.register(businessRoutes, { prefix: '/api/v1/business' })
+  void app.register(websiteRoutes, { prefix: '/api/v1/website' })
+  // Backwards compatibility alias
+  void app.register(businessRoutes, { prefix: '/api/v1/tenants' })
 
   // Health check
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))

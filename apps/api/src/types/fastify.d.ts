@@ -5,8 +5,9 @@ declare module 'fastify' {
   interface FastifyRequest {
     user: {
       sub: string
-      tenantId: string
       role: UserRole
+      storeId?: string
+      staffId?: string
     }
     jwtVerify(): Promise<void>
   }

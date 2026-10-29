@@ -27,16 +27,23 @@ export const notificationWorker = new Worker('notifications', async (job: Job) =
 })
 
 async function handleLowStockAlert(data: { variantId: string; storeId: string; quantity: number }) {
-  const variant = await prisma.productVariant.findUnique({
-    where: { id: data.variantId },
-    include: { product: { include: { tenant: { include: { users: { where: { role: 'OWNER' } } } } } } }
-  })
+  const [variant, store, owner] = await Promise.all([
+    prisma.productVariant.findUnique({
+      where: { id: data.variantId },
+      include: { product: true }
+    }),
+    prisma.store.findUnique({
+      where: { id: data.storeId }
+    }),
+    prisma.user.findFirst({
+      where: { role: 'OWNER', isActive: true }
+    })
+  ])
 
-  if (!variant || !variant.product.tenant.users[0]) return
+  if (!variant || !owner) return
 
-  const owner = variant.product.tenant.users[0]
   const productName = variant.product.name
-  const storeName = 'Default Store' // Should get actual store name
+  const storeName = store?.name || 'Primary Store'
 
   // 1. Send Email via Resend
   await resend.emails.send({
@@ -55,6 +62,5 @@ async function handleLowStockAlert(data: { variantId: string; storeId: string; q
   // 2. Send SMS via MSG91 (Placeholder)
   if (owner.phone) {
     console.log(`[MSG91] Sending SMS to ${owner.phone}: Low stock alert for ${productName}`)
-    // Real implementation would use axios/fetch to MSG91 API
   }
 }

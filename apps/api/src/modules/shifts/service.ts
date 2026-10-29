@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma.js'
 import { AppError } from '@/utils/errors.js'
 import type { OpenShiftInput, CloseShiftInput } from '@themrktplace/schema'
 
-export async function openShift(tenantId: string, storeId: string, staffId: string, body: OpenShiftInput) {
+export async function openShift(storeId: string, staffId: string, body: OpenShiftInput) {
   // Check for existing open shift
   const existing = await prisma.staffShift.findFirst({
     where: { staffId, storeId, closedAt: null }
@@ -22,7 +22,7 @@ export async function openShift(tenantId: string, storeId: string, staffId: stri
   })
 }
 
-export async function closeShift(tenantId: string, storeId: string, staffId: string, body: CloseShiftInput) {
+export async function closeShift(storeId: string, staffId: string, body: CloseShiftInput) {
   const shift = await prisma.staffShift.findFirst({
     where: { staffId, storeId, closedAt: null }
   })

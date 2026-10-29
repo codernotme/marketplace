@@ -5,6 +5,13 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:api": "turbo dev --filter=@themrktplace/api",
+    "dev:storefront": "turbo dev --filter=storefront",
+    "pos": "cd apps/pos && flutter run",
+    "pos:windows": "cd apps/pos && flutter run -d windows",
+    "db:generate": "turbo prisma:generate",
+    "db:push": "turbo db:push",
+    "db:seed": "turbo db:seed",
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck"

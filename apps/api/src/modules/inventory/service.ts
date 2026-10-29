@@ -4,9 +4,8 @@ import { MovementReason } from '@prisma/client'
 import { addNotificationJob } from '@/lib/queue.js'
 import { NotFoundError, AppError } from '@/utils/errors.js'
 
-export async function adjustInventory(tenantId: string, staffId: string, body: AdjustInventoryInput) {
-  // Verify store belongs to tenant
-  const store = await prisma.store.findFirst({ where: { id: body.storeId, tenantId } })
+export async function adjustInventory(staffId: string, body: AdjustInventoryInput) {
+  const store = await prisma.store.findUnique({ where: { id: body.storeId } })
   if (!store) throw new NotFoundError('Store')
 
   return await prisma.$transaction(async (tx) => {
@@ -34,7 +33,7 @@ export async function adjustInventory(tenantId: string, staffId: string, body: A
       }
     })
 
-    const move = await tx.inventoryMovement.create({
+    await tx.inventoryMovement.create({
       data: {
         variantId: body.variantId,
         storeId: body.storeId,
@@ -45,7 +44,7 @@ export async function adjustInventory(tenantId: string, staffId: string, body: A
       }
     })
 
-    // BullMQ Job simulation for low stock
+    // BullMQ Job simulation for low stock alert
     const variant = await tx.productVariant.findUnique({ 
       where: { id: body.variantId },
       include: { product: true }
@@ -63,8 +62,8 @@ export async function adjustInventory(tenantId: string, staffId: string, body: A
   })
 }
 
-export async function createPurchaseOrder(tenantId: string, body: CreatePurchaseOrderInput) {
-  const store = await prisma.store.findFirst({ where: { id: body.storeId, tenantId } })
+export async function createPurchaseOrder(body: CreatePurchaseOrderInput) {
+  const store = await prisma.store.findUnique({ where: { id: body.storeId } })
   if (!store) throw new NotFoundError('Store')
 
   let totalAmount = 0
@@ -91,7 +90,7 @@ export async function createPurchaseOrder(tenantId: string, body: CreatePurchase
   })
 }
 
-export async function receivePurchaseOrder(tenantId: string, poId: string, staffId: string, body: ReceivePurchaseOrderInput) {
+export async function receivePurchaseOrder(poId: string, staffId: string, body: ReceivePurchaseOrderInput) {
   return await prisma.$transaction(async (tx) => {
     const po = await tx.purchaseOrder.findUnique({ 
       where: { id: poId }, 
@@ -99,7 +98,6 @@ export async function receivePurchaseOrder(tenantId: string, poId: string, staff
     })
     
     if (!po) throw new NotFoundError('Purchase Order')
-    if (po.store.tenantId !== tenantId) throw new NotFoundError('Purchase Order')
 
     let isFullyReceived = true
 
@@ -151,5 +149,20 @@ export async function receivePurchaseOrder(tenantId: string, poId: string, staff
     })
 
     return updatedPo
+  })
+}
+
+export async function listInventory(storeId?: string) {
+  const where: any = {}
+  if (storeId) where.storeId = storeId
+
+  return await prisma.inventoryLevel.findMany({
+    where,
+    include: {
+      variant: {
+        include: { product: true }
+      },
+      store: true
+    }
   })
 }

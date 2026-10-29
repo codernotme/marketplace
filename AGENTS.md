@@ -59,6 +59,6 @@
 ## QUALITY RULES
 - **Validation**: Every form has client-side Zod validation matching the server schema.
 - **Safety**: Destructive actions must have an `AlertDialog` confirmation.
-- **Licensing**: Page-level license checks rendering `UpgradePrompt` for inactive modules.
+- **Standalone Architecture**: Single-brand omnichannel retail suite. Zero multi-tenant B2B SaaS overhead. Management is consolidated strictly inside the native POS terminal (`apps/pos`); the website (`apps/storefront`) is strictly customer-facing.
 - **Accessibility**: Keyboard navigable, ARIA attributes, `aria-label` for icon-only buttons.
 - **Performance**: `React.memo` for heavy list items, `useMemo` for expensive data, lazy-load module pages with `next/dynamic`.
